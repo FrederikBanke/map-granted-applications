@@ -3,36 +3,16 @@ import os
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import pandas as pd
+import seaborn as sns
 
-mpl.use('TkAgg') # Change backend
+mpl.use('TkAgg')  # Change backend
 
 workdir = os.getcwd()
 
-# Copied code from internet
-# def scatterplot(x_data, y_data, x_label="", y_label="", title="", color="r", yscale_log=False):
+df = pd.read_csv(
+    workdir + "/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv")
 
-    # Create the plot object
-    # _, ax = plt.subplots()
-
-    # Plot the data, set the size (s), color and transparency (alpha)
-    # of the points
-    # ax.scatter(x_data, y_data, s=10, color=color, alpha=0.75)
-
-    # if yscale_log == True:
-        # ax.set_yscale('log')
-
-    # Label the axes and provide a title
-    # ax.set_title(title)
-    # ax.set_xlabel(x_label)
-    # ax.set_ylabel(y_label)
-
-
-# scatterplot([1, 2, 3], [4, 5, 6], "x axis name", "y axis name", "graph title")
-
-
-df = pd.read_csv(workdir + "/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv")
-
-subDf = df.head(5)
+subDf = df.head(100)
 
 print(subDf)
 
@@ -41,16 +21,25 @@ print(subDf)
 x = subDf['id']
 y = subDf['totalCost']
 
-x=[1,2,3,3]
-y=[1,2,3,4]
+# x = [1, 2, 3, 3, 3]
+# y = [1, 2, 3, 4, 1]
 
-fig, axs = plt.subplots(1, 3, figsize=(9, 3), sharey=True)
+# figsize sets the windows size
+fig, axs = plt.subplots(1, 3, figsize=(9, 5), sharey=True)
+axs[0].set_title('Bar plot')
 axs[0].bar(x, y)
+
+axs[1].set_title('Scatter plot')
 axs[1].scatter(x, y)
-axs[2].plot(x, y)
+
+axs[2].hist(x)
+axs[2].set_title('Histogram plot')
+axs[2].set_xlabel('x label')
+axs[2].set_ylabel('Frequency')
 fig.suptitle('Categorical Plotting')
 
+fig2, axs = plt.subplots(1,1) # create new figure
 
-plt.scatter(x, y)
+sns.scatterplot(x='totalCost', y='ecMaxContribution', data=subDf, hue='topics')
 
 plt.show()
