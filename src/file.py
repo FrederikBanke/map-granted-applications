@@ -24,22 +24,32 @@ y = subDf['totalCost']
 # x = [1, 2, 3, 3, 3]
 # y = [1, 2, 3, 4, 1]
 
+def multi_plots():
 # figsize sets the windows size
-fig, axs = plt.subplots(1, 3, figsize=(9, 5), sharey=True)
-axs[0].set_title('Bar plot')
-axs[0].bar(x, y)
+    fig, axs = plt.subplots(1, 3, figsize=(9, 5), sharey=True)
+    axs[0].set_title('Bar plot')
+    axs[0].bar(x, y)
 
-axs[1].set_title('Scatter plot')
-axs[1].scatter(x, y)
+    axs[1].set_title('Scatter plot')
+    axs[1].scatter(x, y)
 
-axs[2].hist(x)
-axs[2].set_title('Histogram plot')
-axs[2].set_xlabel('x label')
-axs[2].set_ylabel('Frequency')
-fig.suptitle('Categorical Plotting')
+    axs[2].hist(x)
+    axs[2].set_title('Histogram plot')
+    axs[2].set_xlabel('x label')
+    axs[2].set_ylabel('Frequency')
+    fig.suptitle('Categorical Plotting')
 
-fig2, axs = plt.subplots(1,1) # create new figure
+def scatter_plot():
+    fig2, axs = plt.subplots(1,1) # create new figure
+    sns.scatterplot(x='totalCost', y='ecMaxContribution', data=subDf, hue='topics')
+    
+def histogram_plot():
+    subData = df.head(1000)
+    fig, axs = plt.subplots(1,1)
+    axs.hist(subData['topics'])
 
-sns.scatterplot(x='totalCost', y='ecMaxContribution', data=subDf, hue='topics')
+# multi_plots()
+# scatter_plot()
+histogram_plot()
 
 plt.show()
