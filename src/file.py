@@ -51,7 +51,13 @@ def histogram_plot():
     axs.hist(subData['topics'])
 
 # multi_plots()
-scatter_plot()
+# scatter_plot()
 # histogram_plot()
+
+print(subDf['title'])
+
+topics = pd.Index(df['topics'])
+
+print(topics.value_counts())
 
 plt.show()
