@@ -40,8 +40,10 @@ def multi_plots():
     fig.suptitle('Categorical Plotting')
 
 def scatter_plot():
+    subData = df.head(1000)
     fig2, axs = plt.subplots(1,1) # create new figure
-    sns.scatterplot(x='totalCost', y='ecMaxContribution', data=subDf, hue='topics')
+    # uses Seaborn. Pass data, and give names of axes. Hue colors points based on give column
+    sns.scatterplot(x='topics', y='ecMaxContribution', data=subData, hue='topics')
     
 def histogram_plot():
     subData = df.head(1000)
@@ -49,7 +51,7 @@ def histogram_plot():
     axs.hist(subData['topics'])
 
 # multi_plots()
-# scatter_plot()
-histogram_plot()
+scatter_plot()
+# histogram_plot()
 
 plt.show()
