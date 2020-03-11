@@ -29,7 +29,7 @@ workdir = os.getcwd()
 
 # scatterplot([1, 2, 3], [4, 5, 6], "x axis name", "y axis name", "graph title")
 
-
+print(workdir)
 df = pd.read_csv(workdir + "/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv")
 
 subDf = df.head(5)
@@ -40,9 +40,11 @@ print(subDf)
 
 x = subDf['id']
 y = subDf['totalCost']
+abstracts = subDf['objective']
+print(abstracts[0])
 
-x=[1,2,3,3]
-y=[1,2,3,4]
+#x=[1,2,3,3]
+#y=[1,2,3,4]
 
 fig, axs = plt.subplots(1, 3, figsize=(9, 3), sharey=True)
 axs[0].bar(x, y)
