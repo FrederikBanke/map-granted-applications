@@ -9,6 +9,39 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler
 functionWords = "i|we|you|he|she|it|they|me|us|him|her|them|myself|ourselves|yourself|yourselves|herself|himself|itself|themselves|someone|anyone|noone|everyone|nobody|something|anything|nothing|everything|whoever|whatever|others|mine|ours|yours|hers|theirs|my|our|your|his|its|their|one|first|second|third|once|this|these|that|those|a|an|the|all|alone|another|any|both|each|either|enough|every|few|former|latter|last|least|less|lot|lots|many|more|most|much|neither|next|none|only|other|several|same|some|such|top|whole|and|but|or|nor|although|as|because|if|while|however|whenever|wherever|whether|whyever|thereby|therein|thereupon|thereafter|whereafter|whereas|whereby|wherein|whereupon|again|also|besides|moreover|namely|furthermore|hence|so|therefore|thus|else|instead|otherwise|after|afterwards|before|meanwhile|now|then|until|anyhow|anyway|despite|even|nevertheless|though|yet|eg|ie|per|re|etc|about|above|across|against|along|among|amongst|amoungst|around|at|behind|below|beside|between|beyond|by|down|during|except|for|from|in|inside|into|near|of|off|on|onto|outside|over|since|than|thence|to|toward|towards|under|up|upon|through|thru|throughout|via|with|within|without|am|are|is|was|were|be|been|being|became|have|has|had|do|does|did|done|will|shall|may|can|cannot|would|could|should|might|ought|need|must|used|dare|yes|no|not|already|always|anywhere|beforehand|elsewhere|ever|everywhere|formerly|further|here|hereafter|hereabouts|hereinafter|heretofore|herewith|hereunder|hereby|herein|hereupon|indeed|latterly|mostly|never|nowhere|often|oftentimes|out|perhaps|somehow|sometime|sometimes|somewhat|somewhere|still|there|thereabouts|thereof|thereon|together|well|almost|rather|too|very|who|whom|whose|what|which|when|where|why|how|whither|whence"
 
+def filterWords(word):
+    '''
+    Helper function for filtering. Returns false if a word is in our list of filler words.
+    Returns true otherwise.
+    '''
+    if word in stoplist:
+        return False
+    return True
+
+def load_model(train_corpus):
+    try:
+        return Doc2Vec.load('saved_model.doc2vec')
+    except FileNotFoundError as identifier:
+        return train_model(train_corpus)
+        
+
+def train_model(train_corpus):
+    # Train the model on the training data
+    model = Doc2Vec(vector_size=25, min_count=2, epochs=10)
+
+    print('Built vector from document')
+
+    model.build_vocab(train_corpus)
+
+    print('Built vocabulary')
+
+    # Train the model (corpus_count is the number of )
+    model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
+
+    print('Trained model')
+
+    model.save('saved_model.doc2vec')
+    return model
 
 mpl.use('TkAgg')  # Change backend
 
@@ -19,22 +52,13 @@ df = pd.read_csv(
 print("Full data set shape: {}x{}".format(df.shape[1], df.shape[0]))
 
 # Choose subset of data
-subDf = df.head(1000)
+subDf = df
 print("Subset data shape: {}x{}".format(subDf.shape[1], subDf.shape[0]))
 
 abstracts = subDf["objective"]
 
 stoplist = set(functionWords.split('|'))
 
-
-def filterWords(word):
-    '''
-    Helper function for filtering. Returns false if a word is in our list of filler words.
-    Returns true otherwise.
-    '''
-    if word in stoplist:
-        return False
-    return True
 
 
 # Create list of abstracts, where each entry is a list of the words (tokens) in the abstract
@@ -43,19 +67,7 @@ train_corpus = [TaggedDocument(list(filter(filterWords, abstracts[i].lower().spl
 
 print('Created TaggedDocument')
 
-# Train the model on the training data
-model = Doc2Vec(vector_size=2, min_count=2, epochs=10)
-
-print('Built vector from document')
-
-model.build_vocab(train_corpus)
-
-print('Built vocabulary')
-
-# Train the model (corpus_count is the number of )
-model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
-
-print('Trained model')
+model = load_model(train_corpus)
 
 
 # Create a list of "inferred vectors" for each abstract. (Make each abstract a dot)
