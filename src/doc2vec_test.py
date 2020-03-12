@@ -16,12 +16,13 @@ mpl.use('TkAgg')  # Change backend
 workdir = os.getcwd()
 df = pd.read_csv(
     workdir + "/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv")
-print(df.shape[1])
-print(df.shape[0])
+print("Full data set shape: {}x{}".format(df.shape[1], df.shape[0]))
 
 # Choose subset of data
-abstracts = df["objective"]
-subDf = df.head(30)
+subDf = df.head(1000)
+print("Subset data shape: {}x{}".format(subDf.shape[1], subDf.shape[0]))
+
+abstracts = subDf["objective"]
 
 stoplist = set(functionWords.split('|'))
 
@@ -38,12 +39,24 @@ def filterWords(word):
 
 # Create list of abstracts, where each entry is a list of the words (tokens) in the abstract
 train_corpus = [TaggedDocument(list(filter(filterWords, abstracts[i].lower().split())), [
-                               df["id"][i]]) for i in range(len(subDf)) if isinstance(abstracts[i], str)]  # FIXME: Use project id for tag
+                               subDf["id"][i]]) for i in range(len(subDf)) if isinstance(abstracts[i], str)]  # FIXME: Use project id for tag
 
-print(train_corpus[0])
+print('Created TaggedDocument')
 
 # Train the model on the training data
-model = Doc2Vec(train_corpus, vector_size=25, min_count=2, epochs=40)
+model = Doc2Vec(vector_size=2, min_count=2, epochs=10)
+
+print('Built vector from document')
+
+model.build_vocab(train_corpus)
+
+print('Built vocabulary')
+
+# Train the model (corpus_count is the number of )
+model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
+
+print('Trained model')
+
 
 # Create a list of "inferred vectors" for each abstract. (Make each abstract a dot)
 x = [np.array(model.infer_vector(train_corpus[0][0]))]
@@ -51,9 +64,14 @@ for i in range(len(train_corpus)-1):
     x = np.append(
         x, [np.array(model.infer_vector(train_corpus[i+1][0]))], axis=0)
 
+print('Created inferred vectors')
+
 # Use principal component analysis to transform the multidimensional array into a 3-dimensional
 pca = PCA(n_components=3)  # 3-dimensional PCA
 transformed = pd.DataFrame(pca.fit_transform(x))
+
+print('Ran PCA on vectors')
+
 
 # Plot the 3-dimensional array
 plt.scatter(transformed[0], transformed[1], transformed[2])
