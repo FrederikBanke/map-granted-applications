@@ -63,3 +63,5 @@ docs/_build/
 target/
 
 .vscode/settings.json
+saved_model.doc2vec
+saved_model.doc2vec.docvecs.vectors_docs.npy
