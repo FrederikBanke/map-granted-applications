@@ -68,6 +68,16 @@ def validate_data():
     pass
 
 
+def on_click_point(sel):
+    """Logic for what happens when the user clicks on a point.
+
+    Parameters:\n
+    `sel` - is the selected point
+    """
+    i = sel.target.index
+    sel.annotation.set_text(labels[i])
+    print("Abstract for project {}: <<{}>>\n\n\n".format(labels[i], abstracts[i]))
+
 mpl.use('TkAgg')  # Change backend
 
 # Load data into dataframe
@@ -121,10 +131,17 @@ fig, ax = plt.subplots()
 ax.scatter(transformed[0], transformed[1], transformed[2])
 ax.set_title('Figure title')
 
-mplcursors.cursor(hover=True)
+# No artist passed so all can be selected
+cursor = mplcursors.cursor(hover=False, highlight=True)
+
+# Extract project ids to be used as labels later
+labels = subDf['id']
+
+# On the event 'add', run the function `on_click_point`.
+cursor.connect("add", on_click_point)
 
 plt.show()
-
+"""
 # Make "sanity check" on the model. Use training data as test data, to see if abstracts are most similar to themselves
 ranks = []
 second_ranks = []
@@ -147,3 +164,4 @@ print(u'SIMILAR/DISSIMILAR DOCS PER MODEL %s:\n' % model)
 for label, index in [('MOST', 0), ('SECOND-MOST', 1), ('MEDIAN', len(sims)//2), ('LEAST', len(sims) - 1)]:
     print(u'%s %s: «%s»\n' %
           (label, sims[index], ' '.join(train_corpus[sims[index][0]].words)))
+"""
