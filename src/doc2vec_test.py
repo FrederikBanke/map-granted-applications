@@ -19,6 +19,9 @@ def filterWords(word):
     return True
 
 def load_model(train_corpus):
+    '''Load model from disk.\n
+    If there is no model saved on the drive, it will train a new one.
+    '''
     try:
         return Doc2Vec.load('saved_model.doc2vec')
     except FileNotFoundError as identifier:
@@ -26,6 +29,10 @@ def load_model(train_corpus):
         
 
 def train_model(train_corpus):
+    ''' Trains the model based on the parameter given.\n
+        Builds a vector from a document, builds a vocabulary (frequency of words), and then train.\n
+        It saves the model at the end.
+    '''
     # Train the model on the training data
     model = Doc2Vec(vector_size=25, min_count=2, epochs=10)
 
