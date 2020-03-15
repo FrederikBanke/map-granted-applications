@@ -90,9 +90,6 @@ def topn_similar(top_n):
     A list of "inferred vectors" of the top n most similar abstracts
     """
     sims = model.docvecs.most_similar([curAbstractVec], topn=top_n)
-    print(sims)
-
-    print(model.docvecs[sims[0][0]])
 
     x_top = [np.array(model.docvecs[sims[0][0]])]
     for i in range(len(sims)-1):
@@ -127,7 +124,7 @@ train_corpus = [TaggedDocument(list(filter(filterWords, abstracts[i].lower().spl
                                subDf["id"][i]]) for i in range(len(subDf)) if isinstance(abstracts[i], str)]  # FIXME: Use project id for tag
 
 print('Created TaggedDocument')
-print(abstracts[0])
+
 model = load_model(train_corpus)
 
 # Current abstract as inferred vector
@@ -158,7 +155,6 @@ print('Ran PCA on vectors')
 # Splitting the PCA-transformed abstract from the rest of the transformed abstracts
 curAbstractTransformed = transformed[len(transformed)-1:]
 restTransformed = transformed[:len(transformed)-1]
-print(curAbstractTransformed)
 
 # Create figure
 fig, ax = plt.subplots()
