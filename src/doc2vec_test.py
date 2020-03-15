@@ -76,9 +76,29 @@ def on_click_point(sel):
     `sel` - is the selected point
     """
     i = sel.target.index
+    print(i)
     sel.annotation.set_text(labels[i])
     print("Abstract for project {}: <<{}>>\n\n\n".format(labels[i], abstracts[i]))
 
+def topn_similar(top_n):
+    """Creating a top n list of most similar abstracts
+
+    Parameters:\n
+    `top_n` - is the amount of most similar abstracts
+
+    Returns:\n
+    A list of "inferred vectors" of the top n most similar abstracts
+    """
+    sims = model.docvecs.most_similar([curAbstractVec], topn=top_n)
+    print(sims)
+
+    print(model.docvecs[sims[0][0]])
+
+    x_top = [np.array(model.docvecs[sims[0][0]])]
+    for i in range(len(sims)-1):
+        x_top = np.append(
+            x_top, [np.array(model.docvecs[sims[i+1][0]])], axis=0)
+    return x_top
 mpl.use('TkAgg')  # Change backend
 
 # Load data into dataframe
@@ -89,11 +109,11 @@ print("Full data set shape: {}x{}".format(df.shape[1], df.shape[0]))
 
 # Choose subset of data
 abstracts = df["objective"]
-subDf = df.head(df.shape[0])
+subDf = df.head(200)
 validate_data()
 
 # Choose subset of data
-subDf = df
+#subDf = df
 print("Subset data shape: {}x{}".format(subDf.shape[1], subDf.shape[0]))
 
 # Extract abstracts from data set
@@ -107,32 +127,46 @@ train_corpus = [TaggedDocument(list(filter(filterWords, abstracts[i].lower().spl
                                subDf["id"][i]]) for i in range(len(subDf)) if isinstance(abstracts[i], str)]  # FIXME: Use project id for tag
 
 print('Created TaggedDocument')
-
+print(abstracts[0])
 model = load_model(train_corpus)
 
+# Current abstract as inferred vector
+curAbstract = """To address the emerging and future challenges in the field of energy as well as to meet the expectations of the Council of the European Union (EU), and consequently of the EU Ministries of Defence (MoDs), the Consultation Forum for Sustainable Energy in the Defence and Security Sector (CF SEDSS) will continue pursuing in Phase III the implementation of the EU legal framework on energy and will reaffirm the Consultation Forum as an appropriate 
+vehicle for sharing information and best practices on improving energy management, energy efficiency, the use of renewable energy by the defence sector as well increasing the protection and resilience of defence energy-related critical energy infrastructures.
 
-# Create a list of "inferred vectors" for each abstract. (Make each abstract a dot)
-x = [np.array(model.infer_vector(train_corpus[0][0]))]
-for i in range(len(train_corpus)-1):
-    x = np.append(
-        x, [np.array(model.infer_vector(train_corpus[i+1][0]))], axis=0)
+Building on the achievements of the previous phases (CF SEDSS phase I and II), the European Defence Agency (EDA) with the support of the European Commission (Directorate General Energy -DG ENER and Executive Agency for Small and Medium-sized Enterprises - EASME), looks forward to continuing assisting the MoDs to move towards more affordable, greener, sustainable and secure energy models. In this context, Phase III will contribute in preparing 
+the defence sector to welcome and accommodate new trends in technology and to address challenges ranging from technical and human factors to hybrid threats and other risks. Overall, Phase III is expected to present the defence and security sectors with an economic, operational, and strategic opportunity to reduce reliance on fossil fuel and natural gas, to progressively minimise energy costs and carbon footprint and to enhance the operational 
+effectiveness and energy resilience of their functions."""
+curAbstractClean = list(filter(filterWords, curAbstract.lower().split()))
+curAbstractVec = model.infer_vector(curAbstractClean)
+
+# Making top n list of most similar abstract
+x_top = topn_similar(top_n=50) #set top_n to len(model.docvecs) for all abstracts
+
+# Adding the current abstract vector to the list of other vectors
+x_top = np.append(x_top, [np.array(curAbstractVec)], axis=0)
 
 print('Created inferred vectors')
 
+
 # Use principal component analysis to transform the multidimensional array into a 3-dimensional
-pca = PCA(n_components=3)  # 3-dimensional PCA
-transformed = pd.DataFrame(pca.fit_transform(x))
+pca = PCA(n_components=3)  # 3-dimensional PCA. 
+transformed = pd.DataFrame(pca.fit_transform(x_top))
 
 print('Ran PCA on vectors')
 
-
-
+# Splitting the PCA-transformed abstract from the rest of the transformed abstracts
+curAbstractTransformed = transformed[len(transformed)-1:]
+restTransformed = transformed[:len(transformed)-1]
+print(curAbstractTransformed)
 
 # Create figure
 fig, ax = plt.subplots()
+ax = Axes3D(fig)
 
 # Plot the 3-dimensional array
-ax.scatter(transformed[0], transformed[1], transformed[2])
+ax.scatter(restTransformed[0], restTransformed[1], restTransformed[2], c='red')
+ax.scatter(curAbstractTransformed[0], curAbstractTransformed[1], curAbstractTransformed[2], c='green')
 ax.set_title('Figure title')
 
 # No artist passed so all can be selected
