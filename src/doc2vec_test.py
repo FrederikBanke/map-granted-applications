@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
 import os
 from gensim.models.doc2vec import TaggedDocument, Doc2Vec
 import pandas as pd
@@ -21,7 +22,7 @@ print(df.shape[0])
 
 # Choose subset of data
 abstracts = df["objective"]
-subDf = df.head(30)
+subDf = df.head(df.shape[0])
 
 stoplist = set(functionWords.split('|'))
 
@@ -56,7 +57,9 @@ pca = PCA(n_components=3)  # 3-dimensional PCA
 transformed = pd.DataFrame(pca.fit_transform(x))
 
 # Plot the 3-dimensional array
-plt.scatter(transformed[0], transformed[1], transformed[2])
+fig = plt.figure()
+ax = Axes3D(fig)
+ax.scatter(transformed[0], transformed[1], transformed[2])
 plt.show()
 
 # Make "sanity check" on the model. Use training data as test data, to see if abstracts are most similar to themselves
