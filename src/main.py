@@ -15,7 +15,7 @@ top_n = int(input("Top n similar: "))
 
 mpl.use('TkAgg')  # Change backend
 
-df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv")
+df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", 1000)
 print("Data set shape: {}x{}".format(df.shape[1], df.shape[0]))
 
 train_corpus = train.create_tag_doc(df)
@@ -53,13 +53,19 @@ print(contributions)
 plot.plot_abstracts(vectors=top_vectors, contributions=contributions, three_d=False)
 print("Plot done")
 # No artist passed so all can be selected
-cursor = mplcursors.cursor(hover=False, highlight=True)
+cursor_hover = mplcursors.cursor(hover=True, highlight=False)
+cursor_click = mplcursors.cursor(hover=False, highlight=False)
 
 # Extract project ids to be used as labels later
 #labels = df['id']
 
+
+T = pl.setup_box()
 # On the event 'add', run the function `on_click_point`.
-cursor.connect("add", lambda sel: pl.on_click_point(sel, labels=top_labels, data=df, abstract_dict=abstract_dict))
+cursor_click.connect("add", lambda sel: pl.on_click_point(sel, labels=top_labels, data=df, abstract_dict=abstract_dict, T=T))
+cursor_hover.connect("add", lambda sel: pl.on_hover_point(sel, labels=top_labels, data=df, abstract_dict=abstract_dict))
+
+
 
 plt.show()
 """
