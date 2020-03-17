@@ -13,6 +13,6 @@ def on_click_point(sel, labels, data, abstract_dict):
 
     i = sel.target.index
     print(i)
-    sel.annotation.set_text(labels[i])
+    sel.annotation.set_text("id: {}\nprice: {} €".format(labels[i], data['ecMaxContribution'][abstract_dict[labels[i]]]))
     abstract = data['objective'][abstract_dict[labels[i]]]
     print("Abstract for project {}: <<{}>>\n\n\n".format(labels[i], abstract))

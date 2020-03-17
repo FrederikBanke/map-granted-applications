@@ -22,7 +22,7 @@ def train_new_model(train_corpus):
     It saves the model at the end.
     '''
     # Train the model on the training data
-    model = Doc2Vec(vector_size=25, min_count=2, epochs=10)
+    model = Doc2Vec(vector_size=100, min_count=2, epochs=30)
 
     print('Built vector from document')
 

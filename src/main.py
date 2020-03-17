@@ -11,6 +11,8 @@ import similar as sml
 import train
 import postprocessing as post_pro
 
+top_n = int(input("Top n similar: "))
+
 mpl.use('TkAgg')  # Change backend
 
 df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv")
@@ -32,7 +34,7 @@ new_project_vector = ul.abstract_to_vector(model=model, abstract=new_project['ob
 abstract_dict = post_pro.create_abstract_dict(df)
 
 # Making top n list of most similar abstract
-x_top = sml.topn_similar(top_n=500, abstract=new_project_vector, model=model, dataset= df) #set top_n to len(model.docvecs) for all abstracts
+x_top = sml.topn_similar(top_n=top_n, abstract=new_project_vector, model=model, dataset= df) #set top_n to len(model.docvecs) for all abstracts
 
 top_vectors = x_top[0] # Extract abstract vectors
 top_labels = x_top[1] # Extract abstract id as labels
@@ -42,7 +44,13 @@ top_vectors = np.append(top_vectors, [new_project_vector], axis=0)
 top_labels = np.append(top_labels, [1], axis=0)
 
 print("Started plotting")
-plot.plot_abstracts(top_vectors, three_d=True)
+
+contributions = []
+for i in range(len(top_labels)):
+    contributions.append(df['ecMaxContribution'][abstract_dict[top_labels[i]]])
+print(contributions)
+
+plot.plot_abstracts(vectors=top_vectors, contributions=contributions, three_d=False)
 print("Plot done")
 # No artist passed so all can be selected
 cursor = mplcursors.cursor(hover=False, highlight=True)

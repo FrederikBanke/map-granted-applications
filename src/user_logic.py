@@ -69,3 +69,4 @@ def load_data(path, subset=0):
     if subset == 0:
         return df
     return df.head(subset)
+
