@@ -57,7 +57,7 @@ def plot_abstracts(vectors, contributions, three_d=False):
     for i in range(len(contributions)-1):
         colors = np.append(colors, choose_color(contributions[i], minCost, maxCost), axis=0)
     colors = np.append(colors, blue[0], axis=0)
-    print(colors)
+    # print(colors)
 
     # Create figure and axis
     fig, ax = plt.subplots()
