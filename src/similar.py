@@ -19,7 +19,7 @@ def topn_similar(top_n, model, abstract, dataset):
     
 
     sims = model.docvecs.most_similar([abstract], topn=top_n)
-    print(sims)
+    # print(sims)
     x_top = [np.array(model.docvecs[sims[0][0]])]
     labels_top = np.array([(sims[0][0])]) 
 

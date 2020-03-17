@@ -15,7 +15,7 @@ top_n = int(input("Top n similar: "))
 
 mpl.use('TkAgg')  # Change backend
 
-df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", 1000)
+df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", 0)
 print("Data set shape: {}x{}".format(df.shape[1], df.shape[0]))
 
 train_corpus = train.create_tag_doc(df)
@@ -48,7 +48,7 @@ print("Started plotting")
 contributions = []
 for i in range(len(top_labels)):
     contributions.append(df['ecMaxContribution'][abstract_dict[top_labels[i]]])
-print(contributions)
+# print(contributions)
 
 plot.plot_abstracts(vectors=top_vectors, contributions=contributions, three_d=False)
 print("Plot done")

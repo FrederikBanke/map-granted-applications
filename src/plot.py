@@ -42,8 +42,8 @@ def plot_abstracts(vectors, contributions, three_d=False):
     transformed = transform_pca(vectors, dimensions=3)
     print('Ran PCA on vectors')
 
-    print("All transformed")
-    print(transformed)
+    # print("All transformed")
+    # print(transformed)
 
     # Splitting the PCA-transformed abstract from the rest of the transformed abstracts
     curAbstractTransformed = transformed[len(transformed)-1:]
