@@ -10,6 +10,7 @@ import plot_logic as pl
 import similar as sml
 import train
 import postprocessing as post_pro
+import word_cloud as wc
 
 top_n = int(input("Top n similar: "))
 
@@ -17,6 +18,11 @@ mpl.use('TkAgg')  # Change backend
 
 df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", 0)
 print("Data set shape: {}x{}".format(df.shape[1], df.shape[0]))
+
+obj = df['objective'].tolist()
+
+# print("Objectives: {}".format(obj))
+wc.create_word_cloud(obj)
 
 train_corpus = train.create_tag_doc(df)
 model = train.train_model(train_corpus)
