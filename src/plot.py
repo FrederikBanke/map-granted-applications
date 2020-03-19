@@ -6,6 +6,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import StandardScaler # FIXME: måske bruger PCA det, men vi gør ikke
 import math
+from utils import print_done, print_progress
 
 black = ([np.array([0,0,0])], '#000000') # black
 green = ([np.array([0,255,0])], '#00ff00') # green
@@ -39,8 +40,10 @@ def plot_abstracts(vectors, contributions, three_d=False):
     Returns:\n
     The new reduced vectors
     """
+    print_progress("Run PCA")
     transformed = transform_pca(vectors, dimensions=3)
-    print('Ran PCA on vectors')
+    print_done("Run PCA")
+
 
     # print("All transformed")
     # print(transformed)
@@ -83,6 +86,7 @@ def plot_abstracts(vectors, contributions, three_d=False):
     # Plot the 2-dimensional array
     ax.scatter(transformed[0], transformed[1], c=colors/255)
     ax.set_title('2d PCA plot')
+    return fig
 
 def choose_color(cost, minCost, maxCost):
     # The colors are a tuple, rgb values at index 0
