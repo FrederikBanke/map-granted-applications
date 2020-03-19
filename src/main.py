@@ -12,11 +12,16 @@ import train
 import postprocessing as post_pro
 import word_cloud as wc
 
+delete_model = input("Delete model if it exists (write nothing for 'no'):")
+if delete_model == 1 or delete_model == 'yes':
+    delete_model = True
+else:
+    delete_model = False
 top_n = int(input("Top n similar: "))
 
 mpl.use('TkAgg')  # Change backend
 
-df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", 0)
+df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", subset=50)
 print("Data set shape: {}x{}".format(df.shape[1], df.shape[0]))
 
 obj = df['objective'].tolist()
@@ -25,7 +30,7 @@ obj = df['objective'].tolist()
 wc.create_word_cloud(obj)
 
 train_corpus = train.create_tag_doc(df)
-model = train.train_model(train_corpus)
+model = train.train_model(train_corpus, delete_model=delete_model)
 
 # model.delete_temporary_training_data(keep_doctags_vectors=True, keep_inference=True)
 

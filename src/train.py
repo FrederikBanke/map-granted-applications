@@ -2,12 +2,15 @@ from gensim.models.doc2vec import TaggedDocument, Doc2Vec
 import preprocessing as pp
 
 
-def train_model(train_corpus):
+def train_model(train_corpus, delete_model=False):
     '''Trains a model on the given data set. If there already exists a model on disk, load model from disk.\n
 
     Parameters:\n
-    `train_corpus` - data to train a new model on if it could note be loaded
+    `train_corpus` - data to train a new model on if it could note be \n
+    `delete_model` - Boolean. Delete model even if it exists
     '''
+    if delete_model:
+        return train_new_model(train_corpus)
     try:
         print("Loading model...") # FIXME: May print before finding exception
         model_loaded = Doc2Vec.load('saved_model.doc2vec')
