@@ -11,6 +11,12 @@ import similar as sml
 import train
 import postprocessing as post_pro
 import word_cloud as wc
+import sys
+
+try:
+    data_size = int(sys.argv[1])
+except IndexError as identifier:
+    data_size = 0
 
 delete_model = input("Delete model if it exists (write nothing for 'no'):")
 if delete_model == 1 or delete_model == 'yes':
@@ -21,7 +27,7 @@ top_n = int(input("Top n similar: "))
 
 mpl.use('TkAgg')  # Change backend
 
-df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", subset=1000)
+df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", subset=data_size)
 print("Data set shape: {}x{}".format(df.shape[1], df.shape[0]))
 
 obj = df['objective'].tolist()
