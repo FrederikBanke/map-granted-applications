@@ -56,3 +56,5 @@ fig.suptitle('Categorical Plotting')
 plt.scatter(x, y)
 
 plt.show()
+
+
