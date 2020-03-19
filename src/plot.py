@@ -86,6 +86,7 @@ def plot_abstracts(vectors, contributions, three_d=False):
     # Plot the 2-dimensional array
     ax.scatter(transformed[0], transformed[1], c=colors/255)
     ax.set_title('2d PCA plot')
+    return fig
 
 def choose_color(cost, minCost, maxCost):
     # The colors are a tuple, rgb values at index 0

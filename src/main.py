@@ -61,11 +61,12 @@ for i in range(len(top_labels)):
     contributions.append(df['ecMaxContribution'][abstract_dict[top_labels[i]]])
 # print(contributions)
 
-plot.plot_abstracts(vectors=top_vectors, contributions=contributions, three_d=False)
+abstract_plot = plot.plot_abstracts(vectors=top_vectors, contributions=contributions, three_d=False)
 print("Plot done")
 # No artist passed so all can be selected
-cursor_hover = mplcursors.cursor(hover=True, highlight=False)
-cursor_click = mplcursors.cursor(hover=False, highlight=False)
+artists = [abstract_plot]
+cursor_hover = mplcursors.cursor(artists, hover=True, highlight=False)
+cursor_click = mplcursors.cursor(artists, hover=False, highlight=False)
 
 # Extract project ids to be used as labels later
 #labels = df['id']
