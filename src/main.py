@@ -21,7 +21,7 @@ top_n = int(input("Top n similar: "))
 
 mpl.use('TkAgg')  # Change backend
 
-df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", subset=50)
+df = ul.load_data("/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", subset=1000)
 print("Data set shape: {}x{}".format(df.shape[1], df.shape[0]))
 
 obj = df['objective'].tolist()
