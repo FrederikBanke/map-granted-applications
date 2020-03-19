@@ -22,12 +22,20 @@ def create_word_cloud(data):
     elif type(data) != str:
         raise TypeError(
             "data should be a string or a list of strings, it was of type {}".format(type(data)))
-    # pass options for the word cloud here
-    # print("Generating word cloud...")
     print_progress("Generating word cloud")
+    # pass options for the word cloud here
     wordcloud = WordCloud(background_color="white",
-                          max_words=100).generate(text=text)
-    # print("Word cloud generated")
+                          max_words=100)
+    # Generate word cloud from text
+    # wordcloud.generate(text=text)
+    # Generate word cloud from dectionary
+    mydict = {
+        "cat": 10.0,
+        "mouse": 5.0,
+        "house": 1.0,
+    }
+    wordcloud.generate_from_frequencies(mydict)
+
     print_done("Generating word cloud")
     figure, axes = plt.subplots()  # create figure and axes
 
