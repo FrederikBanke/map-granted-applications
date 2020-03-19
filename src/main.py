@@ -80,7 +80,7 @@ for i in range(len(top_labels)):
 abstract_plot = plot.plot_abstracts(
     vectors=top_vectors, contributions=contributions, three_d=False)
 print("Plot done")
-# No artist passed so all can be selected
+# Artist (figures) to add logic to
 artists = [abstract_plot]
 cursor_hover = mplcursors.cursor(artists, hover=True, highlight=False)
 cursor_click = mplcursors.cursor(artists, hover=False, highlight=False)
