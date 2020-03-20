@@ -1,17 +1,20 @@
-import numpy as np
-import matplotlib.pyplot as plt
+import sys
+
 import matplotlib as mpl
-from gensim.models.doc2vec import TaggedDocument, Doc2Vec
-import pandas as pd
+import matplotlib.pyplot as plt
 import mplcursors
-import user_logic as ul
+import numpy as np
+import pandas as pd
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+
 import plot
 import plot_logic as pl
+import postprocessing as post_pro
 import similar as sml
 import train
-import postprocessing as post_pro
+import user_logic as ul
 import word_cloud as wc
-import sys
+from cluster import cluster_abstracts
 
 mpl.use('TkAgg')  # Change backend
 
@@ -70,7 +73,7 @@ top_labels = x_top[1]  # Extract abstract id as labels
 top_vectors = np.append(top_vectors, [new_project_vector], axis=0)
 top_labels = np.append(top_labels, [1], axis=0)
 
-print("Started plotting")
+# print("Started plotting")
 
 contributions = []
 for i in range(len(top_labels)):
@@ -79,7 +82,7 @@ for i in range(len(top_labels)):
 
 abstract_plot = plot.plot_abstracts(
     vectors=top_vectors, contributions=contributions, three_d=False)
-print("Plot done")
+# print("Plot done")
 # Artist (figures) to add logic to
 artists = [abstract_plot]
 cursor_hover = mplcursors.cursor(artists, hover=True, highlight=False)
@@ -96,6 +99,16 @@ cursor_click.connect("add", lambda sel: pl.on_click_point(
 cursor_hover.connect("add", lambda sel: pl.on_hover_point(
     sel, labels=top_labels, data=df, abstract_dict=abstract_dict))
 
+# print("Top vectors")
+# print(top_vectors)
+
+cluster = cluster_abstracts(data=top_vectors, n=4)
+# cluster.centers = np.transpose(cluster.centers)
+
+print("Centre Samples: {}, Features: {}".format(len(cluster.centers), len(cluster.centers[0])))
+# print("Centers: {}".format(cluster.centers))
+
+plot.plot_scatter(cluster.centers)
 
 plt.show()
 """

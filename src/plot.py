@@ -46,6 +46,7 @@ def plot_abstracts(vectors, contributions, three_d=False):
     print_progress("Run PCA")
     transformed = transform_pca(vectors, dimensions=dimensions)
     print_done("Run PCA")
+    # print("plot_abstracts | Data Samples: {}, Features: {}".format(transformed.shape[0], transformed.shape[1]))
 
 
     # print("All transformed")
@@ -85,11 +86,49 @@ def plot_abstracts(vectors, contributions, three_d=False):
         # Plot the 3-dimensional array
         ax.scatter(transformed[0], transformed[1], transformed[2], c=colors/255)
         ax.set_title('3d PCA plot')
-        return
+        return fig
 
     # Plot the 2-dimensional array
     ax.scatter(transformed[0], transformed[1], c=colors/255)
     ax.set_title('2d PCA plot')
+    return fig
+
+def plot_scatter(data, three_d=False, title="Scatter plot"):
+    """
+    Plots data to scatter. It will run PCA if dimensions are larger than 2 or 3
+    
+    Parameters
+    ----------
+    data : The data to plot.
+    
+    Returns
+    -------
+     : 
+    """
+    if three_d:
+        dimensions = 3
+    else:
+        dimensions = 2
+    if data.shape[1] > dimensions:
+        print_progress("Run PCA")
+        data = transform_pca(data, dimensions=dimensions)
+        print_done("Run PCA")
+    # print("plot_scatter | Data Samples: {}, Features: {}".format(data.shape[0], data.shape[1]))
+        
+    # Create figure and axis
+    fig, ax = plt.subplots()
+
+    if three_d:
+        # Create 3-dimensional axis
+        ax = Axes3D(fig)
+        # Plot the 3-dimensional array
+        ax.scatter(data[0], data[1], data[2])
+        ax.set_title(title + " - 3d")
+        return fig
+
+    # Plot the 2-dimensional array
+    ax.scatter(data[0], data[1])
+    ax.set_title(title + " - 2d")
     return fig
 
 def choose_color(cost, minCost, maxCost):
