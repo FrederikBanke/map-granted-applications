@@ -47,36 +47,48 @@ model = train.train_model(train_corpus, delete_model=delete_model)
 
 # model.delete_temporary_training_data(keep_doctags_vectors=True, keep_inference=True)
 
+# Get path for the user's project FIXME
 new_project_path = ''
 
-# currentAbstract = ul.create_test_abstract(model=model, dataframe=df) # return an inferred vector from current abstract
+# Create a new dataframe with the users project
 new_project = ul.create_project(new_project_path)
-df = ul.add_project(original_dataframe=df, new_project=new_project)
 
-new_project_vector = ul.abstract_to_vector(
-    model=model, abstract=new_project['objective'][0])
+# train TFIDF
+abstracts = df['objective']
+TFIDF_model = pre_pro.train_TFIDF(abstracts,new_project['objective'][0])
 
-abstract_dict = post_pro.create_abstract_dict(df)
+# Create a corpus for the training data, which is a "tagged document"
+train_corpus = train.create_tag_doc(df, TFIDF_model)
+
+# Train the doc2vec model
+model = train.train_model(train_corpus)
+
+# Creating a vector from the user's abstract using the trained doc2vec model
+new_project_vector = ul.abstract_to_vector(model=model, abstract=new_project['objective'][0], TFIDF_model=TFIDF_model)
 
 # Making top n list of most similar abstract
-# set top_n to len(model.docvecs) for all abstracts
-x_top = sml.topn_similar(
-    top_n=top_n, abstract=new_project_vector, model=model, dataset=df)
+x_top = sml.topn_similar(top_n=top_n, abstract=new_project_vector, model=model, dataset= df) #set top_n to len(model.docvecs) for all abstracts
+top_vectors = x_top[0] # Extract abstract vectors
+top_labels = x_top[1] # Extract abstract id as labels
 
-top_vectors = x_top[0]  # Extract abstract vectors
-top_labels = x_top[1]  # Extract abstract id as labels
-
-# Adding the current abstract vector to the list of other vectors
+# Adding the user's abstract vector to the list of other vectors
 top_vectors = np.append(top_vectors, [new_project_vector], axis=0)
 top_labels = np.append(top_labels, [1], axis=0)
 
+# Creating abstract of top_labels mapping to the corrospinding index in the dataframe
+abstract_dict = post_pro.create_abstract_dict_top(df, new_project, top_labels)
+
+# Adding the user's abstract-dataframe to the rest of the dataframe, so it can be plotted
+df = ul.add_project(original_dataframe=df, new_project=new_project)
+
 print("Started plotting")
 
+# Creating a list of the top ecMaxContributions
 contributions = []
-for i in range(len(top_labels)):
+for i in range(len(top_labels)): # the last element is 1, which maps to 25 in the dictionary, but the dataset does not have 25 entries
     contributions.append(df['ecMaxContribution'][abstract_dict[top_labels[i]]])
-# print(contributions)
 
+# Plotting the top abstracts including the user's
 abstract_plot = plot.plot_abstracts(
     vectors=top_vectors, contributions=contributions, three_d=False)
 print("Plot done")
@@ -85,18 +97,14 @@ artists = [abstract_plot]
 cursor_hover = mplcursors.cursor(artists, hover=True, highlight=False)
 cursor_click = mplcursors.cursor(artists, hover=False, highlight=False)
 
-# Extract project ids to be used as labels later
-#labels = df['id']
-
-
+# Creating the window for printing abstracts
 T = pl.setup_box()
-# On the event 'add', run the function `on_click_point`.
-cursor_click.connect("add", lambda sel: pl.on_click_point(
-    sel, labels=top_labels, data=df, abstract_dict=abstract_dict, T=T))
-cursor_hover.connect("add", lambda sel: pl.on_hover_point(
-    sel, labels=top_labels, data=df, abstract_dict=abstract_dict))
 
+# On the event 'add', run the function `on_click_point` and `on_hover_point`.
+cursor_click.connect("add", lambda sel: pl.on_click_point(sel, labels=top_labels, data=df, abstract_dict=abstract_dict, T=T))
+cursor_hover.connect("add", lambda sel: pl.on_hover_point(sel, labels=top_labels, data=df, abstract_dict=abstract_dict))
 
+# show the plot
 plt.show()
 """
 # Make "sanity check" on the model. Use training data as test data, to see if abstracts are most similar to themselves

@@ -25,8 +25,7 @@ def create_project(path):
     # df = pd.read_csv(workdir + path) #FIXME: This is how it should work later on
 
     data = {'id': [1],
-    'objective': ["""
-    To address the emerging and future challenges in the field of energy as well as to meet the expectations of the Council of the European Union (EU), and consequently of the EU Ministries of Defence (MoDs), the Consultation Forum for Sustainable Energy in the Defence and Security Sector (CF SEDSS) will continue pursuing in Phase III the implementation of the EU legal framework on energy and will reaffirm the Consultation Forum as an appropriate 
+    'objective': ["""To address the emerging and future challenges in the field of energy as well as to meet the expectations of the Council of the European Union (EU), and consequently of the EU Ministries of Defence (MoDs), the Consultation Forum for Sustainable Energy in the Defence and Security Sector (CF SEDSS) will continue pursuing in Phase III the implementation of the EU legal framework on energy and will reaffirm the Consultation Forum as an appropriate 
     vehicle for sharing information and best practices on improving energy management, energy efficiency, the use of renewable energy by the defence sector as well increasing the protection and resilience of defence energy-related critical energy infrastructures.
 
     Building on the achievements of the previous phases (CF SEDSS phase I and II), the European Defence Agency (EDA) with the support of the European Commission (Directorate General Energy -DG ENER and Executive Agency for Small and Medium-sized Enterprises - EASME), looks forward to continuing assisting the MoDs to move towards more affordable, greener, sustainable and secure energy models. In this context, Phase III will contribute in preparing 
@@ -40,7 +39,7 @@ def create_project(path):
     df = pd.DataFrame(data) 
     return df
 
-def abstract_to_vector(model, abstract):
+def abstract_to_vector(model, abstract, TFIDF_model):
     """Transform an abstract to a vector, using the model.\n
     Parameters:\n
     `model` - The model used for the rest of the data\n
@@ -51,7 +50,7 @@ def abstract_to_vector(model, abstract):
     """
     
     # Current abstract as inferred vector
-    abstract_clean = pp.abstract_to_clean_list(abstract)
+    abstract_clean = pp.abstract_to_clean_list(abstract, TFIDF_model)
     abstract_vec = model.infer_vector(abstract_clean)
     return abstract_vec
 

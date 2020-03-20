@@ -13,22 +13,29 @@ def on_hover_point(sel, labels, data, abstract_dict):
     # FIXME: Use abstract_dict instead
 
     i = sel.target.index
-    # print(i)
+    
+    # setting the hovering annotation on each point to be the id and the contribution
     sel.annotation.set_text("id: {}\nprice: {} €".format(labels[i], data['ecMaxContribution'][abstract_dict[labels[i]]]))
-    # print("Abstract for project {}: <<{}>>\n\n\n".format(labels[i], abstract))
 
 
 def on_click_point(sel, labels, data, abstract_dict, T):
     i = sel.target.index
     sel.annotation.set_text("")
-    abstract = data['objective'][abstract_dict[labels[i]]]
+
+    # Creating the string, which should be printed in a window
+    abstract = "Title: {}\n Abstract: {}".format(data['title'][abstract_dict[labels[i]]], data['objective'][abstract_dict[labels[i]]])
     
-    # x.y  x is line number, y is character index
-    T.delete(1.0, tk.END)
+    # Clearing the window from any potential previous text
+    T.delete(1.0, tk.END)# x.y  x is line number, y is character index
+
+    # inserting the string into the window
     T.insert(tk.END, abstract)
     #tk.mainloop()
 
 def setup_box():
+    """
+    Creating the text window
+    """
     root = tk.Tk()
     S = tk.Scrollbar(root)
     T = tk.Text(root, height=20, width=80)
