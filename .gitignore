@@ -65,3 +65,5 @@ target/
 .vscode/settings.json
 saved_model.doc2vec
 saved_model.doc2vec.docvecs.vectors_docs.npy
+saved_model.doc2vec.trainables.syn1neg.npy
+saved_model.doc2vec.wv.vectors.npy
