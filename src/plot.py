@@ -42,22 +42,19 @@ def plot_abstracts(vectors, contributions, three_d=False):
     transformed = transform_pca(vectors, dimensions=3)
     print('Ran PCA on vectors')
 
-    print("All transformed")
-    print(transformed)
-
     # Splitting the PCA-transformed abstract from the rest of the transformed abstracts
     curAbstractTransformed = transformed[len(transformed)-1:]
     restTransformed = transformed[:len(transformed)-1]
 
-    
+    # find the higest and lowest contribution in the list
     maxCost = max(contributions)
     minCost = min(contributions)
         
+    # Go through each contribution, give it a fitting color and add it to the list of colors
     colors = np.empty((0,3))
     for i in range(len(contributions)-1):
         colors = np.append(colors, choose_color(contributions[i], minCost, maxCost), axis=0)
     colors = np.append(colors, blue[0], axis=0)
-    print(colors)
 
     # Create figure and axis
     fig, ax = plt.subplots()
@@ -85,6 +82,9 @@ def plot_abstracts(vectors, contributions, three_d=False):
     ax.set_title('2d PCA plot')
 
 def choose_color(cost, minCost, maxCost):
+    '''
+    Choose a color based on the the contribution. The colors are split in 5 intervals between minCost and maxCost
+    '''
     # The colors are a tuple, rgb values at index 0
     if (math.isnan(cost)):
         return black[0]

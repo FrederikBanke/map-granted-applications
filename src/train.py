@@ -40,12 +40,16 @@ def train_new_model(train_corpus):
 
     return model
 
-def create_tag_doc(df):
+def create_tag_doc(df, TFIDF_model):
     # Extract abstracts from data set
     abstracts = df["objective"]
+
     # Create list of abstracts, where each entry is a list of the words (tokens) in the abstract
+    # Each abstracts is "cleaned" to remove stop words
     # NOTE: When using project id as tag for document, it must be converted to a string, otherwise they may change.
-    td = [TaggedDocument(pp.abstract_to_clean_list(abstracts[i]), [str(df["id"][i])]
+
+    print("Started creating tagged document")
+    td = [TaggedDocument(pp.abstract_to_clean_list(abstracts[i], TFIDF_model), [str(df["id"][i])]
                                ) for i in range(len(df)) if isinstance(abstracts[i], str)]
     print('Created TaggedDocument')
     return td
