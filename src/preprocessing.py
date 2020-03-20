@@ -45,7 +45,7 @@ def TFIDF_list_of_weigths(TFIDF_model, abstract):
     return sortedscore
 
 def train_TFIDF(abstracts, abstract):
-
+    print("Started training TFIDF")
     # casting abstracts to a simple list
     abstracts = list(abstracts)
 
@@ -68,6 +68,8 @@ def train_TFIDF(abstracts, abstract):
     # Fit the TfIdf model
     tfidf.fit(abstracts)
     tfidf.transform(abstracts)
+
+    print("Finished training TFIDF")
 
     return tfidf
 

@@ -53,7 +53,6 @@ def create_tag_doc(df, TFIDF_model):
     # Each abstracts is "cleaned" to remove stop words
     # NOTE: When using project id as tag for document, it must be converted to a string, otherwise they may change.
 
-    print("Started creating tagged document")
     td = [TaggedDocument(pp.abstract_to_clean_list(abstracts[i], TFIDF_model), [str(df["id"][i])]
                                ) for i in range(len(df)) if isinstance(abstracts[i], str)]
     print_done("Create TaggedDocument")

@@ -10,6 +10,7 @@ import plot_logic as pl
 import similar as sml
 import train
 import postprocessing as post_pro
+import preprocessing as pre_pro
 import word_cloud as wc
 import sys
 
@@ -42,11 +43,6 @@ obj = df['objective'].tolist()
 # print("Objectives: {}".format(obj))
 wc.create_word_cloud(obj)
 
-train_corpus = train.create_tag_doc(df)
-model = train.train_model(train_corpus, delete_model=delete_model)
-
-# model.delete_temporary_training_data(keep_doctags_vectors=True, keep_inference=True)
-
 # Get path for the user's project FIXME
 new_project_path = ''
 
@@ -61,7 +57,7 @@ TFIDF_model = pre_pro.train_TFIDF(abstracts,new_project['objective'][0])
 train_corpus = train.create_tag_doc(df, TFIDF_model)
 
 # Train the doc2vec model
-model = train.train_model(train_corpus)
+model = train.train_model(train_corpus, delete_model=delete_model)
 
 # Creating a vector from the user's abstract using the trained doc2vec model
 new_project_vector = ul.abstract_to_vector(model=model, abstract=new_project['objective'][0], TFIDF_model=TFIDF_model)
