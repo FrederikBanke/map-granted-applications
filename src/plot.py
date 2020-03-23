@@ -37,7 +37,7 @@ def plot_abstracts(vectors, contributions, three_d=False):
     `contributions` - 
 
     Returns:\n
-    The new reduced vectors
+    The figure with the new reduced vectors
     """
     if three_d:
         dimensions = 3
@@ -93,7 +93,7 @@ def plot_abstracts(vectors, contributions, three_d=False):
     ax.set_title('2d PCA plot')
     return fig
 
-def plot_scatter(data, three_d=False, title="Scatter plot"):
+def plot_scatter(data, axis=None, three_d=False, title="Scatter plot", color='blue', cmap=None):
     """
     Plots data to scatter. It will run PCA if dimensions are larger than 2 or 3
     
@@ -103,7 +103,7 @@ def plot_scatter(data, three_d=False, title="Scatter plot"):
     
     Returns
     -------
-     : 
+    (fig, ax) : A tuple containing the figure and the axes
     """
     if three_d:
         dimensions = 3
@@ -115,21 +115,25 @@ def plot_scatter(data, three_d=False, title="Scatter plot"):
         print_done("Run PCA")
     # print("plot_scatter | Data Samples: {}, Features: {}".format(data.shape[0], data.shape[1]))
         
-    # Create figure and axis
-    fig, ax = plt.subplots()
+    if axis == None:
+        # Create figure and axis if not given
+        fig, ax = plt.subplots()
+    else:
+        fig, ax = (axis.get_figure(), axis)
 
     if three_d:
         # Create 3-dimensional axis
-        ax = Axes3D(fig)
+        if axis == None:
+            ax = Axes3D(fig)
         # Plot the 3-dimensional array
-        ax.scatter(data[0], data[1], data[2])
+        ax.scatter(data[0], data[1], data[2], c=color, cmap=cmap)
         ax.set_title(title + " - 3d")
-        return fig
+        return (fig, ax)
 
     # Plot the 2-dimensional array
-    ax.scatter(data[0], data[1])
+    ax.scatter(data[0], data[1], c=color, cmap=cmap)
     ax.set_title(title + " - 2d")
-    return fig
+    return (fig, ax)
 
 def choose_color(cost, minCost, maxCost):
     # The colors are a tuple, rgb values at index 0

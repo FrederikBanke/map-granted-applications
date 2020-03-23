@@ -108,7 +108,8 @@ cluster = cluster_abstracts(data=top_vectors, n=4)
 print("Centre Samples: {}, Features: {}".format(len(cluster.centers), len(cluster.centers[0])))
 # print("Centers: {}".format(cluster.centers))
 
-plot.plot_scatter(cluster.centers)
+cluster_fig, cluster_ax = plot.plot_scatter(cluster.centers, color='red')
+plot.plot_scatter(top_vectors, axis=cluster_ax, color=cluster.predicted_cluster, cmap='viridis')
 
 plt.show()
 """
