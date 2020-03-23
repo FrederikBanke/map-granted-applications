@@ -3,28 +3,37 @@ import preprocessing as pp
 from utils import print_done, print_progress
 
 
-def train_model(train_corpus, delete_model=False):
+def train_model(df, TFIDF_model, delete_model=False):
     '''Trains a model on the given data set. If there already exists a model on disk, load model from disk.\n
 
     Parameters:\n
-    `train_corpus` - data to train a new model on if it could note be \n
-    `delete_model` - Boolean. Delete model even if it exists
+    `df` - data to train a new model on if it could note be \n
+    `delete_model` - Boolean. Delete model even if it exists \n
+    `TFIDF_model` - Model used to filter stop words later
     '''
     if delete_model:
-        return train_new_model(train_corpus)
+        return train_new_model(df, TFIDF_model)
     try:
         print("Loading model...") # FIXME: May print before finding exception
         model_loaded = Doc2Vec.load('saved_model.doc2vec')
         return model_loaded
     except FileNotFoundError as identifier:
         print("No model exists. Making new model...")
-        return train_new_model(train_corpus)
+        return train_new_model(df, TFIDF_model)
 
-def train_new_model(train_corpus):
+def train_new_model(df, TFIDF_model):
     ''' Trains the model based on the parameter given.\n
     Builds a vector from a document, builds a vocabulary (frequency of words), and then train.\n
     It saves the model at the end.
+
+    Parameters:\n
+    `df` - data to train a new model on if it could note be \n
+    `TFIDF_model` - Model used to filter stop words later
     '''
+
+    # Create a corpus for the training data, which is a "tagged document"
+    train_corpus = create_tag_doc(df, TFIDF_model)
+
     # Train the model on the training data
     print_progress('Built vector from document')
     model = Doc2Vec(vector_size=100, min_count=2, epochs=30)

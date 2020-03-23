@@ -13,6 +13,7 @@ import postprocessing as post_pro
 import preprocessing as pre_pro
 import word_cloud as wc
 import sys
+import time
 
 mpl.use('TkAgg')  # Change backend
 
@@ -33,6 +34,7 @@ if top_n == '':
 else:
     top_n = int(top_n)
 
+start = time.time()
 
 df = ul.load_data(
     "/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", subset=data_size)
@@ -51,13 +53,10 @@ new_project = ul.create_project(new_project_path)
 
 # train TFIDF
 abstracts = df['objective']
-TFIDF_model = pre_pro.train_TFIDF(abstracts,new_project['objective'][0])
-
-# Create a corpus for the training data, which is a "tagged document"
-train_corpus = train.create_tag_doc(df, TFIDF_model)
+TFIDF_model = pre_pro.train_TFIDF(abstracts)
 
 # Train the doc2vec model
-model = train.train_model(train_corpus, delete_model=delete_model)
+model = train.train_model(df, TFIDF_model=TFIDF_model, delete_model=delete_model)
 
 # Creating a vector from the user's abstract using the trained doc2vec model
 new_project_vector = ul.abstract_to_vector(model=model, abstract=new_project['objective'][0], TFIDF_model=TFIDF_model)
@@ -101,8 +100,12 @@ T = pl.setup_box()
 cursor_click.connect("add", lambda sel: pl.on_click_point(sel, labels=top_labels, data=df, abstract_dict=abstract_dict, T=T))
 cursor_hover.connect("add", lambda sel: pl.on_hover_point(sel, labels=top_labels, data=df, abstract_dict=abstract_dict))
 
+end = time.time()
+
+print (end-start)
 # show the plot
 plt.show()
+
 """
 # Make "sanity check" on the model. Use training data as test data, to see if abstracts are most similar to themselves
 ranks = []
