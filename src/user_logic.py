@@ -25,14 +25,16 @@ def create_project(path):
     # df = pd.read_csv(workdir + path) #FIXME: This is how it should work later on
 
     data = {'id': [1],
-    'objective': ["""To address the emerging and future challenges in the field of energy as well as to meet the expectations of the Council of the European Union (EU), and consequently of the EU Ministries of Defence (MoDs), the Consultation Forum for Sustainable Energy in the Defence and Security Sector (CF SEDSS) will continue pursuing in Phase III the implementation of the EU legal framework on energy and will reaffirm the Consultation Forum as an appropriate 
-    vehicle for sharing information and best practices on improving energy management, energy efficiency, the use of renewable energy by the defence sector as well increasing the protection and resilience of defence energy-related critical energy infrastructures.
+    'objective': ["""ESCAPE will break down health care silos that impede integrated care impacting the management of elderly patients with multimorbidity and therefore decrease disease burden both for patients, informal carers and ultimately society. ESCAPE develops a holistic, patient-centred intervention based on the ‘blended’ collaborative care (BCC) approach. BCC involves care coordinators who work closely together with the
 
-    Building on the achievements of the previous phases (CF SEDSS phase I and II), the European Defence Agency (EDA) with the support of the European Commission (Directorate General Energy -DG ENER and Executive Agency for Small and Medium-sized Enterprises - EASME), looks forward to continuing assisting the MoDs to move towards more affordable, greener, sustainable and secure energy models. In this context, Phase III will contribute in preparing 
-    the defence sector to welcome and accommodate new trends in technology and to address challenges ranging from technical and human factors to hybrid threats and other risks. Overall, Phase III is expected to present the defence and security sectors with an economic, operational, and strategic opportunity to reduce reliance on fossil fuel and natural gas, to progressively minimise energy costs and carbon footprint and to enhance the operational 
-    effectiveness and energy resilience of their functions.
-    """],
-    'title': ['Our project']
+patient’s general practitioner under the weekly supervision of a specialty team. Care coordinators will use a meta-algorithm to customize patients’ treatment to their individual needs and preferences and liaise among care providers. As part of the intervention, patients and informal carers will be empowered by social innovation (i.e., the interactive imergo® e-health Integrated Care Platform) to increase their intrinsic capacities.
+
+ESCAPE will conduct for the first time a randomized controlled trial (RCT) embedded in a comprehensive cohort study design to compare BCC and usual care. We will include patients with heart failure, two or more somatic comorbidities and psychological distress. The primary effectiveness endpoint will be patients’ quality of life (QoL). We chose QoL as the primary endpoint, since (i) it is the most important treatment goal for patients, (ii) management of multi-morbidity is focused on improving symptoms and QoL, (iii) the European Society of Cardiology and the American Heart Association recommend it as endpoint in clinical trials as an important target for intervention, and (iv) it is suitable as an endpoint for a comprehensive intervention like ESCAPE, as all components are known to increase QoL.
+
+Cost-effectiveness, cost-utility together with several other patient-relevant outcomes will be used as secondary endpoints. ESCAPE will rethink current practice for the treatment of multimorbidity to reduce fragmentation and optimize care, prioritizing integration of treatment for psychological distress and mental disorders in the treatment of somatic comorbidities.
+
+For the design, conduct, and evaluation of the intervention, our consortium comprises an interdisciplinary team of experts from nine countries spanning from general and hospital medical practice and psychology to health economy and social health innovation as well as patient and informal carer representatives to address the complexity of the health care issues linked to multimorbidity."""],
+    'title': ['EVALUATION OF A PATIENT-CENTRED BIOPSYCHOSOCIAL BLENDED COLLABORATIVE CARE PATHWAY FOR THE TREATMENT OF MULTIMORBID ELDERLY PATIENTS']
     } 
   
     # Create DataFrame 

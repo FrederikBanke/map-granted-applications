@@ -88,6 +88,7 @@ for i in range(len(top_labels)): # the last element is 1, which maps to 25 in th
 abstract_plot = plot.plot_abstracts(
     vectors=top_vectors, contributions=contributions, three_d=False)
 print("Plot done")
+
 # Artist (figures) to add logic to
 artists = [abstract_plot]
 cursor_hover = mplcursors.cursor(artists, hover=True, highlight=False)
