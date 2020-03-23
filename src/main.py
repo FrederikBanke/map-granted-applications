@@ -102,7 +102,7 @@ cursor_hover.connect("add", lambda sel: pl.on_hover_point(sel, labels=top_labels
 
 end = time.time()
 
-print (end-start)
+print ("Time:", end-start, "seconds")
 # show the plot
 plt.show()
 
