@@ -25,7 +25,7 @@ def transform_pca(vectors, dimensions = 2):
     Returns:\n
     The new reduced vectors
     """
-    pca = PCA(n_components=dimensions)  # 3-dimensional PCA. 
+    pca = PCA(n_components=dimensions)  # n-dimensional PCA. 
     return pd.DataFrame(pca.fit_transform(vectors))
 
 
@@ -93,7 +93,7 @@ def plot_abstracts(vectors, contributions, three_d=False):
     ax.set_title('2d PCA plot')
     return fig
 
-def plot_scatter(data, axis=None, three_d=False, title="Scatter plot", color='blue', cmap=None):
+def plot_scatter(data, axis=None, dimensions=2, title="Scatter plot", color='blue', cmap=None):
     """
     Plots data to scatter. It will run PCA if dimensions are larger than 2 or 3
     
@@ -105,15 +105,12 @@ def plot_scatter(data, axis=None, three_d=False, title="Scatter plot", color='bl
     -------
     (fig, ax) : A tuple containing the figure and the axes
     """
-    if three_d:
-        dimensions = 3
-    else:
-        dimensions = 2
+    print("before plot_scatter | Data Samples: {}, Features: {}".format(data.shape[0], data.shape[1]))
     if data.shape[1] > dimensions:
         print_progress("Run PCA")
         data = transform_pca(data, dimensions=dimensions)
         print_done("Run PCA")
-    # print("plot_scatter | Data Samples: {}, Features: {}".format(data.shape[0], data.shape[1]))
+    print("after plot_scatter | Data Samples: {}, Features: {}".format(data.shape[0], data.shape[1]))
         
     if axis == None:
         # Create figure and axis if not given
@@ -121,7 +118,7 @@ def plot_scatter(data, axis=None, three_d=False, title="Scatter plot", color='bl
     else:
         fig, ax = (axis.get_figure(), axis)
 
-    if three_d:
+    if dimensions > 2:
         # Create 3-dimensional axis
         if axis == None:
             ax = Axes3D(fig)
@@ -129,11 +126,17 @@ def plot_scatter(data, axis=None, three_d=False, title="Scatter plot", color='bl
         ax.scatter(data[0], data[1], data[2], c=color, cmap=cmap)
         ax.set_title(title + " - 3d")
         return (fig, ax)
-
-    # Plot the 2-dimensional array
-    ax.scatter(data[0], data[1], c=color, cmap=cmap)
-    ax.set_title(title + " - 2d")
-    return (fig, ax)
+    if dimensions == 2:
+        # Plot the 2-dimensional array
+        ax.scatter(data[0], data[1], c=color, cmap=cmap)
+        ax.set_title(title + " - 2d")
+        return (fig, ax)
+    if dimensions == 1:
+        # Plot the 1-dimensional array
+        ax.eventplot(data[0], orientation='horizontal', colors='red')
+        ax.axis('off')
+        ax.set_title(title + " - 1d")
+        return (fig, ax)
 
 def choose_color(cost, minCost, maxCost):
     # The colors are a tuple, rgb values at index 0

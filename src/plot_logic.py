@@ -37,3 +37,26 @@ def setup_box():
     S.config(command=T.yview)
     T.config(yscrollcommand=S.set)
     return T
+
+def on_click_cluster(sel, cluser_list, abstract_dict, labels, data):
+    cluster = sel.target.index
+    print("Clicked on cluster {}".format(cluster))
+    abstracts = find_abstracts(cluser_list, cluster)
+    for i in abstracts:
+        # use `data` to acces needed information that needs to be passed to the word cloud
+        title = data['title'][abstract_dict[labels[i]]]
+        print("Project title: {}".format(title))
+    # TODO: Run word cloud generation
+
+
+def on_hover_cluster(sel):
+    pass
+
+def find_abstracts(abstracts, cluster):
+    new_list = []
+    for i in range(len(abstracts)):
+        if abstracts[i] == cluster:
+            new_list.append(i)
+            # print("Added element {}".format(i))
+    # print(new_list)
+    return new_list

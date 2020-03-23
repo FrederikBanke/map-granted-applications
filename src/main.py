@@ -102,14 +102,33 @@ cursor_hover.connect("add", lambda sel: pl.on_hover_point(
 # print("Top vectors")
 # print(top_vectors)
 
-cluster = cluster_abstracts(data=top_vectors, n=4)
+# The projects without the newly added one
+abstracts = x_top[0]  # Extract abstract vectors
+labels = x_top[1]  # Extract abstract id as labels
+n_clusters = 4
+cluster = cluster_abstracts(data=abstracts, n=n_clusters)
 # cluster.centers = np.transpose(cluster.centers)
 
-print("Centre Samples: {}, Features: {}".format(len(cluster.centers), len(cluster.centers[0])))
+print("Centre Samples: {}, Features: {}".format(
+    len(cluster.centers), len(cluster.centers[0])))
 # print("Centers: {}".format(cluster.centers))
 
-cluster_fig, cluster_ax = plot.plot_scatter(cluster.centers, color='red')
-plot.plot_scatter(top_vectors, axis=cluster_ax, color=cluster.predicted_cluster, cmap='viridis')
+centers_project = np.append(cluster.centers, [new_project_vector], axis=0)
+colormap = list(range(0, n_clusters + 1))
+cluster_fig, cluster_ax = plot.plot_scatter(centers_project, color=colormap, cmap='viridis')
+# plot.plot_scatter(np.asarray([new_project_vector]), axis=cluster_ax, color='blue')
+# print(np.asarray([new_project_vector]))
+
+# NOTE: Setup plot logic for plot with clusters
+cluster_cursor_hover = mplcursors.cursor(
+    [cluster_fig], hover=True, highlight=False)
+cluster_cursor_click = mplcursors.cursor(
+    [cluster_fig], hover=False, highlight=False)
+
+# On the event 'add', run the function `on_click_point`.
+cluster_cursor_click.connect("add", lambda sel: pl.on_click_cluster(sel, cluster.predicted_cluster, abstract_dict, labels=labels, data=df))
+cluster_cursor_hover.connect("add", lambda sel: pl.on_hover_cluster(sel))
+
 
 plt.show()
 """
