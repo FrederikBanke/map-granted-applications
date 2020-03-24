@@ -1,6 +1,9 @@
 import tkinter as tk
 import word_cloud
 import matplotlib.pyplot as plt
+import preprocessing
+import utils
+from functools import partial
 
 def on_hover_point(sel, labels, data, abstract_dict):
     """Logic for what happens when the user clicks on a point.
@@ -47,19 +50,31 @@ def setup_box():
     T.config(yscrollcommand=S.set)
     return T
 
-def on_click_cluster(sel, cluser_list, abstract_dict, labels, data):
+def on_click_cluster(sel, cluster_list, abstract_dict, labels, data, tfidf_model):
     cluster = sel.target.index
     print("Clicked on cluster {}".format(cluster))
-    abstracts = find_abstracts(cluser_list, cluster)
+    abstracts = find_abstracts(cluster_list, cluster)
     abstracts_list = []
+    weight_dict = dict()
     for i in abstracts:
         # use `data` to acces needed information that needs to be passed to the word cloud
         abstract = data['objective'][abstract_dict[labels[i]]]
-        # print("Project title: {}".format(title))
+
         abstracts_list.append(abstract)
-    # TODO: Run word cloud generation
+
+        # create word weight dictionary for each abstract
+        weight_list = preprocessing.TFIDF_list_of_weigths(TFIDF_model=tfidf_model, abstract=abstract)
+        temp_dict = utils.tuples_to_dict(weight_list)
+        temp_dict = utils.filter_dict(dictionary=temp_dict, threshold=0.05)
+        weight_dict = utils.merge_dicts(weight_dict, temp_dict)
+
     # print("{} abstracts in cluser".format(len(abstracts_list)))
-    word_cloud.create_word_cloud(abstracts_list)
+    # combined_abstracts = " ".join(abstracts_list)
+    # weight_list = preprocessing.TFIDF_list_of_weigths(TFIDF_model=tfidf_model, abstract=combined_abstracts)
+    # weight_dict = utils.tuples_to_dict(weight_list)
+    
+    print("Words for cluster {}: <<{}>>".format(cluster, weight_dict))
+    word_cloud.create_word_cloud(weight_dict)
     plt.show()
 
 def on_hover_cluster(sel):

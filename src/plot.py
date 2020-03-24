@@ -142,6 +142,7 @@ def choose_color(cost, minCost, maxCost):
     # The colors are a tuple, rgb values at index 0
     if (math.isnan(cost)):
         return black[0]
+    # print("min {} max {}".format(minCost, maxCost))
     diff = maxCost - minCost
     if (cost < minCost + diff/5 ):
         return green[0]
@@ -151,6 +152,7 @@ def choose_color(cost, minCost, maxCost):
         return orange[0]
     if (cost < minCost + (diff/5)*4 ):
         return red[0]
-    if (cost <= minCost + (diff/5)*5 ):
+    if (cost <= round(minCost + diff, 2)):
         return red_berry[0]
-        
+    print("Cost: {}    max: {}    diff: {}".format(cost, maxCost, round(minCost + diff, 2)))
+    print("NO COLOR CHOSEN")

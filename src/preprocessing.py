@@ -45,7 +45,9 @@ def TFIDF_list_of_weigths(TFIDF_model, abstract):
     sortedscore = sorted(score.items(), key=operator.itemgetter(1), reverse=True)
     return sortedscore
 
-def train_TFIDF(abstracts): 
+def train_TFIDF(abstracts, delete_model):
+    if delete_model:
+        return train_new_TFIDF(abstracts)
     try:
         print("Loading TFIDF model...") # FIXME: May print before finding exception
         model_loaded = pickle.load(open("saved_tfidf_model.sav", 'rb'))
@@ -66,10 +68,12 @@ def train_new_TFIDF(abstracts):
     abstracts = [" ".join(list(filter(filter_words, re.sub(r'[^\w]', ' ', str(x).lower()).split()))) for x in abstracts]
 
     # create vocabolary
+
     
-    tfidf = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b") # token_patern to include single letter words
+    tfidf = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b") # token_pattern to include single letter words
     
     # Fit the TfIdf model
+
     tfidf.fit_transform(abstracts)
     
 
