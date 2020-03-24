@@ -25,11 +25,10 @@ def transform_pca(vectors, dimensions = 2):
     Returns:\n
     The new reduced vectors
     """
-    pca = PCA(n_components=dimensions)  # 3-dimensional PCA. 
+    pca = PCA(n_components=dimensions)  # n-dimensional PCA. 
     return pd.DataFrame(pca.fit_transform(vectors))
 
 
-# Use principal component analysis to transform the multidimensional array into a 3-dimensional 
 def plot_abstracts(vectors, contributions, three_d=False):
     """Plot a given set of vectors in a smaller plane using PCA.\n
     Paramters:\n
@@ -38,11 +37,16 @@ def plot_abstracts(vectors, contributions, three_d=False):
     `contributions` - 
 
     Returns:\n
-    The new reduced vectors
+    The figure with the new reduced vectors
     """
+    if three_d:
+        dimensions = 3
+    else:
+        dimensions = 2
     print_progress("Run PCA")
-    transformed = transform_pca(vectors, dimensions=3)
+    transformed = transform_pca(vectors, dimensions=dimensions)
     print_done("Run PCA")
+    # print("plot_abstracts | Data Samples: {}, Features: {}".format(transformed.shape[0], transformed.shape[1]))
 
 
     # Splitting the PCA-transformed abstract from the rest of the transformed abstracts
@@ -61,13 +65,6 @@ def plot_abstracts(vectors, contributions, three_d=False):
 
     # Create figure and axis
     fig, ax = plt.subplots()
-    if three_d:
-        # Create 3-dimensional axis
-        ax = Axes3D(fig)
-        # Plot the 3-dimensional array
-        ax.scatter(transformed[0], transformed[1], transformed[2], c=colors/255)
-        ax.set_title('3d PCA plot')
-        return
 
     # The colors are a tuple, hex values at index 1
     green_patch = mpatches.Patch(color=green[1], label="{}€ - {}€".format(0,int(minCost + ((maxCost-minCost)/5))*1))
@@ -78,12 +75,65 @@ def plot_abstracts(vectors, contributions, three_d=False):
     blue_patch = mpatches.Patch(color=blue[1], label="Your abstract")
     black_patch = mpatches.Patch(color=black[1], label="Funding NaN")
 
-    plt.legend(handles=[green_patch, yellow_patch, orange_patch, red_patch, red_berry_patch, blue_patch, black_patch])
+    ax.legend(handles=[green_patch, yellow_patch, orange_patch, red_patch, red_berry_patch, blue_patch, black_patch])
+
+    if three_d:
+        # Create 3-dimensional axis
+        ax = Axes3D(fig)
+        # Plot the 3-dimensional array
+        ax.scatter(transformed[0], transformed[1], transformed[2], c=colors/255)
+        ax.set_title('3d PCA plot')
+        return fig
 
     # Plot the 2-dimensional array
     ax.scatter(transformed[0], transformed[1], c=colors/255)
     ax.set_title('2d PCA plot')
     return fig
+
+def plot_scatter(data, axis=None, dimensions=2, title="Scatter plot", color='blue', cmap=None):
+    """
+    Plots data to scatter. It will run PCA if dimensions are larger than 2 or 3
+    
+    Parameters
+    ----------
+    data : The data to plot.
+    
+    Returns
+    -------
+    (fig, ax) : A tuple containing the figure and the axes
+    """
+    print("before plot_scatter | Data Samples: {}, Features: {}".format(data.shape[0], data.shape[1]))
+    if data.shape[1] > dimensions:
+        print_progress("Run PCA")
+        data = transform_pca(data, dimensions=dimensions)
+        print_done("Run PCA")
+    print("after plot_scatter | Data Samples: {}, Features: {}".format(data.shape[0], data.shape[1]))
+        
+    if axis == None:
+        # Create figure and axis if not given
+        fig, ax = plt.subplots()
+    else:
+        fig, ax = (axis.get_figure(), axis)
+
+    if dimensions > 2:
+        # Create 3-dimensional axis
+        if axis == None:
+            ax = Axes3D(fig)
+        # Plot the 3-dimensional array
+        ax.scatter(data[0], data[1], data[2], c=color, cmap=cmap)
+        ax.set_title(title + " - 3d")
+        return (fig, ax)
+    if dimensions == 2:
+        # Plot the 2-dimensional array
+        ax.scatter(data[0], data[1], c=color, cmap=cmap)
+        ax.set_title(title + " - 2d")
+        return (fig, ax)
+    if dimensions == 1:
+        # Plot the 1-dimensional array
+        ax.eventplot(data[0], orientation='horizontal', colors='red')
+        ax.axis('off')
+        ax.set_title(title + " - 1d")
+        return (fig, ax)
 
 def choose_color(cost, minCost, maxCost):
     '''

@@ -16,12 +16,18 @@ def create_word_cloud(data):
     Parameters:\n
     `data` - The text to make a word cloud of. Can be a `string` or a `list` of strings.
     """
-    text = ""
+    is_dict = False
     if type(data) == list:
-        text = " ".join(str(doc) for doc in data)
-    elif type(data) != str:
+        source = " ".join(str(doc) for doc in data)
+    elif type(data) == str:
+        source = data
+    elif type(data) == dict:
+        source = data
+        is_dict = True
+    else:
         raise TypeError(
-            "data should be a string or a list of strings, it was of type {}".format(type(data)))
+            "data should be a string or a list of strings or a dictionary, it was of type {}".format(type(data)))
+
     print_progress("Generating word cloud")
     # pass options for the word cloud here
     wordcloud = WordCloud(background_color="white",
@@ -29,12 +35,11 @@ def create_word_cloud(data):
     # Generate word cloud from text
     # wordcloud.generate(text=text)
     # Generate word cloud from dectionary
-    mydict = {
-        "cat": 10.0,
-        "mouse": 5.0,
-        "house": 1.0,
-    }
-    wordcloud.generate_from_frequencies(mydict)
+
+    if is_dict:
+        wordcloud.generate_from_frequencies(source)
+    else:
+        wordcloud.generate_from_text(source)
 
     print_done("Generating word cloud")
     figure, axes = plt.subplots()  # create figure and axes
@@ -45,4 +50,5 @@ def create_word_cloud(data):
     print_done("Put word cloud on figure")
 
     axes.axis("off")  # remove the axis from the figure
+
 

@@ -1,10 +1,12 @@
-import numpy as np
-import matplotlib.pyplot as plt
+import sys
+
 import matplotlib as mpl
-from gensim.models.doc2vec import TaggedDocument, Doc2Vec
-import pandas as pd
+import matplotlib.pyplot as plt
 import mplcursors
-import user_logic as ul
+import numpy as np
+import pandas as pd
+from gensim.models.doc2vec import Doc2Vec, TaggedDocument
+
 import plot
 import plot_logic as pl
 import similar as sml
@@ -14,6 +16,9 @@ import preprocessing as pre_pro
 import word_cloud as wc
 import sys
 import time
+import user_logic as ul
+import word_cloud as wc
+from cluster import cluster_abstracts
 
 mpl.use('TkAgg')  # Change backend
 
@@ -40,12 +45,12 @@ df = ul.load_data(
     "/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", subset=data_size)
 print("Data set shape: {}x{}".format(df.shape[1], df.shape[0]))
 
-obj = df['objective'].tolist()
-
-# print("Objectives: {}".format(obj))
-wc.create_word_cloud(obj)
-
 # Get path for the user's project FIXME
+train_corpus = train.create_tag_doc(df)
+model = train.train_model(train_corpus, delete_model=delete_model)
+
+# model.delete_temporary_training_data(keep_doctags_vectors=True, keep_inference=True)
+
 new_project_path = ''
 
 # Create a new dataframe with the users project
@@ -76,7 +81,7 @@ abstract_dict = post_pro.create_abstract_dict_top(df, new_project, top_labels)
 # Adding the user's abstract-dataframe to the rest of the dataframe, so it can be plotted
 df = ul.add_project(original_dataframe=df, new_project=new_project)
 
-print("Started plotting")
+# print("Started plotting")
 
 # Creating a list of the top ecMaxContributions
 contributions = []
@@ -86,7 +91,7 @@ for i in range(len(top_labels)): # the last element is 1, which maps to 25 in th
 # Plotting the top abstracts including the user's
 abstract_plot = plot.plot_abstracts(
     vectors=top_vectors, contributions=contributions, three_d=False)
-print("Plot done")
+# print("Plot done")
 
 # Artist (figures) to add logic to
 artists = [abstract_plot]
@@ -101,6 +106,36 @@ cursor_click.connect("add", lambda sel: pl.on_click_point(sel, labels=top_labels
 cursor_hover.connect("add", lambda sel: pl.on_hover_point(sel, labels=top_labels, data=df, abstract_dict=abstract_dict))
 
 end = time.time()
+# print("Top vectors")
+# print(top_vectors)
+
+# The projects without the newly added one
+abstracts = x_top[0]  # Extract abstract vectors
+labels = x_top[1]  # Extract abstract id as labels
+n_clusters = 4
+cluster = cluster_abstracts(data=abstracts, n=n_clusters)
+# cluster.centers = np.transpose(cluster.centers)
+
+print("Centre Samples: {}, Features: {}".format(
+    len(cluster.centers), len(cluster.centers[0])))
+# print("Centers: {}".format(cluster.centers))
+
+centers_project = np.append(cluster.centers, [new_project_vector], axis=0)
+colormap = list(range(0, n_clusters + 1))
+cluster_fig, cluster_ax = plot.plot_scatter(centers_project, color=colormap, cmap='viridis')
+# plot.plot_scatter(np.asarray([new_project_vector]), axis=cluster_ax, color='blue')
+# print(np.asarray([new_project_vector]))
+
+# NOTE: Setup plot logic for plot with clusters
+cluster_cursor_hover = mplcursors.cursor(
+    [cluster_fig], hover=True, highlight=False)
+cluster_cursor_click = mplcursors.cursor(
+    [cluster_fig], hover=False, highlight=False)
+
+# On the event 'add', run the function `on_click_point`.
+cluster_cursor_click.connect("add", lambda sel: pl.on_click_cluster(sel, cluster.predicted_cluster, abstract_dict, labels=labels, data=df))
+cluster_cursor_hover.connect("add", lambda sel: pl.on_hover_cluster(sel))
+
 
 print ("Time:", end-start, "seconds")
 # show the plot
