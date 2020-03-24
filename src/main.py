@@ -28,7 +28,7 @@ except IndexError as identifier:
     data_size = 0
 
 delete_model = input("Delete model if it exists (write nothing for 'no'): ")
-if delete_model == 1 or delete_model == 'yes':
+if delete_model == '1' or delete_model == 'yes':
     delete_model = True
 else:
     delete_model = False
