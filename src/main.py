@@ -46,10 +46,6 @@ df = ul.load_data(
 print("Data set shape: {}x{}".format(df.shape[1], df.shape[0]))
 
 # Get path for the user's project FIXME
-train_corpus = train.create_tag_doc(df)
-model = train.train_model(train_corpus, delete_model=delete_model)
-
-# model.delete_temporary_training_data(keep_doctags_vectors=True, keep_inference=True)
 
 new_project_path = ''
 
