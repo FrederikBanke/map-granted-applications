@@ -40,11 +40,6 @@ df = ul.load_data(
     "/data/EUFundedProjects_Tables_CSV/Project-2020-02-07.csv", subset=data_size)
 print("Data set shape: {}x{}".format(df.shape[1], df.shape[0]))
 
-obj = df['objective'].tolist()
-
-# print("Objectives: {}".format(obj))
-wc.create_word_cloud(obj)
-
 train_corpus = train.create_tag_doc(df)
 model = train.train_model(train_corpus, delete_model=delete_model)
 
