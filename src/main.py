@@ -1,3 +1,7 @@
+# TODO: Vi får RuntimeError når vi træner  modellen.
+# Vi er i gang med at lade være med selv at filterer ord fra abstracts, og bare alde TF-IDF gøre dens ting.
+# Måske har vi ødelagt TF-IDF modellen, ved at lave fit_transform.
+
 import sys
 
 import matplotlib as mpl
@@ -54,7 +58,7 @@ new_project = ul.create_project(new_project_path)
 
 # train TFIDF
 abstracts = df['objective']
-TFIDF_model = pre_pro.train_TFIDF(abstracts, delete_model=delete_model)
+TFIDF_model = pre_pro.train_TFIDF(abstracts, abstract=new_project['objective'][0], delete_model=delete_model)
 
 # Train the doc2vec model
 model = train.train_model(df, TFIDF_model=TFIDF_model, delete_model=delete_model)
