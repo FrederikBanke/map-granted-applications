@@ -29,6 +29,7 @@ def create_project(path):
  Despite tremendous technical and conceptual advances of in vivo studies, we miss (1) a better understanding of the mechanics of synapses formation; (2) observing directly the chemical activity at single synapses; (3) investigating the role of neuronal network topology in synaptic plasticity. These classical limitations can now be overcome by alternative in vitro approaches, using recent technological advances in microfluidics and nano-technologies.  
  The aim of NANOSYNNETS is to use vertical arrays of NANOwires (aNWs) to study in vitro the formation and plasticity of single SYnapses in Neuronal NETworkS with controlled topologies.
  With my expertise in growing controlled neuronal networks in microfluidic chips, I decided to join the one of the leading group in bio-nanotechnologies, lead by Karen Martinez (KM) and based at the NanoScience Center (NSC) of the University of Copenhagen (UCPH), to exploit novel technologies for the investigation of in vitro single synapse formation, activity and plasticity. This novel approach will give a complementary and cutting-edge point of view to classical in vivo studies of synapses and will thereby provide unmatched insights into neurobiology and will shed new lights on unanswered questions in learning mechanisms or neuronal communication
+ Anewwordthatdoesnotexistinotherabstracts.
 """],
     'title': ['Nanowires to study single synapses in patterned neuronal networks.']
     } 

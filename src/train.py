@@ -34,6 +34,8 @@ def train_new_model(df, TFIDF_model):
     # Create a corpus for the training data, which is a "tagged document"
     train_corpus = create_tag_doc(df, TFIDF_model)
 
+    # print("Train corpus: ", train_corpus)
+
     # Train the model on the training data
     print_progress('Built vector from document')
     model = Doc2Vec(vector_size=100, min_count=2, epochs=30)

@@ -54,7 +54,7 @@ new_project = ul.create_project(new_project_path)
 
 # train TFIDF
 abstracts = df['objective']
-TFIDF_model = pre_pro.train_TFIDF(abstracts)
+TFIDF_model = pre_pro.train_new_TFIDF(abstracts, abstract=new_project['objective'][0])
 
 # Train the doc2vec model
 model = train.train_model(df, TFIDF_model=TFIDF_model, delete_model=delete_model)
@@ -129,7 +129,7 @@ cluster_cursor_click = mplcursors.cursor(
     [cluster_fig], hover=False, highlight=False)
 
 # On the event 'add', run the function `on_click_point`.
-cluster_cursor_click.connect("add", lambda sel: pl.on_click_cluster(sel, cluster.predicted_cluster, abstract_dict, labels=labels, data=df))
+cluster_cursor_click.connect("add", lambda sel: pl.on_click_cluster(sel, cluster.predicted_cluster, abstract_dict, labels=labels, data=df, tfidf_model=TFIDF_model))
 cluster_cursor_hover.connect("add", lambda sel: pl.on_hover_cluster(sel))
 
 

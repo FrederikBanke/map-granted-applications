@@ -26,7 +26,7 @@ def cluster_abstracts(data, n=2):
     object : 
     """
     # Test set, X is data, y_true is the true cluster labels
-    X, y_true = make_blobs(n_samples=300, centers=4, cluster_std=0.60, random_state=0)
+    # X, y_true = make_blobs(n_samples=300, centers=4, cluster_std=0.60, random_state=0)
 
     # print("X: {}".format(X))
 
