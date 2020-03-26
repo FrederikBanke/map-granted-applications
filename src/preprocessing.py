@@ -56,9 +56,10 @@ def TFIDF_list_of_weigths(TFIDF_model, abstract):
         # if word == 'the':
             # print("word was empty string")
             # print("Wight of {} : {}".format(word, X[0, TFIDF_model.vocabulary_[word]]))
-        try:
+        try: # FIXME: May skip new words introduced by our own abstract
             score[word] = X[0, TFIDF_model.vocabulary_[word]]
         except KeyError as identifier:
+            # print("Key error, word was {}".format(word))
             pass
     sortedscore = sorted(
         score.items(), key=operator.itemgetter(1), reverse=True)
