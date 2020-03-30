@@ -13,12 +13,10 @@ import similar as sml
 import train
 import postprocessing as post_pro
 import preprocessing as pre_pro
-import word_cloud as wc
-import sys
 import time
 import user_logic as ul
-import word_cloud as wc
 from cluster import cluster_abstracts
+import co_occurrence as co
 
 mpl.use('TkAgg')  # Change backend
 
@@ -54,40 +52,43 @@ new_project = ul.create_project(new_project_path)
 
 # train TFIDF
 abstracts = df['objective']
-TFIDF_model = pre_pro.train_new_TFIDF(abstracts, abstract=new_project['objective'][0])
+TFIDF_model = pre_pro.train_new_TFIDF(
+    abstracts, abstract=new_project['objective'][0])
 
 # Train the doc2vec model
-model = train.train_model(df, TFIDF_model=TFIDF_model, delete_model=delete_model)
+model = train.train_model(df, TFIDF_model=TFIDF_model,
+                          delete_model=delete_model)
 
 # Creating a vector from the user's abstract using the trained doc2vec model
-new_project_vector = ul.abstract_to_vector(model=model, abstract=new_project['objective'][0], TFIDF_model=TFIDF_model)
+new_project_vector = ul.abstract_to_vector(
+    model=model, abstract=new_project['objective'][0], TFIDF_model=TFIDF_model)
 
 # Making top n list of most similar abstract
-x_top = sml.topn_similar(top_n=top_n, abstract=new_project_vector, model=model, dataset= df) #set top_n to len(model.docvecs) for all abstracts
-top_vectors = x_top[0] # Extract abstract vectors
-top_labels = x_top[1] # Extract abstract id as labels
+# set top_n to len(model.docvecs) for all abstracts
+x_top = sml.topn_similar(
+    top_n=top_n, abstract=new_project_vector, model=model, dataset=df)
+top_vectors = x_top[0]  # Extract abstract vectors
+top_labels = x_top[1]  # Extract abstract id as labels
 
 # Adding the user's abstract vector to the list of other vectors
 top_vectors = np.append(top_vectors, [new_project_vector], axis=0)
 top_labels = np.append(top_labels, [1], axis=0)
 
-# Creating abstract of top_labels mapping to the corrospinding index in the dataframe
+# Creating abstract of top_labels mapping to the corresponding index in the dataframe
 abstract_dict = post_pro.create_abstract_dict_top(df, new_project, top_labels)
 
 # Adding the user's abstract-dataframe to the rest of the dataframe, so it can be plotted
 df = ul.add_project(original_dataframe=df, new_project=new_project)
 
-# print("Started plotting")
-
 # Creating a list of the top ecMaxContributions
 contributions = []
-for i in range(len(top_labels)): # the last element is 1, which maps to 25 in the dictionary, but the dataset does not have 25 entries
+# the last element is 1, which maps to 25 in the dictionary, but the dataset does not have 25 entries
+for i in range(len(top_labels)):
     contributions.append(df['ecMaxContribution'][abstract_dict[top_labels[i]]])
 
 # Plotting the top abstracts including the user's
 abstract_plot = plot.plot_abstracts(
     vectors=top_vectors, contributions=contributions, three_d=False)
-# print("Plot done")
 
 # Artist (figures) to add logic to
 artists = [abstract_plot]
@@ -98,42 +99,43 @@ cursor_click = mplcursors.cursor(artists, hover=False, highlight=False)
 T = pl.setup_box()
 
 # On the event 'add', run the function `on_click_point` and `on_hover_point`.
-cursor_click.connect("add", lambda sel: pl.on_click_point(sel, labels=top_labels, data=df, abstract_dict=abstract_dict, T=T))
-cursor_hover.connect("add", lambda sel: pl.on_hover_point(sel, labels=top_labels, data=df, abstract_dict=abstract_dict))
+cursor_click.connect("add", lambda sel: pl.on_click_point(
+    sel, labels=top_labels, data=df, abstract_dict=abstract_dict, T=T))
+cursor_hover.connect("add", lambda sel: pl.on_hover_point(
+    sel, labels=top_labels, data=df, abstract_dict=abstract_dict))
 
-end = time.time()
-# print("Top vectors")
-# print(top_vectors)
 
 # The projects without the newly added one
 abstracts = x_top[0]  # Extract abstract vectors
 labels = x_top[1]  # Extract abstract id as labels
 n_clusters = 4
 cluster = cluster_abstracts(data=abstracts, n=n_clusters)
-# cluster.centers = np.transpose(cluster.centers)
-
-print("Centre Samples: {}, Features: {}".format(
-    len(cluster.centers), len(cluster.centers[0])))
-# print("Centers: {}".format(cluster.centers))
 
 centers_project = np.append(cluster.centers, [new_project_vector], axis=0)
 colormap = list(range(0, n_clusters + 1))
-cluster_fig, cluster_ax = plot.plot_scatter(centers_project, color=colormap, cmap='viridis')
-# plot.plot_scatter(np.asarray([new_project_vector]), axis=cluster_ax, color='blue')
-# print(np.asarray([new_project_vector]))
+cluster_fig, cluster_ax = plot.plot_scatter(
+    centers_project, color=colormap, cmap='viridis')
 
-# NOTE: Setup plot logic for plot with clusters
+# Setup plot logic for plot with clusters
 cluster_cursor_hover = mplcursors.cursor(
     [cluster_fig], hover=True, highlight=False)
 cluster_cursor_click = mplcursors.cursor(
     [cluster_fig], hover=False, highlight=False)
 
 # On the event 'add', run the function `on_click_point`.
-cluster_cursor_click.connect("add", lambda sel: pl.on_click_cluster(sel, cluster.predicted_cluster, abstract_dict, labels=labels, data=df, tfidf_model=TFIDF_model))
+cluster_cursor_click.connect("add", lambda sel: pl.on_click_cluster(
+    sel, cluster.predicted_cluster, abstract_dict, labels=labels, data=df, tfidf_model=TFIDF_model))
 cluster_cursor_hover.connect("add", lambda sel: pl.on_hover_cluster(sel))
 
 
-print ("Time:", end-start, "seconds")
+cooc_matrix, cooc_vocab = co.co_occurrences_in_abstracts(
+    abstract_dict=abstract_dict, data=df, TFIDF_model=TFIDF_model, unique_occurrences=True)
+cooc_labels = {index: word for index, word in enumerate(cooc_vocab)}
+co.create_map(cooc_matrix, cooc_labels)
+
+
+end = time.time()
+print("Time:", end-start, "seconds")
 # show the plot
 plt.show()
 
