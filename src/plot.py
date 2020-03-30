@@ -156,3 +156,29 @@ def choose_color(cost, minCost, maxCost):
         return red_berry[0]
     print("Cost: {}    max: {}    diff: {}".format(cost, maxCost, round(minCost + diff, 2)))
     print("NO COLOR CHOSEN")
+
+
+def create_plot(figure=None):
+    """
+    Creates a new plot by creating a new figure with matplotlib and an axes for that figure.\n
+    If a figure is given to the function call, a new axes will be added to that figure instead.
+    
+    Parameters
+    ----------
+    figure : Default is `None`. If a figure is given, this function will add an axes to that figure, instead of making a new one.
+    
+    Returns
+    -------
+    `tuple` : A tuple containing the figure and axes
+    """
+    # Only here so we get intellisense
+    axes = plt.Axes
+    fig = plt.Figure
+
+    # Create figure and axis if not given a figure
+    if figure == None:
+        fig, ax = plt.subplots()
+    else:
+        fig = figure
+        ax = fig.add_axes(axes)
+    return (fig, ax)
