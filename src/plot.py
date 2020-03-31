@@ -102,7 +102,7 @@ def plot_abstracts(vectors, contributions, three_d=False):
 
 
 def plot_scatter(data, axis=None, dimensions=2, title="Scatter plot", color='blue', cmap=None):
-    """
+    """ `@Deprecated`\n
     Plots data to scatter. It will run PCA if dimensions are larger than 2 or 3
 
     Parameters
