@@ -4,6 +4,7 @@ from django.db import models
 
 
 class Project(models.Model):
+    id = models.CharField(max_length=10, primary_key=True)
     title = models.CharField(max_length=120)
     objective = models.TextField()
 
