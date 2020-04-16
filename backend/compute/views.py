@@ -5,6 +5,10 @@ from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from .models import Project # add this
 from .serializers import ProjectSerializer # add this
+import sys
+
+# sys.path.insert(1, '/backend/custom_logic/src/')
+from custom_logic.src import test_api
 
 # Create your views here.
 
@@ -16,6 +20,7 @@ class ProjectView(viewsets.ModelViewSet):       # add this
 
 class MyOwnView(APIView):
     def get(self, request):
-        return Response({'some': 'data'})
+        projects = test_api.get_projects()
+        return Response(projects)
     def post(self, request):
         pass
