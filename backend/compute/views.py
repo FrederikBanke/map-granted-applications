@@ -19,8 +19,13 @@ class ProjectView(viewsets.ModelViewSet):       # add this
 
 
 class MyOwnView(APIView):
+    """
+    Test API endpoint. It is not to be used in production.
+    """
     def get(self, request):
         projects = test_api.get_projects()
         return Response(projects)
     def post(self, request):
         pass
+        test_api.fill_database_with_data()
+        return Response({"status": "done"})
