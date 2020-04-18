@@ -29,7 +29,7 @@ def word_cloud(data, user_project):
         # create word weight dictionary for each abstract
         weight_list = preprocessing.TFIDF_list_of_weigths(TFIDF_model=tfidf_model, abstract=text)
         temp_dict = utils.tuples_to_dict(weight_list)
-        temp_dict = utils.filter_dict(dictionary=temp_dict, threshold=0.05)
+        temp_dict = utils.filter_dict(dictionary=temp_dict, threshold=0.01)
         weight_dict = utils.merge_dicts(weight_dict, temp_dict)
 
     # print("{} abstracts in cluser".format(len(abstracts_list)))
