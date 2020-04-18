@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import logo from './logo.svg';
 import './App.css';
-import ProjectSubmission from './components/ProjectSubmission/ProjectSubmission';
 import WordCloudContainer from './components/WordCloud/WordCloudContainer';
+import { submitProject } from "./util/projectSubmission";
 
 function App() {
   const [viewWordCloud, setViewWordCloud] = useState(false)
@@ -13,9 +12,8 @@ function App() {
 
   return (
     <div className="App">
-      <ProjectSubmission />
       <button onClick={toggleWordCloud}>Generate word cloud</button>
-      {viewWordCloud ? <WordCloudContainer data={"asdas"}/>
+      {viewWordCloud ? <WordCloudContainer text={submitProject().abstract}/>
         : null
       }
     </div>

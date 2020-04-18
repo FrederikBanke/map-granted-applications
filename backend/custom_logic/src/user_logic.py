@@ -1,6 +1,8 @@
 import pandas as pd
 import os
 import custom_logic.src.preprocessing as pp
+import custom_logic.src.api as api
+
 
 def add_project(original_dataframe, new_project):
     """Adds a new project to a given `dataframe`.
@@ -55,5 +57,5 @@ def json_to_dataframe(json, subset=0):
         return df
     return df.head(subset)
 
-def get_projects_as_df(parameter_list):
-    return ul.json_to_dataframe(api.get_projects())
+def get_projects_as_df():
+    return json_to_dataframe(api.get_projects())

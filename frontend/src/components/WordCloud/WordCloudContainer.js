@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { submitProject } from '../../util/projectSubmission';
 import WordCloud from "react-d3-cloud";
 
-export default function WordCloudContainer() {
+export default function WordCloudContainer(props) {
     const [words, setWords] = useState([{ text: "word", value: 10 }, { text: "other", value: 20 }]);
     const [maxWord, setMaxWord] = useState({ text: "word", value: 20 });
     const [minWord, setMinWord] = useState({ text: "word", value: 10 })
@@ -10,7 +9,6 @@ export default function WordCloudContainer() {
 
     useEffect(() => {
         console.log("WordCloud mounted");
-        let userProject = submitProject();
 
         fetch("http://localhost:8000/api/wordweight/", {
             method: 'POST',
@@ -18,7 +16,8 @@ export default function WordCloudContainer() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "text": userProject.Abstract
+                "text": props.text,
+                "user_project": props.userProject || null
             })
         })
             .then(res => res.json())

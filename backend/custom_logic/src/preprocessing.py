@@ -84,7 +84,7 @@ def train_TFIDF(abstract=None, delete_model=False):
         return train_new_TFIDF(abstract)
 
 
-def train_new_TFIDF(abstracts, abstract=None):
+def train_new_TFIDF(abstract=None):
     projects = ul.get_projects_as_df()
     abstracts = projects['objective']
     with_user_project = False
@@ -103,9 +103,6 @@ def train_new_TFIDF(abstracts, abstract=None):
 
     # create vocabolary
 
-    # tfidf = TfidfVectorizer() # token_pattern to include single letter words
-
-    # Fit the TfIdf model
 
     # vocabulary = set()
     # for doc in abstracts:
@@ -116,11 +113,8 @@ def train_new_TFIDF(abstracts, abstract=None):
 
     tfidf = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b", max_df=0.7)
 
+    # Fit the TfIdf model
     tfidf.fit_transform(abstracts)
-
-    # print("TFIDF: ", tfidf.vocabulary_)
-    # for i in range(10):
-        # print("{} : {}".format(tfidf.vocabulary_[i], tfidf.idf_[i]))
 
     print("Finished training TFIDF")
 

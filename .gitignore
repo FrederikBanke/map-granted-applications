@@ -94,3 +94,4 @@ yarn-debug.log*
 yarn-error.log*
 backend/custom_logic/src/Project-2020-02-07.json
 backend/custom_logic/src/models/tfidf_model.sav
+backend/custom_logic/src/models/tfidf_model_with_user_project.sav
