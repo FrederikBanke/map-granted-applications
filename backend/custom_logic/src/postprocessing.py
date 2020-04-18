@@ -1,4 +1,4 @@
-import user_logic as ul
+import custom_logic.src.user_logic as ul
 
 def create_abstract_dict_all(df, new_project):
     """Create a full dictionary for abstract index where the key is the project id.\n

@@ -1,6 +1,6 @@
 from gensim.models.doc2vec import TaggedDocument, Doc2Vec
-import preprocessing as pp
-from utils import print_done, print_progress
+import custom_logic.src.preprocessing as pp
+from custom_logic.src.utils import print_done, print_progress
 
 
 def train_model(df, TFIDF_model, delete_model=False):

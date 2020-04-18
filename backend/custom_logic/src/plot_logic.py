@@ -60,7 +60,7 @@ def on_click_cluster(sel, cluster_list, abstract_dict, labels, data, tfidf_model
         # use `data` to acces needed information that needs to be passed to the word cloud
         abstract = data['objective'][abstract_dict[labels[i]]]
 
-        abstracts_list.append(abstract)
+        # abstracts_list.append(abstract)
 
         # create word weight dictionary for each abstract
         weight_list = preprocessing.TFIDF_list_of_weigths(TFIDF_model=tfidf_model, abstract=abstract)
@@ -75,7 +75,7 @@ def on_click_cluster(sel, cluster_list, abstract_dict, labels, data, tfidf_model
     
     print("Words for cluster {}: <<{}>>".format(cluster, weight_dict))
     word_cloud.create_word_cloud(weight_dict)
-    plt.show()
+    # plt.show()
 
 def on_hover_cluster(sel):
     pass

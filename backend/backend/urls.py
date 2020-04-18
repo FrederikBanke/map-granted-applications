@@ -24,5 +24,6 @@ router.register(r'projects', views.ProjectView, 'compute')     # add this
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)), # add this
-    path('api/math/', views.MyOwnView.as_view())
+    path('api/math/', views.MyOwnView.as_view()),
+    path('api/wordcloud/', views.WordCloudView.as_view())
 ]

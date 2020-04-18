@@ -1,12 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Test from './components/Test';
+import ProjectSubmission from './components/ProjectSubmission/ProjectSubmission';
+import WordCloud from './components/WordCloud/WordCloud';
 
 function App() {
+  const [viewWordCloud, setViewWordCloud] = useState(false)
+
+  const toggleWordCloud = () => {
+    setViewWordCloud(!viewWordCloud)
+  }
+
   return (
     <div className="App">
-      <Test />
+      <ProjectSubmission />
+      <button onClick={toggleWordCloud}>Generate word cloud</button>
+      {viewWordCloud ? <WordCloud />
+        : null
+      }
     </div>
   );
 }

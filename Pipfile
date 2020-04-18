@@ -11,6 +11,10 @@ django = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
 requests = "*"
+scikit-learn = "*"
+matplotlib = "*"
+pandas = "*"
+gensim = "*"
 
 [requires]
 python_version = "3.7"
