@@ -19,20 +19,27 @@ class ProjectView(viewsets.ModelViewSet):       # add this
 
 class WordWeightView(APIView):
     """
+    API for getting weights for some given words.
     """
     def get(self, request):
         return Response({"status": "There is nothing to GET here, use POST"})
     def post(self, request):
-        print("WordCloud POST request")
         text = request.data['text']
         try:
             user_project = request.data['user_project']
         except KeyError as identifier:
             user_project = None
-        word_dict = api.word_weights(text, user_project)
-        return Response(word_dict)
-        # return Response({"test":"stuff"})
+        return Response(api.word_weights(text, user_project))
 
+class ClosestProjectsView(APIView):
+    """
+    API for getting the closest projects to one's own project.
+    """
+    def get(self, request):
+        return Response({"status": "There is nothing to GET here, use POST"})
+    def post(self, request):
+        text = request.data['text']
+        return Response(api.closest_projects(text))
 
 class MyOwnView(APIView):
     """

@@ -32,11 +32,8 @@ def word_weights(data, user_project=None):
         temp_dict = utils.filter_dict(dictionary=temp_dict, threshold=0.05)
         weight_dict = utils.merge_dicts(weight_dict, temp_dict)
 
-    # print("{} abstracts in cluser".format(len(abstracts_list)))
-    # combined_abstracts = " ".join(abstracts_list)
-    # weight_list = preprocessing.TFIDF_list_of_weigths(TFIDF_model=tfidf_model, abstract=combined_abstracts)
-    # weight_dict = utils.tuples_to_dict(weight_list)
-    
-    # word_cloud.create_word_cloud(weight_dict)
-    # Return word weight dictionary
     return weight_dict
+
+def closest_projects(data, user_project=None):
+    
+    return [{"id": 1, "abstract": "asdasd"}]

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import WordCloud from "react-d3-cloud";
+import callApi from '../../util/callApi';
 
 export default function WordCloudContainer(props) {
     const [words, setWords] = useState([{ text: "word", value: 10 }, { text: "other", value: 20 }]);
@@ -10,21 +11,14 @@ export default function WordCloudContainer(props) {
     useEffect(() => {
         console.log("WordCloud mounted");
 
-        fetch("http://localhost:8000/api/wordweight/", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                "text": props.text,
-                "user_project": props.userProject || null
-            })
+        callApi('wordweight', 'POST', {
+            "text": props.text,
+            "user_project": props.userProject || null
         })
-            .then(res => res.json())
             .then(res => {
                 let formattedData = formatData(res)
                 setWords(formattedData);
-            })
+            });
 
         return (() => {
             console.log("WordCloud unmounted");
