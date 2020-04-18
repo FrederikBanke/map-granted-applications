@@ -3,7 +3,7 @@ import custom_logic.src.preprocessing as pp
 from custom_logic.src.utils import print_done, print_progress
 
 
-def train_model(df, TFIDF_model, delete_model=False):
+def train_doc2vec_model(df, TFIDF_model, delete_model=False):
     '''Trains a model on the given data set. If there already exists a model on disk, load model from disk.\n
 
     Parameters:\n
@@ -12,16 +12,16 @@ def train_model(df, TFIDF_model, delete_model=False):
     `TFIDF_model` - Model used to filter stop words later
     '''
     if delete_model:
-        return train_new_model(df, TFIDF_model)
+        return train_new_doc2vec_model(df, TFIDF_model)
     try:
         print("Loading model...") # FIXME: May print before finding exception
         model_loaded = Doc2Vec.load('saved_model.doc2vec')
         return model_loaded
     except FileNotFoundError as identifier:
         print("No model exists. Making new model...")
-        return train_new_model(df, TFIDF_model)
+        return train_new_doc2vec_model(df, TFIDF_model)
 
-def train_new_model(df, TFIDF_model):
+def train_new_doc2vec_model(df, TFIDF_model):
     ''' Trains the model based on the parameter given.\n
     Builds a vector from a document, builds a vocabulary (frequency of words), and then train.\n
     It saves the model at the end.

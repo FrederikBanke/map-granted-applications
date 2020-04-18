@@ -38,18 +38,9 @@ def setup_with_user_project(parameter_list):
 
 def unused():
     # Train the doc2vec model
-    model = train.train_model(df, TFIDF_model=TFIDF_model,
+    model = train.train_doc2vec_model(df, TFIDF_model=TFIDF_model,
                             delete_model=delete_model)
-    try:
-        data_size = int(sys.argv[1])
-    except IndexError as identifier:
-        data_size = 0
 
-    delete_model = input("Delete model if it exists (write nothing for 'no'): ")
-    if delete_model == '1' or delete_model == 'yes':
-        delete_model = True
-    else:
-        delete_model = False
 
 
     start = time.time()

@@ -34,6 +34,19 @@ def word_weights(data, user_project=None):
 
     return weight_dict
 
-def closest_projects(data, user_project=None):
+def closest_projects(text):
+    """
     
+    
+    Parameters
+    ----------
+    text : The text to find the closest other texts to.
+    
+    Returns
+    -------
+    list : A list containing the closest projects to the `text`.
+    """
+
+    
+    # Find top n closest
     return [{"id": 1, "abstract": "asdasd"}]
