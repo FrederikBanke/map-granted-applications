@@ -54,3 +54,6 @@ def json_to_dataframe(json, subset=0):
     if subset == 0:
         return df
     return df.head(subset)
+
+def get_projects_as_df(parameter_list):
+    return ul.json_to_dataframe(api.get_projects())

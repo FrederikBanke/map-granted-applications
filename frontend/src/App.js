@@ -15,7 +15,7 @@ function App() {
     <div className="App">
       <ProjectSubmission />
       <button onClick={toggleWordCloud}>Generate word cloud</button>
-      {viewWordCloud ? <WordCloudContainer />
+      {viewWordCloud ? <WordCloudContainer data={"asdas"}/>
         : null
       }
     </div>

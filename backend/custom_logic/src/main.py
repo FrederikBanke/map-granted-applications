@@ -21,16 +21,15 @@ import custom_logic.src.api as api
 
 mpl.use('TkAgg')  # Change backend
 
-def tfidf_with_user_project(user_project):
-    projects = ul.json_to_dataframe(api.get_projects())
+def get_tfidf(user_project=None):
     # Create a new dataframe with the users project
-    print(user_project)
-    new_project = ul.json_to_dataframe(user_project)
-
+    if user_project != None:
+        new_project = ul.json_to_dataframe(user_project)
+        TFIDF_model = pre_pro.train_TFIDF(abstract=new_project['objective'][0], delete_model=True)
+    else:
+        TFIDF_model = pre_pro.train_TFIDF()
+    
     # train TFIDF
-    abstracts = projects['objective']
-    TFIDF_model = pre_pro.train_new_TFIDF(
-        abstracts, abstract=new_project['objective'][0])
 
     return TFIDF_model
 

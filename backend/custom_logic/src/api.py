@@ -15,8 +15,8 @@ def fill_database_with_data():
         requests.post("http://localhost:8000/api/projects/", project)
     return
 
-def word_cloud(data, user_project):
-    tfidf_model = main.tfidf_with_user_project(user_project)
+def word_weights(data, user_project=None):
+    tfidf_model = main.get_tfidf(user_project)
     texts = []
     if type(data) == str:
         texts.append(data)

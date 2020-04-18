@@ -12,14 +12,13 @@ export default function WordCloudContainer() {
         console.log("WordCloud mounted");
         let userProject = submitProject();
 
-        fetch("http://localhost:8000/api/wordcloud/", {
+        fetch("http://localhost:8000/api/wordweight/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                "text": userProject.Abstract,
-                "user_project": { "id": 1, "titel": "Our project", "objective": "Our project objective" }
+                "text": userProject.Abstract
             })
         })
             .then(res => res.json())
@@ -83,7 +82,6 @@ export default function WordCloudContainer() {
         const min = minWord.value;
 
         let fontSize = (maxLimit - minLimit) / (max - min) * (word.value - max) + maxLimit;
-        console.log(`Font for ${word.text}: ${fontSize}px`);
 
         return fontSize;
     }
