@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import custom_logic.src.preprocessing as pp
 import custom_logic.src.api as api
+import custom_logic.src.main as main
 
 
 def add_project(original_dataframe, new_project):
@@ -12,19 +13,19 @@ def add_project(original_dataframe, new_project):
     """
     return original_dataframe.append(new_project, ignore_index=True)
 
-def abstract_to_vector(model, abstract, TFIDF_model):
+def abstract_to_vector(doc2vec_model, abstract, TFIDF_model):
     """Transform an abstract to a vector, using the model.\n
     Parameters:\n
     `model` - The model used for the rest of the data\n
-    `abstract` - String containing abstract
+    `abstract` - String containing abstract\n
 
     Returns:\n
     Abstract as vector based on the given model
     """
-    
+    # FIXME: Maybe we do not need to use `abstract_to_clean_list()`.
     # Current abstract as inferred vector
-    abstract_clean = pp.abstract_to_clean_list(abstract, TFIDF_model)
-    abstract_vec = model.infer_vector(abstract_clean)
+    abstract_clean = pp.abstract_to_clean_list(abstract, main.get_tfidf())
+    abstract_vec = doc2vec_model.infer_vector(abstract_clean)
     return abstract_vec
 
 def load_data(path, subset=0):
@@ -51,6 +52,7 @@ def json_to_dataframe(json, subset=0):
     # This is to make sure it has the right format when passed to pandas
     if type(json) != list:
         json = [json]
+        print("Not a list")
     df = pd.DataFrame(json, [i for i in range(0, len(json))])
 
     if subset == 0:

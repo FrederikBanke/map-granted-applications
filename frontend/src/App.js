@@ -17,9 +17,7 @@ function App() {
   }
 
   const findClosest = () => {
-    callApi('closestprojects', 'POST', {
-      'text': submitProject().abstract
-    })
+    callApi('closestprojects', 'POST', submitProject())
     .then(res => {
       console.log("Closest projects", res);
       
@@ -29,7 +27,7 @@ function App() {
   return (
     <div className="App">
       <button onClick={toggleWordCloud}>Generate word cloud</button>
-      {viewWordCloud ? <WordCloudContainer text={submitProject().abstract} />
+      {viewWordCloud ? <WordCloudContainer text={submitProject().objective} />
         : null
       }
     </div>

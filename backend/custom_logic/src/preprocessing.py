@@ -142,6 +142,7 @@ def abstract_to_clean_list(abstract, TFIDF_model):
     # create an ordered list of tuples, with the word and its score, with the most important word first, for this abstract
     list_of_weigths = TFIDF_list_of_weigths(TFIDF_model, abstract)
 
+    # FIXME: May not need to filter based on word weights, since we have a `max_df` when training TFIDF model
     # filter out each word not making the threshold in filter_words_TFIDF
     clean_list = list(filter(partial(
         filter_words_TFIDF, list_of_weigths=list_of_weigths), abstract.lower().split()))

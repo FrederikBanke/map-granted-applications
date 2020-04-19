@@ -33,35 +33,16 @@ def get_tfidf(user_project=None):
 
     return TFIDF_model
 
+def get_doc2vec(user_project=None):
+    # Train the doc2vec model
+    doc2vec_model = train.train_doc2vec_model(delete_model=False)
+    
+    return doc2vec_model
+
 def setup_with_user_project(parameter_list):
     pass
 
 def unused():
-    # Train the doc2vec model
-    model = train.train_doc2vec_model(df, TFIDF_model=TFIDF_model,
-                            delete_model=delete_model)
-
-
-
-    start = time.time()
-
-
-
-    # Creating a vector from the user's abstract using the trained doc2vec model
-    new_project_vector = ul.abstract_to_vector(
-        model=model, abstract=new_project['objective'][0], TFIDF_model=TFIDF_model)
-
-    # Making top n list of most similar abstract
-    # set top_n to len(model.docvecs) for all abstracts
-    x_top = sml.topn_similar(
-        top_n=top_n, abstract=new_project_vector, model=model, dataset=df)
-    top_vectors = x_top[0]  # Extract abstract vectors
-    top_labels = x_top[1]  # Extract abstract id as labels
-
-    # Adding the user's abstract vector to the list of other vectors
-    top_vectors = np.append(top_vectors, [new_project_vector], axis=0)
-    top_labels = np.append(top_labels, [1], axis=0)
-
     # Creating abstract of top_labels mapping to the corresponding index in the dataframe
     abstract_dict = post_pro.create_abstract_dict_top(df, new_project, top_labels)
 
