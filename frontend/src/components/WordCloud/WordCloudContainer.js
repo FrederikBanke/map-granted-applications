@@ -3,9 +3,9 @@ import WordCloud from "react-d3-cloud";
 import callApi from '../../util/callApi';
 
 export default function WordCloudContainer(props) {
-    const [words, setWords] = useState([{ text: "word", value: 10 }, { text: "other", value: 20 }]);
-    const [maxWord, setMaxWord] = useState({ text: "word", value: 20 });
-    const [minWord, setMinWord] = useState({ text: "word", value: 10 })
+    const [words, setWords] = useState([{ text: "word", value: 30 }, { text: "cloud", value: 30 },{ text: "being", value: 10 },{ text: "generated", value: 20 }]);
+    const [maxWord, setMaxWord] = useState({ text: "word", value: 30 });
+    const [minWord, setMinWord] = useState({ text: "being", value: 10 })
     const [isRotate, setIsRotate] = useState(false);
 
     useEffect(() => {
