@@ -50,10 +50,16 @@ def json_to_dataframe(json, subset=0):
     Dataframe
     """
     # This is to make sure it has the right format when passed to pandas
+    print(type(json))
     if type(json) != list:
         json = [json]
         print("Not a list")
-    df = pd.DataFrame(json, [i for i in range(0, len(json))])
+    print("Length of json ", len(json))
+    try:
+        df = pd.DataFrame(json, [i for i in range(0, len(json))])
+    except KeyError as identifier:
+        print("There was an error")
+        # raise identifier
 
     if subset == 0:
         return df

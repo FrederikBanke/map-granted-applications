@@ -17,6 +17,7 @@ function App() {
       setTopProjects(parsedProjects)
     }
     else {
+      console.log("Find new closest projects!");
       findClosest()
         .then(res => {
           localStorage.setItem('closestProjects', JSON.stringify(res))

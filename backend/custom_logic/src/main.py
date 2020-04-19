@@ -22,12 +22,22 @@ import custom_logic.src.api as api
 mpl.use('TkAgg')  # Change backend
 
 def get_tfidf(user_project=None):
+    """
+    
+    
+    Parameters
+    ----------
+    user_project : `dataframe`. Must be a Pandas `dataframe`.
+    
+    Returns
+    -------
+     : 
+    """
     # Create a new dataframe with the users project
-    if user_project != None:
-        new_project = ul.json_to_dataframe(user_project)
-        TFIDF_model = pre_pro.train_TFIDF(abstract=new_project['objective'][0], delete_model=True)
+    if type(user_project) != type(None):
+        TFIDF_model = pre_pro.train_TFIDF(abstract=user_project['objective'][0], delete_model=True)
     else:
-        TFIDF_model = pre_pro.train_TFIDF(delete_model=True)
+        TFIDF_model = pre_pro.train_TFIDF(delete_model=False)
     
     # train TFIDF
 
@@ -35,7 +45,7 @@ def get_tfidf(user_project=None):
 
 def get_doc2vec(user_project=None):
     # Train the doc2vec model
-    doc2vec_model = train.train_doc2vec_model(delete_model=True)
+    doc2vec_model = train.train_doc2vec_model(delete_model=False)
     
     return doc2vec_model
 
