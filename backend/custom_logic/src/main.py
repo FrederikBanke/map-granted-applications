@@ -27,7 +27,7 @@ def get_tfidf(user_project=None):
         new_project = ul.json_to_dataframe(user_project)
         TFIDF_model = pre_pro.train_TFIDF(abstract=new_project['objective'][0], delete_model=True)
     else:
-        TFIDF_model = pre_pro.train_TFIDF()
+        TFIDF_model = pre_pro.train_TFIDF(delete_model=True)
     
     # train TFIDF
 
@@ -35,7 +35,7 @@ def get_tfidf(user_project=None):
 
 def get_doc2vec(user_project=None):
     # Train the doc2vec model
-    doc2vec_model = train.train_doc2vec_model(delete_model=False)
+    doc2vec_model = train.train_doc2vec_model(delete_model=True)
     
     return doc2vec_model
 

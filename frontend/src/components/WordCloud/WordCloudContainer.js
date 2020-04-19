@@ -16,6 +16,7 @@ export default function WordCloudContainer(props) {
             "user_project": props.userProject || null
         })
             .then(res => {
+                console.log(res);
                 let formattedData = formatData(res)
                 setWords(formattedData);
             });
@@ -99,6 +100,8 @@ export default function WordCloudContainer(props) {
                         fontSizeMapper={fontSizeMapper}
                         rotate={rotate}
                         padding={2}
+                        height={1000}
+                        width={1000}
                     />
                     : null
             }

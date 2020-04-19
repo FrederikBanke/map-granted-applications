@@ -111,7 +111,7 @@ def train_new_TFIDF(abstract=None):
     # vocabulary = list(vocabulary)
     # word_index = {w: idx for idx, w in enumerate(vocabulary)}
 
-    tfidf = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b", max_df=0.7)
+    tfidf = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b", max_df=0.9)
 
     # Fit the TfIdf model
     tfidf.fit_transform(abstracts)

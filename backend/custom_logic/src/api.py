@@ -51,10 +51,10 @@ def closest_vectors(user_project):
     -------
     `tuple` : A tuple containing 2 `lists`. Index 0 is the vectors and index 1 the tags. ([vectors], [tags])
     """
+    TFIDF_model = main.get_tfidf(user_project)
     doc2vec_model = main.get_doc2vec()
-    TFIDF_model = main.get_tfidf()
 
-    print(user_project)
+    # print(user_project)
 
     #FIXME: Maybe move this into `sml.topn_similar()`
     # Creating a vector from the user's abstract using the trained doc2vec model

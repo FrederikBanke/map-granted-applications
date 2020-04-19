@@ -6,28 +6,56 @@ import callApi from './util/callApi';
 
 function App() {
   const [viewWordCloud, setViewWordCloud] = useState(false);
-  const [topn, setTopn] = useState([]);
+  const [viewWordCloud2, setViewWordCloud2] = useState(false);
+
+  const [topProjects, setTopProjects] = useState([]);
 
   useEffect(() => {
-    findClosest();
+    let closestProjects = localStorage.getItem('closestProjects')
+    if (closestProjects) {
+      let parsedProjects = JSON.parse(closestProjects)
+      setTopProjects(parsedProjects)
+    }
+    else {
+      findClosest()
+        .then(res => {
+          localStorage.setItem('closestProjects', JSON.stringify(res))
+          setTopProjects(res);
+        });
+
+
+
+    }
   }, [])
 
   const toggleWordCloud = () => {
     setViewWordCloud(!viewWordCloud)
   }
+  const toggleWordCloud2 = () => {
+    setViewWordCloud2(!viewWordCloud2)
+  }
 
   const findClosest = () => {
-    callApi('closestprojects', 'POST', submitProject())
-    .then(res => {
-      console.log("Closest projects", res);
-      
+    return callApi('closestprojects', 'POST', submitProject());
+  }
+
+  const combineTexts = (projects) => {
+    let totalString = "";
+    projects.forEach(element => {
+      totalString = totalString + element.objective;
     });
+    return totalString;
   }
 
   return (
     <div className="App">
       <button onClick={toggleWordCloud}>Generate word cloud</button>
       {viewWordCloud ? <WordCloudContainer text={submitProject().objective} />
+        : null
+      }
+      <br/>
+      <button onClick={toggleWordCloud2}>Generate word cloud 2</button>
+      {viewWordCloud2 ? <WordCloudContainer text={combineTexts(topProjects)} />
         : null
       }
     </div>
