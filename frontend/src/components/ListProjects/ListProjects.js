@@ -13,7 +13,7 @@ export default function ListProjects(props) {
         <div style={style}>
             {
                 props.projects.map((element, index) => {
-                    return <p>{index + 1}: {element.title}</p>
+                    return <p key={element.id}>{index + 1}: {element.title}</p>
                 })
             }
         </div>
