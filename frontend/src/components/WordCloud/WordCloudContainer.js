@@ -1,36 +1,36 @@
 import React, { useEffect, useState } from 'react'
 import WordCloud from "react-d3-cloud";
+import callApi from '../../util/callApi';
 
 export default function WordCloudContainer(props) {
-    const [words, setWords] = useState([{ text: "word", value: 10 }, { text: "other", value: 20 }]);
-    const [maxWord, setMaxWord] = useState({ text: "word", value: 20 });
-    const [minWord, setMinWord] = useState({ text: "word", value: 10 })
+    const [words, setWords] = useState([]);
+    const [maxWord, setMaxWord] = useState({});
+    const [minWord, setMinWord] = useState({})
     const [isRotate, setIsRotate] = useState(false);
 
     useEffect(() => {
         console.log("WordCloud mounted");
 
-        fetch("http://localhost:8000/api/wordweight/", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                "text": props.text,
-                "user_project": props.userProject || null
-            })
+        callApi('wordweight', 'POST', {
+            "text": props.text,
+            "user_project": props.userProject || null
         })
-            .then(res => res.json())
             .then(res => {
-                let formattedData = formatData(res)
-                setWords(formattedData);
-            })
+                // console.log(res);
+                let formattedData = formatData(res);
+                let subset = subsetWords(formattedData);
+                console.log(formattedData);
+                console.log(subset);
+
+
+                setWords(subset);
+            });
 
         return (() => {
             console.log("WordCloud unmounted");
 
         })
-    }, [])
+    }, [props.text])
 
     useEffect(() => {
         let maxWord = findMax(words);
@@ -38,6 +38,33 @@ export default function WordCloudContainer(props) {
         setMaxWord(maxWord);
         setMinWord(minWord);
     }, [words])
+
+    /**
+     * 
+     * @param {[]} list 
+     * @param {Number} number 
+     */
+    const subsetWords = (list, number = 0) => {
+        if (number === 0) {
+            let sortedList = list.sort(compareWordsWeightDesc);
+            return sortedList;
+        }
+        let sortedList = list.sort(compareWordsWeightDesc);
+        return sortedList.slice(0, number);
+    }
+
+    const compareWordsWeightDesc = (a, b) => {
+        if (a.value < b.value) {
+            // less return negative
+            return 1;
+        }
+        if (a.value > b.value) {
+            // greater return positive
+            return -1;
+        }
+        //  equal return 0
+        return 0;
+    }
 
     const formatData = (data) => {
         let newData = [];
@@ -75,12 +102,13 @@ export default function WordCloudContainer(props) {
     }
 
     const fontSizeMapper = word => {
-        const maxLimit = 72;
+        const maxLimit = 92; // 143 is max for 800x800 canvas
         const minLimit = 6;
         const max = maxWord.value;
         const min = minWord.value;
 
         let fontSize = (maxLimit - minLimit) / (max - min) * (word.value - max) + maxLimit;
+        // console.log(`${word.text} font size: ${fontSize}`);
 
         return fontSize;
     }
@@ -96,7 +124,6 @@ export default function WordCloudContainer(props) {
 
     return (
         <div>
-            <h1>Word Cloud here</h1>
             <button onClick={toggleRotate}>Rotate</button>
             {
                 words.length > 0
@@ -105,8 +132,10 @@ export default function WordCloudContainer(props) {
                         fontSizeMapper={fontSizeMapper}
                         rotate={rotate}
                         padding={2}
+                        height={800}
+                        width={800}
                     />
-                    : null
+                    : <p>Generating word cloud...</p>
             }
 
 
