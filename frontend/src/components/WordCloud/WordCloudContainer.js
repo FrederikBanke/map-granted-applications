@@ -17,8 +17,8 @@ export default function WordCloudContainer(props) {
         })
             .then(res => {
                 // console.log(res);
-                let formattedData = formatData(res)
-                let subset = subsetWords(formattedData)
+                let formattedData = formatData(res);
+                let subset = subsetWords(formattedData);
                 console.log(formattedData);
                 console.log(subset);
 
@@ -30,7 +30,7 @@ export default function WordCloudContainer(props) {
             console.log("WordCloud unmounted");
 
         })
-    }, [])
+    }, [props.text])
 
     useEffect(() => {
         let maxWord = findMax(words);
@@ -108,7 +108,7 @@ export default function WordCloudContainer(props) {
         const min = minWord.value;
 
         let fontSize = (maxLimit - minLimit) / (max - min) * (word.value - max) + maxLimit;
-        console.log(`${word.text} font size: ${fontSize}`);
+        // console.log(`${word.text} font size: ${fontSize}`);
 
         return fontSize;
     }
@@ -124,7 +124,6 @@ export default function WordCloudContainer(props) {
 
     return (
         <div>
-            <h1>Word Cloud here</h1>
             <button onClick={toggleRotate}>Rotate</button>
             {
                 words.length > 0
@@ -136,7 +135,7 @@ export default function WordCloudContainer(props) {
                         height={800}
                         width={800}
                     />
-                    : null
+                    : <p>Generating word cloud...</p>
             }
 
 
