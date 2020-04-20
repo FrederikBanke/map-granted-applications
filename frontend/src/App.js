@@ -3,7 +3,7 @@ import './App.css';
 import WordCloudContainer from './components/WordCloud/WordCloudContainer';
 import { submitProject } from "./util/projectSubmission";
 import callApi from './util/callApi';
-import CustomSlider from './components/Sliders/CustomSlider';
+import ListProjects from './components/ListProjects/ListProjects';
 
 
 function App() {
@@ -48,13 +48,7 @@ function App() {
    * @param {[]} projects 
    */
   const combineTexts = (projects, limit = 0) => {
-    let subProjects = [];
-    if (limit === 0) {
-      subProjects = [];
-    }
-    else {
-      subProjects = projects.slice(0, limit);
-    }
+    let subProjects = subsetProjects(projects, limit)
 
     let totalString = "";
     subProjects.forEach(element => {
@@ -62,6 +56,17 @@ function App() {
     });
     console.log("All abstracts length", totalString.length);
     return totalString;
+  }
+
+  const subsetProjects = (projects, limit) => {
+    let subProjects = [];
+    if (limit === 0) {
+      subProjects = [];
+    }
+    else {
+      subProjects = projects.slice(0, limit);
+    }
+    return subProjects;
   }
 
   const onInputChange = event => {
@@ -79,14 +84,16 @@ function App() {
 
   return (
     <div className="App">
-      <input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
+      <ListProjects projects={subsetProjects(topProjects, topNumber)}/>
       <br />
-      <button onClick={toggleWordCloud}>Generate word cloud</button>
+      <button onClick={toggleWordCloud}>Generate word cloud for your project</button>
       {viewWordCloud ? <WordCloudContainer text={submitProject().objective} />
         : null
       }
-      <br />
-      <button onClick={toggleWordCloud2}>Generate word cloud 2</button>
+      <br /><br />
+      <input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
+      <br /><br />
+      <button onClick={toggleWordCloud2}>Generate word cloud for closest projects</button>
       {viewWordCloud2 ? <WordCloudContainer text={combineTexts(topProjects, topNumber)} />
         : null
       }
