@@ -99,6 +99,7 @@ function App() {
   return (
     <div className="App">
       <ProjectSubmission onChange={onProjectChange} />
+      <hr />
       <ListProjects projects={subsetProjects(topProjects, topNumber)} />
       <br />
       <button onClick={toggleWordCloud}>Generate word cloud for your project</button>
