@@ -12,7 +12,15 @@ import { findWordSentence } from "./../../util/findWord";
 function Sentences(props) {
 
     const wordStyle = {
-        color: 'red'
+        color: 'limegreen',
+        fontWeight: '700'
+    }
+
+    const containerStyle = {
+        width: "50%",
+        height: "400px",
+        overflowY: "auto",
+        margin: "auto"
     }
 
     /**
@@ -36,7 +44,7 @@ function Sentences(props) {
     }
 
     return (
-        <div>
+        <div style={containerStyle}>
             {
                 props.projects.map((value, index) => (
                     <div key={value.id}>
