@@ -1,6 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types'
 import { findWordSentence } from "./../../util/findWord";
+import Overlay from '../Overlay/Overlay';
+import ProjectView from '../ProjectView/ProjectView';
 
 /**
  * 
@@ -10,6 +12,9 @@ import { findWordSentence } from "./../../util/findWord";
  * 
  */
 function Sentences(props) {
+    const [viewProject, setViewProject] = useState(false);
+    const [project, setProject] = useState(null);
+    const [projectId, setProjectId] = useState("");
 
     const wordStyle = {
         color: 'limegreen',
@@ -31,7 +36,7 @@ function Sentences(props) {
     const renderSentence = (sentence, clickedWord) => {
         if (clickedWord) {
             let index = findWordSentence(clickedWord, sentence);
-            
+
             let before = sentence.substr(0, index);
             let word = sentence.substr(index, clickedWord.length + 1)
             let after = sentence.substr(index + clickedWord.length + 1);
@@ -43,21 +48,35 @@ function Sentences(props) {
 
     }
 
+    const onTitleClick = (event) => {
+        setProjectId(event.target.getAttribute('data-projectid'))
+        setViewProject(true);
+    }
+
     return (
-        <div style={containerStyle}>
+        <div>
             {
-                props.projects.map((value, index) => (
-                    <div key={value.id}>
-                        <h3>Title: {value.title}</h3>
-                        {
-                            value.sentences.map((value, index) => (
-                                renderSentence(value, props.word)
-                            ))
-                        }
-                    </div>
-                ))
+                viewProject
+                    ? (<Overlay onClickClose={setViewProject}>
+                        <ProjectView id={projectId} />
+                    </Overlay>)
+                    : null
             }
-        </div >
+            <div style={containerStyle}>
+                {
+                    props.projects.map((value, index) => (
+                        <div key={value.id}>
+                            <h3 onClick={onTitleClick} data-projectid={value.id} >Title: {value.title}</h3>
+                            {
+                                value.sentences.map((value, index) => (
+                                    renderSentence(value, props.word)
+                                ))
+                            }
+                        </div>
+                    ))
+                }
+            </div >
+        </div>
     )
 }
 
