@@ -51,21 +51,6 @@ function App() {
     return callApi('closestprojects', 'POST', project);
   }
 
-  /**
-   * Combine project objectives.
-   * @param {[]} projects 
-   */
-  const combineTexts = (projects, limit = 0) => {
-    let subProjects = subsetProjects(projects, limit)
-
-    let totalString = "";
-    subProjects.forEach(element => {
-      totalString = totalString + element.objective;
-    });
-    console.log("All abstracts length", totalString.length);
-    return totalString;
-  }
-
   const subsetProjects = (projects, limit) => {
     let subProjects = [];
     if (limit === 0) {
@@ -103,14 +88,14 @@ function App() {
       <ListProjects projects={subsetProjects(topProjects, topNumber)} />
       <br />
       <button onClick={toggleWordCloud}>Generate word cloud for your project</button>
-      {viewWordCloud ? <WordCloudContainer text={userProject.objective} />
+      {viewWordCloud ? <WordCloudContainer projects={[userProject]} />
         : null
       }
       <br /><br />
       <input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
       <br /><br />
       <button onClick={toggleWordCloud2}>Generate word cloud for closest projects</button>
-      {viewWordCloud2 ? <WordCloudContainer text={combineTexts(topProjects, topNumber)} />
+      {viewWordCloud2 ? <WordCloudContainer projects={subsetProjects(topProjects, topNumber)} />
         : null
       }
     </div>
