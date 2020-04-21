@@ -17,8 +17,9 @@ export default function WordCloudContainer(props) {
     const [maxWord, setMaxWord] = useState({});
     const [minWord, setMinWord] = useState({})
     const [isRotate, setIsRotate] = useState(false);
-    const [viewSentences, setViewSentences] = useState(false)
-    const [sentences, setSentences] = useState([])
+    const [viewSentences, setViewSentences] = useState(false);
+    const [sentences, setSentences] = useState([]);
+    const [currentWord, setCurrentWord] = useState("");
 
     useEffect(() => {
         console.log("WordCloud mounted");
@@ -150,6 +151,7 @@ export default function WordCloudContainer(props) {
         console.log(word.text);
         let projectSentences = findWordProject(word.text, props.projects);
         console.log(projectSentences);
+        setCurrentWord(word.text);
         setSentences(projectSentences);
         setViewSentences(true);
     }
@@ -172,7 +174,7 @@ export default function WordCloudContainer(props) {
             }
             {
                 viewSentences
-                    ? <Sentences projects={sentences} />
+                    ? <Sentences projects={sentences} word={currentWord} />
                     : null
             }
 
