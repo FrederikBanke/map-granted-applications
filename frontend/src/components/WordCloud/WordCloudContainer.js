@@ -3,18 +3,22 @@ import PropTypes from 'prop-types';
 import WordCloud from "react-d3-cloud";
 import callApi from '../../util/callApi';
 import { findWordProject } from '../../util/findWord';
+import Sentences from '../Sentences/Sentences';
 
 /**
  * 
  * @param {Object} props 
  * @param {[]} props.projects
  * @param {[]} [props.userProject]
+ * @param {Function} [props.onWordClick]
  */
 export default function WordCloudContainer(props) {
     const [words, setWords] = useState([]);
     const [maxWord, setMaxWord] = useState({});
     const [minWord, setMinWord] = useState({})
     const [isRotate, setIsRotate] = useState(false);
+    const [viewSentences, setViewSentences] = useState(false)
+    const [sentences, setSentences] = useState([])
 
     useEffect(() => {
         console.log("WordCloud mounted");
@@ -146,8 +150,8 @@ export default function WordCloudContainer(props) {
         console.log(word.text);
         let projectSentences = findWordProject(word.text, props.projects);
         console.log(projectSentences);
-        
-        return projectSentences;
+        setSentences(projectSentences);
+        setViewSentences(true);
     }
 
     return (
@@ -166,6 +170,11 @@ export default function WordCloudContainer(props) {
                     />
                     : <p>Generating word cloud...</p>
             }
+            {
+                viewSentences
+                    ? <Sentences projects={sentences} />
+                    : null
+            }
 
 
         </div>
@@ -174,5 +183,6 @@ export default function WordCloudContainer(props) {
 
 WordCloudContainer.propTypes = {
     projects: PropTypes.arrayOf(PropTypes.object).isRequired,
-    userProject: PropTypes.object
+    userProject: PropTypes.object,
+    onWordClick: PropTypes.func
 }
