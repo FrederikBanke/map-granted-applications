@@ -4,41 +4,41 @@ import WordCloudContainer from './components/WordCloud/WordCloudContainer';
 import callApi from './util/callApi';
 import ListProjects from './components/ListProjects/ListProjects';
 import ProjectSubmission from './components/ProjectSubmission/ProjectSubmission';
+import { loadCurrentProject, getClosestProjects, saveClosestProjects, saveCurrentProject, saveProject } from './util/projectManagement';
 
 
 function App() {
   const [viewWordCloud, setViewWordCloud] = useState(false);
   const [viewWordCloud2, setViewWordCloud2] = useState(false);
 
-  const [userProject, setUserProject] = useState(null);
+  const [uploadedProjects, setUploadedProjects] = useState(null);
+  const [currentProject, setCurrentProject] = useState(null);
+  const [topProjectsList, setTopProjectsList] = useState(null);
   const [topProjects, setTopProjects] = useState([]);
   const [topNumber, setTopNumber] = useState(50);
 
   useEffect(() => {
-    if (localStorage.getItem('userProject')) {
-      setUserProject(JSON.parse(localStorage.getItem('userProject')));
-    }
+    setCurrentProject(loadCurrentProject());
   }, []);
 
   useEffect(() => {
-    if (userProject) {
-      let closestProjects = localStorage.getItem('closestProjects')
+    if (currentProject) {
+      let closestProjects = getClosestProjects();
       if (closestProjects) {
-        let parsedProjects = JSON.parse(closestProjects)
-        setTopProjects(parsedProjects)
+        setTopProjects(closestProjects);
       }
       else {
         console.log("Find new closest projects!");
-        findClosest(userProject)
-          .then(res => {
-            console.log(res);
+        findClosest(currentProject)
+          .then(newClosestProjects => {
+            console.log(newClosestProjects);
 
-            localStorage.setItem('closestProjects', JSON.stringify(res))
-            setTopProjects(res);
+            saveClosestProjects(newClosestProjects);
+            setTopProjects(newClosestProjects);
           });
       }
     }
-  }, [userProject])
+  }, [currentProject])
 
   const toggleWordCloud = () => {
     setViewWordCloud(!viewWordCloud)
@@ -49,21 +49,6 @@ function App() {
 
   const findClosest = (project) => {
     return callApi('closestprojects', 'POST', project);
-  }
-
-  /**
-   * Combine project objectives.
-   * @param {[]} projects 
-   */
-  const combineTexts = (projects, limit = 0) => {
-    let subProjects = subsetProjects(projects, limit)
-
-    let totalString = "";
-    subProjects.forEach(element => {
-      totalString = totalString + element.objective;
-    });
-    console.log("All abstracts length", totalString.length);
-    return totalString;
   }
 
   const subsetProjects = (projects, limit) => {
@@ -88,29 +73,67 @@ function App() {
     }
   }
 
+  const currentProjectExists = () => {
+    if (currentProject) {
+      return true;
+    }
+    return false;
+  }
+
+  const saveAndSetProject = project => {
+    if (project) {
+      saveProject(project);
+    }
+    onProjectChange(project);
+  }
+
   const onProjectChange = project => {
-    localStorage.removeItem('closestProjects');
-    setTopProjects([]);
-    setUserProject(project);
+    setViewWordCloud(false);
+    setViewWordCloud2(false);
+    if (project) {
+      if (currentProject) {
+        if (project.id !== currentProject.id) {
+          localStorage.removeItem('closestProjects');
+          saveCurrentProject(project);
+          setTopProjects([]);
+          setCurrentProject(project);
+        }
+      } else {
+        localStorage.removeItem('closestProjects');
+        saveCurrentProject(project);
+        setTopProjects([]);
+        setCurrentProject(project);
+      }
+    }
+    else {
+      localStorage.removeItem('closestProjects');
+      localStorage.removeItem('currentProject');
+      setCurrentProject(null);
+      setTopProjects([]);
+    }
   }
 
   const inputStyle = { width: "50px" }
 
   return (
     <div className="App">
-      <ProjectSubmission onChange={onProjectChange} />
+      <ProjectSubmission currentProject={currentProject} onChange={onProjectChange} />
       <hr />
-      <ListProjects projects={subsetProjects(topProjects, topNumber)} />
-      <br />
-      <button onClick={toggleWordCloud}>Generate word cloud for your project</button>
-      {viewWordCloud ? <WordCloudContainer text={userProject.objective} />
+      <button disabled={!currentProjectExists()} onClick={toggleWordCloud}>Generate word cloud for your project</button>
+      {viewWordCloud ? <WordCloudContainer onProjectChange={onProjectChange} projects={[currentProject]} />
         : null
       }
+      {
+        topProjects.length > 0
+          ? <ListProjects projects={subsetProjects(topProjects, topNumber)} />
+          : null
+      }
+      <br />
       <br /><br />
       <input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
       <br /><br />
-      <button onClick={toggleWordCloud2}>Generate word cloud for closest projects</button>
-      {viewWordCloud2 ? <WordCloudContainer text={combineTexts(topProjects, topNumber)} />
+      <button disabled={topProjects.length < 1} onClick={toggleWordCloud2}>Generate word cloud for closest projects</button>
+      {viewWordCloud2 ? <WordCloudContainer onProjectChange={saveAndSetProject} projects={subsetProjects(topProjects, topNumber)} />
         : null
       }
     </div>

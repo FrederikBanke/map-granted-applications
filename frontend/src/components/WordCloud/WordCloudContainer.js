@@ -1,27 +1,40 @@
 import React, { useEffect, useState } from 'react'
+import PropTypes from 'prop-types';
 import WordCloud from "react-d3-cloud";
 import callApi from '../../util/callApi';
+import { findWordProject } from '../../util/findWord';
+import Sentences from '../Sentences/Sentences';
 
+/**
+ * 
+ * @param {Object} props 
+ * @param {[]} props.projects
+ * @param {[]} [props.userProject]
+ * @param {Function} [props.onWordClick]
+ * @param {Function} [props.onProjectChange]
+ */
 export default function WordCloudContainer(props) {
     const [words, setWords] = useState([]);
     const [maxWord, setMaxWord] = useState({});
     const [minWord, setMinWord] = useState({})
     const [isRotate, setIsRotate] = useState(false);
+    const [viewSentences, setViewSentences] = useState(false);
+    const [sentences, setSentences] = useState([]);
+    const [currentWord, setCurrentWord] = useState("");
 
     useEffect(() => {
         console.log("WordCloud mounted");
 
         callApi('wordweight', 'POST', {
-            "text": props.text,
+            "text": combineTexts(props.projects),
             "user_project": props.userProject || null
         })
             .then(res => {
                 // console.log(res);
                 let formattedData = formatData(res);
                 let subset = subsetWords(formattedData);
-                console.log(formattedData);
-                console.log(subset);
-
+                // console.log(formattedData);
+                // console.log(subset);
 
                 setWords(subset);
             });
@@ -38,6 +51,19 @@ export default function WordCloudContainer(props) {
         setMaxWord(maxWord);
         setMinWord(minWord);
     }, [words])
+
+    /**
+     * Combine project objectives.
+     * @param {[]} projects 
+     */
+    const combineTexts = (projects) => {
+        let totalString = "";
+        projects.forEach(project => {
+            totalString = totalString + project.objective;
+        });
+        console.log("All abstracts length", totalString.length);
+        return totalString;
+    }
 
     /**
      * 
@@ -122,6 +148,15 @@ export default function WordCloudContainer(props) {
         isRotate ? setIsRotate(false) : setIsRotate(true)
     }
 
+    const onWordClick = word => {
+        console.log(word.text);
+        let projectSentences = findWordProject(word.text, props.projects);
+        console.log(projectSentences);
+        setCurrentWord(word.text);
+        setSentences(projectSentences);
+        setViewSentences(true);
+    }
+
     return (
         <div>
             <button onClick={toggleRotate}>Rotate</button>
@@ -134,11 +169,24 @@ export default function WordCloudContainer(props) {
                         padding={2}
                         height={800}
                         width={800}
+                        onWordClick={onWordClick}
                     />
                     : <p>Generating word cloud...</p>
+            }
+            {
+                viewSentences
+                    ? <Sentences onProjectChange={props.onProjectChange} projects={sentences} word={currentWord} />
+                    : null
             }
 
 
         </div>
     )
+}
+
+WordCloudContainer.propTypes = {
+    projects: PropTypes.arrayOf(PropTypes.object).isRequired,
+    userProject: PropTypes.object,
+    onWordClick: PropTypes.func,
+    onProjectChange: PropTypes.func
 }
