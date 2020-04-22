@@ -31,7 +31,21 @@ export function getProject(projectId) {
  */
 export function saveProject(project) {
     let projects = getProjects();
-    projects.push(project);
+    let projectAlreadySaved = false;
+    projects.forEach(value => {
+        if (project.id === value.id) {
+            projectAlreadySaved = true;
+        }
+    })
+    if (projectAlreadySaved) {
+        projects = deleteProject(project);
+        projects.push(project);
+        
+    }
+    else {
+        projects.push(project);
+
+    }
     localStorage.setItem('uploadedProjects', JSON.stringify(projects));
 }
 
@@ -52,6 +66,7 @@ export function deleteProject(project, chooseProject) {
         return true;
     });
     localStorage.setItem('uploadedProjects', JSON.stringify(newProjects));
+    return newProjects;
 }
 
 export function saveCurrentProject(project) {

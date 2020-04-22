@@ -7,6 +7,7 @@ import callApi from '../../util/callApi';
  * @param {Object} props 
  * @param {Object} props.project
  * @param {String} props.id
+ * @param {Function} props.onProjectChange
  * 
  */
 function ProjectView(props) {
@@ -31,18 +32,25 @@ function ProjectView(props) {
 
     }, [props.id, props.project]);
 
+    const onSaveClick = () => {
+        props.onProjectChange(project);
+    }
+
     return (
         project
             ? (<div style={style}>
                 <p>Title: {project.title}</p>
                 <p>Objective: {project.objective}</p>
+                <button onClick={onSaveClick}>Save and set project as active</button>
             </div>)
             : null
     )
 }
 
 ProjectView.propTypes = {
-
+    project: PropTypes.object,
+    id: PropTypes.string,
+    onProjectChange: PropTypes.func
 }
 
 export default ProjectView

@@ -4,7 +4,7 @@ import WordCloudContainer from './components/WordCloud/WordCloudContainer';
 import callApi from './util/callApi';
 import ListProjects from './components/ListProjects/ListProjects';
 import ProjectSubmission from './components/ProjectSubmission/ProjectSubmission';
-import { loadCurrentProject, getClosestProjects, saveClosestProjects } from './util/projectManagement';
+import { loadCurrentProject, getClosestProjects, saveClosestProjects, saveCurrentProject, saveProject } from './util/projectManagement';
 
 
 function App() {
@@ -80,19 +80,47 @@ function App() {
     return false;
   }
 
+  const saveAndSetProject = project => {
+    if (project) {
+      saveProject(project);
+    }
+    onProjectChange(project);
+  }
+
   const onProjectChange = project => {
-    setTopProjects([]);
-    setCurrentProject(project);
+    setViewWordCloud(false);
+    setViewWordCloud2(false);
+    if (project) {
+      if (currentProject) {
+        if (project.id !== currentProject.id) {
+          localStorage.removeItem('closestProjects');
+          saveCurrentProject(project);
+          setTopProjects([]);
+          setCurrentProject(project);
+        }
+      } else {
+        localStorage.removeItem('closestProjects');
+        saveCurrentProject(project);
+        setTopProjects([]);
+        setCurrentProject(project);
+      }
+    }
+    else {
+      localStorage.removeItem('closestProjects');
+      localStorage.removeItem('currentProject');
+      setCurrentProject(null);
+      setTopProjects([]);
+    }
   }
 
   const inputStyle = { width: "50px" }
 
   return (
     <div className="App">
-      <ProjectSubmission onChange={onProjectChange} />
+      <ProjectSubmission currentProject={currentProject} onChange={onProjectChange} />
       <hr />
       <button disabled={!currentProjectExists()} onClick={toggleWordCloud}>Generate word cloud for your project</button>
-      {viewWordCloud ? <WordCloudContainer projects={[currentProject]} />
+      {viewWordCloud ? <WordCloudContainer onProjectChange={onProjectChange} projects={[currentProject]} />
         : null
       }
       {
@@ -105,7 +133,7 @@ function App() {
       <input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
       <br /><br />
       <button disabled={topProjects.length < 1} onClick={toggleWordCloud2}>Generate word cloud for closest projects</button>
-      {viewWordCloud2 ? <WordCloudContainer projects={subsetProjects(topProjects, topNumber)} />
+      {viewWordCloud2 ? <WordCloudContainer onProjectChange={saveAndSetProject} projects={subsetProjects(topProjects, topNumber)} />
         : null
       }
     </div>

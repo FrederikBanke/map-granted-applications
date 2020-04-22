@@ -9,6 +9,7 @@ import ProjectView from '../ProjectView/ProjectView';
  * @param {Object} props 
  * @param {[]} props.projects
  * @param {String} props.word
+ * @param {Function} props.onProjectChange
  * 
  */
 function Sentences(props) {
@@ -58,7 +59,7 @@ function Sentences(props) {
             {
                 viewProject
                     ? (<Overlay onClickClose={setViewProject}>
-                        <ProjectView id={projectId} />
+                        <ProjectView onProjectChange={props.onProjectChange} id={projectId} />
                     </Overlay>)
                     : null
             }
@@ -82,7 +83,8 @@ function Sentences(props) {
 
 Sentences.propTypes = {
     projects: PropTypes.arrayOf(Object).isRequired,
-    word: PropTypes.string
+    word: PropTypes.string,
+    onProjectChange: PropTypes.func
 }
 
 export default Sentences

@@ -11,6 +11,7 @@ import Sentences from '../Sentences/Sentences';
  * @param {[]} props.projects
  * @param {[]} [props.userProject]
  * @param {Function} [props.onWordClick]
+ * @param {Function} [props.onProjectChange]
  */
 export default function WordCloudContainer(props) {
     const [words, setWords] = useState([]);
@@ -174,7 +175,7 @@ export default function WordCloudContainer(props) {
             }
             {
                 viewSentences
-                    ? <Sentences projects={sentences} word={currentWord} />
+                    ? <Sentences onProjectChange={props.onProjectChange} projects={sentences} word={currentWord} />
                     : null
             }
 
@@ -186,5 +187,6 @@ export default function WordCloudContainer(props) {
 WordCloudContainer.propTypes = {
     projects: PropTypes.arrayOf(PropTypes.object).isRequired,
     userProject: PropTypes.object,
-    onWordClick: PropTypes.func
+    onWordClick: PropTypes.func,
+    onProjectChange: PropTypes.func
 }

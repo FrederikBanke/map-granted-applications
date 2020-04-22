@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import Overlay from '../Overlay/Overlay';
 import { saveProject, getProjects, loadCurrentProject, saveCurrentProject, getProject, deleteProject } from '../../util/projectManagement';
+import PropTypes from "prop-types";
 
-
+/**
+ * 
+ * @param {Object} props 
+ * @param {Object} props.currentProject
+ * @param {Function} props.onChange
+ */
 export default function ProjectSubmission(props) {
     const [projectsList, setProjectsList] = useState([]);
-    const [currentProject, setCurrentProject] = useState(null);
     const [viewChooseProject, setViewChooseProject] = useState(false);
 
     const chooseStyle = {
@@ -14,12 +19,8 @@ export default function ProjectSubmission(props) {
     };
 
     useEffect(() => {
-        setCurrentProject(loadCurrentProject())
-    }, [])
-
-    useEffect(() => {
         setProjectsList(getProjects());
-    }, [currentProject]);
+    }, [props.currentProject]);
 
     const onClickChoose = () => {
         setViewChooseProject(true);
@@ -39,28 +40,7 @@ export default function ProjectSubmission(props) {
     }
 
     const chooseProject = project => {
-        if (project) {
-            if (currentProject) {
-                if (project.id !== currentProject.id) {
-                    localStorage.removeItem('closestProjects');
-                    saveCurrentProject(project);
-                    setCurrentProject(project);
-                    props.onChange(project);
-                }
-            }
-            else {
-                localStorage.removeItem('closestProjects');
-                saveCurrentProject(project);
-                setCurrentProject(project);
-                props.onChange(project);
-            }
-        }
-        else {
-            localStorage.removeItem('closestProjects');
-            localStorage.removeItem('currentProject');
-            setCurrentProject(project);
-            props.onChange(project);
-        }
+        props.onChange(project);
     }
 
     const onProjectClick = event => {
@@ -80,7 +60,7 @@ export default function ProjectSubmission(props) {
             <div>
                 <button onClick={onClickChoose}>Choose new project</button>
                 {
-                    currentProject ? <p>Title: {currentProject.title}</p> : null
+                    props.currentProject ? <p>Title: {props.currentProject.title}</p> : null
                 }
                 {
                     viewChooseProject
@@ -104,4 +84,9 @@ export default function ProjectSubmission(props) {
     }
 
     return renderView();
+}
+
+ProjectSubmission.propTypes = {
+    currentProject: PropTypes.object,
+    onChange: PropTypes.func
 }
