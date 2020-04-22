@@ -34,7 +34,7 @@ function Sentences(props) {
      * @param {String} sentence 
      * @param {String} clickedWord 
      */
-    const renderSentence = (sentence, clickedWord) => {
+    const renderSentence = (sentence, clickedWord, key) => {
         if (clickedWord) {
             let index = findWordSentence(clickedWord, sentence);
 
@@ -42,10 +42,10 @@ function Sentences(props) {
             let word = sentence.substr(index, clickedWord.length + 1)
             let after = sentence.substr(index + clickedWord.length + 1);
             return (
-                <p>{before}<span style={wordStyle}>{word}</span>{after}</p>
+                <p key={key}>{before}<span style={wordStyle}>{word}</span>{after}</p>
             )
         }
-        return <p>{sentence}</p>
+        return <p key={key}>{sentence}</p>
 
     }
 
@@ -70,7 +70,7 @@ function Sentences(props) {
                             <h3 onClick={onTitleClick} data-projectid={value.id} >Title: {value.title}</h3>
                             {
                                 value.sentences.map((value, index) => (
-                                    renderSentence(value, props.word)
+                                    renderSentence(value, props.word, index)
                                 ))
                             }
                         </div>

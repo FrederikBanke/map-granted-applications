@@ -149,9 +149,9 @@ export default function WordCloudContainer(props) {
     }
 
     const onWordClick = word => {
-        console.log(word.text);
+        // console.log(word.text);
         let projectSentences = findWordProject(word.text, props.projects);
-        console.log(projectSentences);
+        // console.log(projectSentences);
         setCurrentWord(word.text);
         setSentences(projectSentences);
         setViewSentences(true);

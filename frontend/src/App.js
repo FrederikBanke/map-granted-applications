@@ -5,9 +5,16 @@ import callApi from './util/callApi';
 import ListProjects from './components/ListProjects/ListProjects';
 import ProjectSubmission from './components/ProjectSubmission/ProjectSubmission';
 import { loadCurrentProject, getClosestProjects, saveClosestProjects, saveCurrentProject, saveProject } from './util/projectManagement';
+import TabsContainer from './components/Tabs/TabsContainer';
+import Tab from './components/Tabs/Tab';
 
 
 function App() {
+  const [activeTab, setActiveTab] = useState("");
+  const [wordCloudTabId, setWordCloudTabId] = useState("wordcloud");
+  const [coocTabId, setCoocTabId] = useState("coocmap");
+
+
   const [viewWordCloud, setViewWordCloud] = useState(false);
   const [viewWordCloud2, setViewWordCloud2] = useState(false);
 
@@ -16,6 +23,30 @@ function App() {
   const [topProjectsList, setTopProjectsList] = useState(null);
   const [topProjects, setTopProjects] = useState([]);
   const [topNumber, setTopNumber] = useState(50);
+
+  const activeTabStyle = {
+    backgroundImage: "linear-gradient(to top, white, #DCDCDC)",
+    boxShadow: "inset 0 0 10px #000000",
+  }
+
+  const inActiveTabStyle = {
+    backgroundImage: "linear-gradient(to top, #DCDCDC, white)"
+  }
+
+  const chooseTabStyle = (tabId) => {
+    let tabStyle = {
+      width: "200px",
+      margin: "10px",
+      paddingLeft: "10px",
+      paddingRight: "10px",
+      borderRadius: "10px",
+      border: "solid",
+      borderWidth: "1px",
+      textShadow: "1px 1px #ffffff",
+    }
+    return tabId === activeTab ? Object.assign(tabStyle, activeTabStyle)
+      : Object.assign(tabStyle, inActiveTabStyle)
+  }
 
   useEffect(() => {
     setCurrentProject(loadCurrentProject());
@@ -113,28 +144,59 @@ function App() {
     }
   }
 
+  const onClickTab = tabId => {
+    setActiveTab(tabId)
+  }
+
   const inputStyle = { width: "50px" }
 
-  return (
-    <div className="App">
-      <ProjectSubmission currentProject={currentProject} onChange={onProjectChange} />
-      <hr />
+
+  const renderWordCloudTab = () => {
+    return <div>
       <button disabled={!currentProjectExists()} onClick={toggleWordCloud}>Generate word cloud for your project</button>
       {viewWordCloud ? <WordCloudContainer onProjectChange={onProjectChange} projects={[currentProject]} />
         : null
       }
+      <br /><br />
+      <button disabled={topProjects.length < 1} onClick={toggleWordCloud2}>Generate word cloud for closest projects</button>
+      {viewWordCloud2 ? <WordCloudContainer onProjectChange={saveAndSetProject} projects={subsetProjects(topProjects, topNumber)} />
+        : null
+      }
+    </div>
+  }
+
+  const renderCoocMapTab = () => {
+    return <div>
+      <p>Co-occurrence map</p>
+    </div>
+  }
+
+
+  return (
+    <div className="App">
+      <h1>App</h1>
+      <ProjectSubmission currentProject={currentProject} onChange={onProjectChange} />
+      <hr />
+      <input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
+      <br />
       {
         topProjects.length > 0
           ? <ListProjects projects={subsetProjects(topProjects, topNumber)} />
           : null
       }
-      <br />
-      <br /><br />
-      <input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
-      <br /><br />
-      <button disabled={topProjects.length < 1} onClick={toggleWordCloud2}>Generate word cloud for closest projects</button>
-      {viewWordCloud2 ? <WordCloudContainer onProjectChange={saveAndSetProject} projects={subsetProjects(topProjects, topNumber)} />
-        : null
+      <TabsContainer>
+        <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
+        <Tab text="Co-occurrence map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
+      </TabsContainer>
+      {
+        activeTab === wordCloudTabId
+          ? renderWordCloudTab()
+          : null
+      }
+      {
+        activeTab === coocTabId
+          ? renderCoocMapTab()
+          : null
       }
     </div>
   );

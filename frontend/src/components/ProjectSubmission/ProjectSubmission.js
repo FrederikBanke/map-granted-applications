@@ -15,7 +15,8 @@ export default function ProjectSubmission(props) {
 
     const chooseStyle = {
         backgroundColor: "white",
-        border: "solid"
+        border: "solid",
+        padding: "10px"
     };
 
     useEffect(() => {
@@ -72,8 +73,8 @@ export default function ProjectSubmission(props) {
                                             <p> <span onClick={onRemoveClick} data-projectid={project.id}>✖️</span> <span onClick={onProjectClick} data-projectid={project.id}>Title: {project.title}</span></p>
                                         ))
                                     }
-                                </div>
                                 <button onClick={uploadProject}>Upload new project</button>
+                                </div>
                             </Overlay>
                         ) : null
                 }
