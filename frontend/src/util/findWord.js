@@ -23,7 +23,7 @@ function findSentences(word, text) {
     // let testSentence = "A bad sentence. A test sentence with 1.0 as a number, and 1,0 as well! Now for something else. More test.More test."
     // [^.!?]*test(?:[^\!?.]|\.(?=\d))*[\!?.]
     // Matches with sentences, where we allow decimal numbers.
-    let re = new RegExp(`([^.!?]*\\s|^)${word}(\\s(?:[^!?.]|.(?=\\d))*)*([!?.]|$)`, 'gim');
+    let re = new RegExp(`([^.!?]*\\s|^)${word}((\\s|-|,)(?:[^!?.]|.(?=\\d))*)*([!?.]|$)`, 'gim');
     let match = text.match(re);
     return match;    
 }
@@ -34,11 +34,11 @@ function findSentences(word, text) {
  * @param {String} sentence 
  */
 export function findWordSentence(word, sentence) {
-    console.log("Looking for word:", word);
-    console.log("In sentence:", sentence);
+    // console.log("Looking for word:", word);
+    // console.log("In sentence:", sentence);
     
-    
-    let re = new RegExp(`([\\s.!?]|^)${word}([\\s.!?]|$)`, 'gim');
+    let re = new RegExp(`([\\s.!?,]|^)${word}([\\s.,!?-]|$)`, 'gim');
+
     let index = sentence.search(re);
     
     return index;  

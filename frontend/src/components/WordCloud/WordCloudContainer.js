@@ -66,9 +66,11 @@ export default function WordCloudContainer(props) {
     const combineTexts = (projects) => {
         let totalString = "";
         projects.forEach(project => {
-            totalString = totalString + project.objective;
+            totalString = totalString + " " + project.objective;
         });
-        console.log("All abstracts length", totalString.length);
+        // console.log("All abstracts length", totalString.length);
+        console.log("Combined abstract", totalString);
+
         return totalString;
     }
 
