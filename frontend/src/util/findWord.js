@@ -4,7 +4,7 @@
  * @param {[Object]} projects 
  */
 export function findWordProject(word, projects) {
-    
+
     let projectSentences = []
     projects.forEach(project => {
         let sentencesList = findSentences(word, project.objective)
@@ -25,21 +25,35 @@ function findSentences(word, text) {
     // Matches with sentences, where we allow decimal numbers.
     let re = new RegExp(`([^.!?]*\\s|^)${word}((\\s|-|,)(?:[^!?.]|.(?=\\d))*)*([!?.]|$)`, 'gim');
     let match = text.match(re);
-    return match;    
+    return match;
 }
 
-/**
+/** 
  * Find position of word in a sentence. Returns index.
  * @param {String} word 
  * @param {String} sentence 
+ * @returns {[Number]}
  */
 export function findWordSentence(word, sentence) {
     // console.log("Looking for word:", word);
     // console.log("In sentence:", sentence);
-    
-    let re = new RegExp(`([\\s.!?,]|^)${word}([\\s.,!?-]|$)`, 'gim');
+    let indexList = [];
+    let pos = 0;
 
-    let index = sentence.search(re);
+    // let re = new RegExp(`([\\s.!?,]|^)${word}([\\s.,!?-]|$)`, 'gim');
+    // let index = sentence.search(re);
+
+    while (true) {
+        let index = sentence.indexOf(word, pos)
+        if (index === -1) {
+            break;
+        }
+        console.log("Pusing index:", index);
+        
+        indexList.push(index);
+        pos = index + word.length;
+    }
+    console.log("Out of log");
     
-    return index;  
+    return indexList;
 }

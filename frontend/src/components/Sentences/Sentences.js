@@ -36,15 +36,20 @@ function Sentences(props) {
      */
     const renderSentence = (sentence, clickedWord, key) => {
         if (clickedWord) {
-            let index = findWordSentence(clickedWord, sentence);
+            let indexList = findWordSentence(clickedWord, sentence);
+            let currentIndex = 0;
 
-            let before = sentence.substr(0, index);
-            let word = sentence.substr(index, clickedWord.length + 1)
-            let after = sentence.substr(index + clickedWord.length + 1);
-            
-            return (
-                <p key={key}>{before}<span style={wordStyle}>{word}</span>{after}</p>
-            )
+            return (<p>
+                {
+                    indexList.map(wordIndex => {
+                        let before = sentence.substr(currentIndex, wordIndex - currentIndex);
+                        let word = sentence.substr(wordIndex, clickedWord.length)
+                        currentIndex = wordIndex + clickedWord.length;
+                        return <span>{before}<span style={wordStyle}>{word}</span></span>
+                    })
+                }
+                <span>{sentence.substr(currentIndex)}</span>
+            </p>)
         }
         return <p key={key}>{sentence}</p>
 
