@@ -200,7 +200,7 @@ function App() {
                 <br />
                   <ListProjects projects={subsetProjects(topProjects, topNumber)} />
                 </div>
-                : <p>Finding closest...</p>
+                : <p>Finding similar projects...</p>
             }
 
             <TabsContainer>

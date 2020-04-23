@@ -29,7 +29,7 @@ export function getProject(projectId) {
  * Add a project to the list in local storage.
  * @param {{}} project Project to save
  */
-export function saveProject(project) {
+export function saveProject(project, chooseProject) {
     let projects = getProjects();
     let projectAlreadySaved = false;
     projects.forEach(value => {
@@ -38,7 +38,7 @@ export function saveProject(project) {
         }
     })
     if (projectAlreadySaved) {
-        projects = deleteProject(project);
+        projects = deleteProject(project, chooseProject);
         projects.push(project);
         
     }

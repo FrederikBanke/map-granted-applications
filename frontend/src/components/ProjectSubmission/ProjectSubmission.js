@@ -36,7 +36,7 @@ export default function ProjectSubmission(props) {
             title,
             objective
         }
-        saveProject(newProject);
+        saveProject(newProject, chooseProject);
         chooseProject(newProject);
     }
 
@@ -70,7 +70,7 @@ export default function ProjectSubmission(props) {
                                 <div style={chooseStyle}>
                                     {
                                         projectsList.map((project, index) => (
-                                            <p> <span onClick={onRemoveClick} data-projectid={project.id}>✖️</span> <span onClick={onProjectClick} data-projectid={project.id}>Title: {project.title}</span></p>
+                                            <p key={project.id}> <span onClick={onRemoveClick} data-projectid={project.id}>✖️</span> <span onClick={onProjectClick} data-projectid={project.id}>Title: {project.title}</span></p>
                                         ))
                                     }
                                 <button onClick={uploadProject}>Upload new project</button>
