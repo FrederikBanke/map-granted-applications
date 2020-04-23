@@ -1,3 +1,5 @@
+import { indexOfRegex } from 'index-of-regex';
+
 /**
  * 
  * @param {string} word 
@@ -40,20 +42,29 @@ export function findWordSentence(word, sentence) {
     let indexList = [];
     let pos = 0;
 
-    // let re = new RegExp(`([\\s.!?,]|^)${word}([\\s.,!?-]|$)`, 'gim');
+    let re = new RegExp(`([\\s.!?,]|^)${word}([\\s.,!?-]|$)`, 'gim');
     // let index = sentence.search(re);
 
     while (true) {
-        let index = sentence.indexOf(word, pos)
+        // let index = sentence.indexOf(word, pos)
+        // let index = indexOfRegex(sentence, re, pos);
+        let index = sentence.regexIndexOf(re, pos);
         if (index === -1) {
             break;
         }
         console.log("Pusing index:", index);
+
         
+
         indexList.push(index);
         pos = index + word.length;
     }
     console.log("Out of log");
-    
+
     return indexList;
+}
+
+String.prototype.regexIndexOf = function(regex, startpos) {
+    var indexOf = this.substring(startpos || 0).search(regex);
+    return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
 }

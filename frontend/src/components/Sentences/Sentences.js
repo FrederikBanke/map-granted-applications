@@ -43,8 +43,8 @@ function Sentences(props) {
                 {
                     indexList.map(wordIndex => {
                         let before = sentence.substr(currentIndex, wordIndex - currentIndex);
-                        let word = sentence.substr(wordIndex, clickedWord.length)
-                        currentIndex = wordIndex + clickedWord.length;
+                        let word = sentence.substr(wordIndex, clickedWord.length + 1)
+                        currentIndex = wordIndex + clickedWord.length + 1;
                         return <span>{before}<span style={wordStyle}>{word}</span></span>
                     })
                 }

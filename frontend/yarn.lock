@@ -5382,6 +5382,11 @@ indent-string@^4.0.0:
   resolved "https://registry.yarnpkg.com/indent-string/-/indent-string-4.0.0.tgz#624f8f4497d619b2d9768531d58f4122854d7251"
   integrity sha512-EdDDZu4A2OyIK7Lr/2zG+w5jmbuk1DVBnEwREQvBzspBJkCEbRa8GxU1lghYcaGJCnRWibjDXlq779X1/y5xwg==
 
+index-of-regex@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/index-of-regex/-/index-of-regex-1.0.0.tgz#3a7637b4e27665f6673a4751a20b01477ffbd3ec"
+  integrity sha1-OnY3tOJ2ZfZnOkdRogsBR3/70+w=
+
 indexes-of@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/indexes-of/-/indexes-of-1.0.1.tgz#f30f716c8e2bd346c7b67d3df3915566a7c05607"
