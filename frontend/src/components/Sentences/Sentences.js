@@ -41,6 +41,8 @@ function Sentences(props) {
             let before = sentence.substr(0, index);
             let word = sentence.substr(index, clickedWord.length + 1)
             let after = sentence.substr(index + clickedWord.length + 1);
+            console.log(`Before: ${before}, word: ${word}, after: ${after}`);
+            
             return (
                 <p key={key}>{before}<span style={wordStyle}>{word}</span>{after}</p>
             )

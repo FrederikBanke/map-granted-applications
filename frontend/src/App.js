@@ -171,31 +171,40 @@ function App() {
     </div>
   }
 
-
   return (
     <div className="App">
       <h1>App</h1>
       <ProjectSubmission currentProject={currentProject} onChange={onProjectChange} />
       <hr />
-      <input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
-      <br />
       {
-        topProjects.length > 0
-          ? <ListProjects projects={subsetProjects(topProjects, topNumber)} />
-          : null
-      }
-      <TabsContainer>
-        <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
-        <Tab text="Co-occurrence map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
-      </TabsContainer>
-      {
-        activeTab === wordCloudTabId
-          ? renderWordCloudTab()
-          : null
-      }
-      {
-        activeTab === coocTabId
-          ? renderCoocMapTab()
+        currentProject
+          ? <div>
+            {
+              topProjects.length > 0
+                ? <div>
+                  < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
+                <br />
+                  <ListProjects projects={subsetProjects(topProjects, topNumber)} />
+                </div>
+                : <p>Finding closest...</p>
+            }
+
+            <TabsContainer>
+              <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
+              <Tab text="Co-occurrence map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
+            </TabsContainer>
+
+            {
+              activeTab === wordCloudTabId
+                ? renderWordCloudTab()
+                : null
+            }
+            {
+              activeTab === coocTabId
+                ? renderCoocMapTab()
+                : null
+            }
+          </div>
           : null
       }
     </div>
