@@ -30,7 +30,7 @@ function App() {
     justifyContent: "space-evenly",
     // backgroundColor: "blue",
     // overflow: "auto",
-    height: "800px",
+    maxHeight: "800px",
     width: "100%",
     // minWidth: "100%"
   }
@@ -207,7 +207,7 @@ function App() {
               <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
               <Tab text="Co-occurrence map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
             </TabsContainer>
-
+            <hr />
             {
               activeTab === wordCloudTabId
                 ? renderWordCloudTab()
