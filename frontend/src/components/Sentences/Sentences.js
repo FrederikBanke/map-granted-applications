@@ -14,7 +14,6 @@ import ProjectView from '../ProjectView/ProjectView';
  */
 function Sentences(props) {
     const [viewProject, setViewProject] = useState(false);
-    const [project, setProject] = useState(null);
     const [projectId, setProjectId] = useState("");
 
     const wordStyle = {
@@ -23,10 +22,11 @@ function Sentences(props) {
     }
 
     const containerStyle = {
-        width: "50%",
-        height: "400px",
+        width: "90%",
+        height: "600px",
         overflowY: "auto",
-        margin: "auto"
+        // margin: "auto",
+        // marginBottom: "30px",
     }
 
     /**
@@ -41,7 +41,6 @@ function Sentences(props) {
             let before = sentence.substr(0, index);
             let word = sentence.substr(index, clickedWord.length + 1)
             let after = sentence.substr(index + clickedWord.length + 1);
-            console.log(`Before: ${before}, word: ${word}, after: ${after}`);
             
             return (
                 <p key={key}>{before}<span style={wordStyle}>{word}</span>{after}</p>

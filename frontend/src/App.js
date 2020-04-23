@@ -24,6 +24,17 @@ function App() {
   const [topProjects, setTopProjects] = useState([]);
   const [topNumber, setTopNumber] = useState(50);
 
+  const wordCloudWrapperStyle = {
+    display: "flex",
+    flexFlow: "row",
+    justifyContent: "space-evenly",
+    // backgroundColor: "blue",
+    // overflow: "auto",
+    height: "800px",
+    width: "100%",
+    // minWidth: "100%"
+  }
+
   const activeTabStyle = {
     backgroundImage: "linear-gradient(to top, white, #DCDCDC)",
     boxShadow: "inset 0 0 10px #000000",
@@ -152,16 +163,19 @@ function App() {
 
 
   const renderWordCloudTab = () => {
-    return <div>
-      <button disabled={!currentProjectExists()} onClick={toggleWordCloud}>Generate word cloud for your project</button>
-      {viewWordCloud ? <WordCloudContainer onProjectChange={onProjectChange} projects={[currentProject]} />
-        : null
-      }
-      <br /><br />
-      <button disabled={topProjects.length < 1} onClick={toggleWordCloud2}>Generate word cloud for closest projects</button>
-      {viewWordCloud2 ? <WordCloudContainer onProjectChange={saveAndSetProject} projects={subsetProjects(topProjects, topNumber)} />
-        : null
-      }
+    return <div style={wordCloudWrapperStyle}>
+      <div style={{width: "50%"}}>
+        <button disabled={!currentProjectExists()} onClick={toggleWordCloud}>Generate word cloud for your project</button>
+        {viewWordCloud ? <WordCloudContainer onProjectChange={onProjectChange} projects={[currentProject]} />
+          : null
+        }
+      </div>
+      <div style={{width: "50%"}}>
+        <button disabled={topProjects.length < 1} onClick={toggleWordCloud2}>Generate word cloud for closest projects</button>
+        {viewWordCloud2 ? <WordCloudContainer onProjectChange={saveAndSetProject} projects={subsetProjects(topProjects, topNumber)} />
+          : null
+        }
+      </div>
     </div>
   }
 

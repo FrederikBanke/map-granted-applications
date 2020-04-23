@@ -36,7 +36,6 @@ function findSentences(word, text) {
 export function findWordSentence(word, sentence) {
     let re = new RegExp(`([\\s.!?]|^)${word}([\\s.!?]|$)`, 'gim');
     let index = sentence.search(re);
-    console.log("Index of word found", index);
     
     return index;  
 }

@@ -12,6 +12,10 @@ code {
     monospace;
 }
 
+button {
+  height: fit-content;
+}
+
 .nSlider {
   width: 50%;
   margin: auto;

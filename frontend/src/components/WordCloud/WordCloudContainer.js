@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types';
-import WordCloud from "react-d3-cloud";
+// import WordCloud from "react-d3-cloud";
+import WordCloud from "react-wordcloud";
 import callApi from '../../util/callApi';
 import { findWordProject } from '../../util/findWord';
 import Sentences from '../Sentences/Sentences';
@@ -21,6 +22,12 @@ export default function WordCloudContainer(props) {
     const [viewSentences, setViewSentences] = useState(false);
     const [sentences, setSentences] = useState([]);
     const [currentWord, setCurrentWord] = useState("");
+
+    const containerStyle = {
+        width: "100%",
+        height: "fit-content",
+        maxHeight: "500px"
+    }
 
     useEffect(() => {
         console.log("WordCloud mounted");
@@ -158,18 +165,21 @@ export default function WordCloudContainer(props) {
     }
 
     return (
-        <div>
+        <div style={containerStyle}>
             <button onClick={toggleRotate}>Rotate</button>
             {
                 words.length > 0
                     ? <WordCloud
-                        data={words}
-                        fontSizeMapper={fontSizeMapper}
-                        rotate={rotate}
-                        padding={2}
-                        height={800}
-                        width={800}
-                        onWordClick={onWordClick}
+                        words={words}
+                        options={{
+                            fontSizes: [12, 92],
+                            rotationAngles: [0, 0],
+                            rotations: 1
+                        }}
+                        minSize={[100, 100]}
+                        callbacks={{
+                            onWordClick: onWordClick
+                        }}
                     />
                     : <p>Generating word cloud...</p>
             }
@@ -178,8 +188,6 @@ export default function WordCloudContainer(props) {
                     ? <Sentences onProjectChange={props.onProjectChange} projects={sentences} word={currentWord} />
                     : null
             }
-
-
         </div>
     )
 }
