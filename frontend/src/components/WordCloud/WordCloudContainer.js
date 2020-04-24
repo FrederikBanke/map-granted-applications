@@ -69,7 +69,7 @@ export default function WordCloudContainer(props) {
             totalString = totalString + " " + project.objective;
         });
         // console.log("All abstracts length", totalString.length);
-        console.log("Combined abstract", totalString);
+        // console.log("Combined abstract", totalString);
 
         return totalString;
     }
@@ -103,6 +103,7 @@ export default function WordCloudContainer(props) {
 
     const formatData = (data) => {
         let newData = [];
+        //FIXME: Should not use the map function like this.
         Object.keys(data).map((key, i) => {
             let scaledInteger = Math.floor(data[key] * 1000)
             let element = { text: key, value: scaledInteger }
@@ -136,22 +137,22 @@ export default function WordCloudContainer(props) {
         return rand > 0.5 ? 1 : -1;
     }
 
-    const fontSizeMapper = word => {
-        const maxLimit = 92; // 143 is max for 800x800 canvas
-        const minLimit = 6;
-        const max = maxWord.value;
-        const min = minWord.value;
+    // const fontSizeMapper = word => {
+    //     const maxLimit = 92; // 143 is max for 800x800 canvas
+    //     const minLimit = 6;
+    //     const max = maxWord.value;
+    //     const min = minWord.value;
 
-        let fontSize = (maxLimit - minLimit) / (max - min) * (word.value - max) + maxLimit;
-        // console.log(`${word.text} font size: ${fontSize}`);
+    //     let fontSize = (maxLimit - minLimit) / (max - min) * (word.value - max) + maxLimit;
+    //     // console.log(`${word.text} font size: ${fontSize}`);
 
-        return fontSize;
-    }
-    const rotate = word => {
-        return isRotate
-            ? word.value % 60 * posOrNeg()
-            : 0
-    }
+    //     return fontSize;
+    // }
+    // const rotate = word => {
+    //     return isRotate
+    //         ? word.value % 60 * posOrNeg()
+    //         : 0
+    // }
 
     const toggleRotate = () => {
         isRotate ? setIsRotate(false) : setIsRotate(true)

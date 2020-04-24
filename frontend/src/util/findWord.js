@@ -1,5 +1,3 @@
-import { indexOfRegex } from 'index-of-regex';
-
 /**
  * 
  * @param {string} word 
@@ -52,14 +50,12 @@ export function findWordSentence(word, sentence) {
         if (index === -1) {
             break;
         }
-        console.log("Pusing index:", index);
-
-        
+        // console.log("Pusing index:", index);
 
         indexList.push(index);
         pos = index + word.length;
     }
-    console.log("Out of log");
+    // console.log("Out of log");
 
     return indexList;
 }
