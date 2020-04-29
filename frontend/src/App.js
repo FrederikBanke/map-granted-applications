@@ -7,6 +7,7 @@ import ProjectSubmission from './components/ProjectSubmission/ProjectSubmission'
 import { loadCurrentProject, getClosestProjects, saveClosestProjects, saveCurrentProject, saveProject } from './util/projectManagement';
 import TabsContainer from './components/Tabs/TabsContainer';
 import Tab from './components/Tabs/Tab';
+import { subsetProjects } from './util/subsetProjects';
 
 
 function App() {
@@ -94,17 +95,6 @@ function App() {
 
   const findClosest = (project) => {
     return callApi('closestprojects', 'POST', project);
-  }
-
-  const subsetProjects = (projects, limit) => {
-    let subProjects = [];
-    if (limit === 0) {
-      subProjects = [];
-    }
-    else {
-      subProjects = projects.slice(0, limit);
-    }
-    return subProjects;
   }
 
   const onInputChange = event => {
@@ -198,11 +188,7 @@ function App() {
           ? <div>
             {
               topProjects.length > 0
-                ? <div>
-                  < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
-                <br />
-                  <ListProjects projects={subsetProjects(topProjects, topNumber)} />
-                </div>
+                ? <ListProjects projects={topProjects} />
                 : <p>Finding similar projects...</p>
             }
 
@@ -211,6 +197,7 @@ function App() {
               <Tab text="Co-occurrence map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
             </TabsContainer>
             <hr />
+            < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
             {
               activeTab === wordCloudTabId
                 ? renderWordCloudTab()
