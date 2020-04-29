@@ -1,9 +1,7 @@
 from gensim.models.doc2vec import TaggedDocument, Doc2Vec
-import custom_logic.src.preprocessing as pp
 from custom_logic.src.utils import print_done, print_progress
 import custom_logic.src.api as api
-import custom_logic.src.user_logic as ul
-import custom_logic.src.main as main
+
 
 def train_doc2vec_model(delete_model=False):
     '''Trains a model on the given data set. If there already exists a model on disk, load model from disk.\n
@@ -28,7 +26,11 @@ def train_new_doc2vec_model():
 
     Parameters:\n
     '''
+    import custom_logic.src.main as main
     TFIDF_model = main.get_tfidf()
+
+
+    import custom_logic.src.user_logic as ul
     projects = ul.get_projects_as_df()
     # Create a corpus for the training data, which is a "tagged document"
     train_corpus = create_tag_doc(projects, TFIDF_model)
@@ -62,6 +64,7 @@ def create_tag_doc(projects, TFIDF_model):
     # Each abstracts is "cleaned" to remove stop words
     # NOTE: When using project id as tag for document, it must be converted to a string, otherwise they may change.
 
+    import custom_logic.src.preprocessing as pp
     td = [TaggedDocument(pp.abstract_to_clean_list(abstracts[i], TFIDF_model), [str(projects["id"][i])]
                                ) for i in range(len(projects)) if isinstance(abstracts[i], str)]
     print_done("Create TaggedDocument")
