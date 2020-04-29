@@ -17,6 +17,9 @@ function App() {
 
   const [viewWordCloud, setViewWordCloud] = useState(false);
   const [viewWordCloud2, setViewWordCloud2] = useState(false);
+  const [curProjectWords, setCurProjectWords] = useState([]);
+  const [closestProjectsWords, setClosestProjectsWords] = useState([]);
+
 
   const [uploadedProjects, setUploadedProjects] = useState(null);
   const [currentProject, setCurrentProject] = useState(null);
@@ -166,13 +169,13 @@ function App() {
     return <div style={wordCloudWrapperStyle}>
       <div style={{width: "50%"}}>
         <button disabled={!currentProjectExists()} onClick={toggleWordCloud}>Generate word cloud for your project</button>
-        {viewWordCloud ? <WordCloudContainer onProjectChange={onProjectChange} projects={[currentProject]} />
+        {viewWordCloud ? <WordCloudContainer wordsToCompare={closestProjectsWords} setWords={setCurProjectWords} onProjectChange={onProjectChange} projects={[currentProject]} />
           : null
         }
       </div>
       <div style={{width: "50%"}}>
         <button disabled={topProjects.length < 1} onClick={toggleWordCloud2}>Generate word cloud for closest projects</button>
-        {viewWordCloud2 ? <WordCloudContainer onProjectChange={saveAndSetProject} projects={subsetProjects(topProjects, topNumber)} />
+        {viewWordCloud2 ? <WordCloudContainer wordsToCompare={curProjectWords} setWords={setClosestProjectsWords} onProjectChange={saveAndSetProject} projects={subsetProjects(topProjects, topNumber)} />
           : null
         }
       </div>
