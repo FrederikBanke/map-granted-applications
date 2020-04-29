@@ -5,7 +5,7 @@ import WordCloud from "react-wordcloud";
 import callApi from '../../util/callApi';
 import { findWordProject } from '../../util/findWord';
 import Sentences from '../Sentences/Sentences';
-import { getRandomColor } from '../../util/colors';
+import { getRandomColor, getPrimaryColor, getQuaternaryColor } from '../../util/colors';
 
 /**
  * 
@@ -191,7 +191,7 @@ export default function WordCloudContainer(props) {
     const setWordColor = word => {
         if (props.wordsToCompare.length > 0) {
             if (isWordInList(word, props.wordsToCompare)) {
-                return "#d84825";
+                return getQuaternaryColor();
 
             }
             return "#000000";
