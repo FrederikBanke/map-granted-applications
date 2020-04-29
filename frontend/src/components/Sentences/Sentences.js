@@ -38,7 +38,6 @@ function Sentences(props) {
         if (clickedWord) {
             let indexList = findWordSentence(clickedWord, sentence);
             let currentIndex = 0;
-            console.log(indexList);
             
             return (<p>
                 {

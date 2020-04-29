@@ -24,13 +24,18 @@ export function findWordProject(word, projects) {
  * @param {String} text 
  * @param {String} word 
  */
-export function findSentences(text, word = '') {
+export function findSentences(text, word = null) {
     // let testSentence = "A bad sentence. A test sentence with 1.0 as a number, and 1,0 as well! Now for something else. More test.More test."
     // [^.!?]*test(?:[^\!?.]|\.(?=\d))*[\!?.]
     // Matches with sentences, where we allow decimal numbers.
     let nonSentenceEnder = `[^.!?]`;
     let wordPrefix = `(\\s|^|-|,)`;
-    let re = new RegExp(`${nonSentenceEnder}*${wordPrefix}${word}((\\s|-|,)(?:[^!?.]|\\.(?=\\d))*)*([!?.]|$)`, 'gim');
+    let re;
+    if (word) {
+        re = new RegExp(`${nonSentenceEnder}*${wordPrefix}${word}((\\s|-|,)(?:[^!?.]|\\.(?=\\d))*)*([!?.]|$)`, 'gim');
+    } else {
+        re = new RegExp(`${nonSentenceEnder}*([!?.]|$)`, 'gim');
+    }
     let match = text.match(re);
     return match;
 }
