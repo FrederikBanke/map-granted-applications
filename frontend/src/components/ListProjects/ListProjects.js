@@ -72,18 +72,7 @@ export default function ListProjects(props) {
      * @param {String} objective 
      */
     const renderObjevtive = (objective) => {
-        let sentences = findSentences(objective);
-        let objectivePreview;
-        try {  
-            if (sentences[1]) {
-                objectivePreview = sentences[0] + sentences[1];
-            } else {
-                objectivePreview = sentences[0];
-            }
-            return objectivePreview;
-        } catch (error) {
-            console.error("Could not find sentence in abstract.", error);
-        }
+        return objective.substr(0, 150) + "...";
     }
 
     return (
