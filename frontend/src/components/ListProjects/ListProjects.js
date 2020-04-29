@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { getSecondaryColor, getTertiaryColor, getPrimaryColor, getQuinaryColor, getQuaternaryColor } from '../../util/colors'
 import { subsetProjects } from '../../util/subsetProjects';
+import { findSentences } from '../../util/findWord';
 
 export default function ListProjects(props) {
     const [numberOfProjects, setNumberOfProjects] = useState(50);
@@ -66,6 +67,20 @@ export default function ListProjects(props) {
         }
     }
 
+    /**
+     * 
+     * @param {String} objective 
+     */
+    const renderObjevtive = (objective) => {
+        // let sentences = findSentences(objective);
+        let sentences = objective.split(new RegExp(`[.!?]`))
+        if (!sentences) {
+            console.log(objective);
+        }
+        let objectivePreivew = sentences[0] + ". " + sentences[1] + ". ";
+        return objectivePreivew;
+    }
+
     return (
         <div style={containerStyle}>
             <h2 style={headerStyle}>List of closest projects</h2>
@@ -75,7 +90,7 @@ export default function ListProjects(props) {
                     subsetProjects(props.projects, numberOfProjects).map((element, index) => {
                         return <div key={element.id} style={chooseElemStyle(index)}>
                             <h4 style={headerStyle}>{index + 1}: {element.title}</h4>
-                            <p style={objectiveStyle}>{element.objective.substr(0, 50)}...</p>
+                            <p style={objectiveStyle} >{renderObjevtive(element.objective)}</p>
                         </div>
                     })
                 }

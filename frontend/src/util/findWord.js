@@ -7,7 +7,7 @@ export function findWordProject(word, projects) {
 
     let projectSentences = []
     projects.forEach(project => {
-        let sentencesList = findSentences(word, project.objective)
+        let sentencesList = findSentences(project.objective, word)
         if (sentencesList) {
             projectSentences.push({
                 id: project.id,
@@ -19,11 +19,18 @@ export function findWordProject(word, projects) {
     return projectSentences;
 }
 
-function findSentences(word, text) {
+/**
+ * Find the sentences where `word` occurs.
+ * @param {String} text 
+ * @param {String} word 
+ */
+export function findSentences(text, word = '') {
     // let testSentence = "A bad sentence. A test sentence with 1.0 as a number, and 1,0 as well! Now for something else. More test.More test."
     // [^.!?]*test(?:[^\!?.]|\.(?=\d))*[\!?.]
     // Matches with sentences, where we allow decimal numbers.
-    let re = new RegExp(`([^.!?]*\\s|^)${word}((\\s|-|,)(?:[^!?.]|.(?=\\d))*)*([!?.]|$)`, 'gim');
+    let nonSentenceEnder = `[^.!?]`;
+    let wordPrefix = `(\\s|^|-|,)`;
+    let re = new RegExp(`${nonSentenceEnder}*${wordPrefix}${word}((\\s|-|,)(?:[^!?.]|\\.(?=\\d))*)*([!?.]|$)`, 'gim');
     let match = text.match(re);
     return match;
 }
@@ -40,7 +47,7 @@ export function findWordSentence(word, sentence) {
     let indexList = [];
     let pos = 0;
 
-    let re = new RegExp(`([\\s.!?,]|^)${word}([\\s.,!?-]|$)`, 'gim');
+    let re = new RegExp(`([\\s.!?,-]|^)${word}([\\s.,!?-]|$)`, 'gim');
     // let index = sentence.search(re);
 
     while (true) {
@@ -50,9 +57,12 @@ export function findWordSentence(word, sentence) {
         if (index === -1) {
             break;
         }
+        // if (index > 0) {
+        //     index++;
+        // }
         // console.log("Pusing index:", index);
 
-        indexList.push(index);
+        indexList.push(++index);
         pos = index + word.length;
     }
     // console.log("Out of log");
@@ -60,7 +70,7 @@ export function findWordSentence(word, sentence) {
     return indexList;
 }
 
-String.prototype.regexIndexOf = function(regex, startpos) {
+String.prototype.regexIndexOf = function (regex, startpos) {
     var indexOf = this.substring(startpos || 0).search(regex);
     return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
 }

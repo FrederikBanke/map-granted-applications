@@ -38,13 +38,14 @@ function Sentences(props) {
         if (clickedWord) {
             let indexList = findWordSentence(clickedWord, sentence);
             let currentIndex = 0;
-
+            console.log(indexList);
+            
             return (<p>
                 {
                     indexList.map(wordIndex => {
                         let before = sentence.substr(currentIndex, wordIndex - currentIndex);
-                        let word = sentence.substr(wordIndex, clickedWord.length + 1)
-                        currentIndex = wordIndex + clickedWord.length + 1;
+                        let word = sentence.substr(wordIndex, clickedWord.length);
+                        currentIndex = wordIndex + clickedWord.length;
                         return <span>{before}<span style={wordStyle}>{word}</span></span>
                     })
                 }
