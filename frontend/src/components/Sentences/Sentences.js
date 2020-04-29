@@ -25,7 +25,7 @@ function Sentences(props) {
         width: "90%",
         height: "600px",
         overflowY: "auto",
-        // margin: "auto",
+        margin: "auto",
         // marginBottom: "30px",
     }
 
