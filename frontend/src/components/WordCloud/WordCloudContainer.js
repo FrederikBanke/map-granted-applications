@@ -209,7 +209,7 @@ export default function WordCloudContainer(props) {
         deterministic: true
     };
 
-    const wordCloudMinSize = [100, 100];
+    const wordCloudMinSize = [200, 200];
 
     const wordCloudCallbacks = {
         onWordClick: onWordClick,
@@ -219,21 +219,25 @@ export default function WordCloudContainer(props) {
     return (
         <div style={containerStyle}>
             <button onClick={toggleRotate}>Rotate</button>
+            <div style={containerStyle}>
             {
                 words.length > 0
-                    ? <WordCloud
-                        words={words}
-                        options={wordCloudOptions}
-                        minSize={wordCloudMinSize}
-                        callbacks={wordCloudCallbacks}
-                    />
-                    : <p>Generating word cloud...</p>
+                ? <WordCloud
+                words={words}
+                options={wordCloudOptions}
+                minSize={wordCloudMinSize}
+                callbacks={wordCloudCallbacks}
+                />
+                : <p>Generating word cloud...</p>
             }
+            </div>
+            <div style={containerStyle}>
             {
                 viewSentences
-                    ? <Sentences onProjectChange={props.onProjectChange} projects={sentences} word={currentWord} />
-                    : null
+                ? <Sentences onProjectChange={props.onProjectChange} projects={sentences} word={currentWord} />
+                : null
             }
+            </div>
         </div>
     )
 }
