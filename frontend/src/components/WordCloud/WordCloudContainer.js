@@ -175,8 +175,8 @@ export default function WordCloudContainer(props) {
     //         : 0
     // }
 
-    const toggleRotate = () => {
-        isRotate ? setIsRotate(false) : setIsRotate(true)
+    const refresh = () => {
+        isRotate ? setIsRotate(false) : setIsRotate(true) // just used to refresh word cloud
     }
 
     const onWordClick = word => {
@@ -218,7 +218,7 @@ export default function WordCloudContainer(props) {
 
     return (
         <div style={containerStyle}>
-            <button onClick={toggleRotate}>Rotate</button>
+            <button onClick={refresh}>Refresh</button>
             <div style={containerStyle}>
             {
                 words.length > 0
