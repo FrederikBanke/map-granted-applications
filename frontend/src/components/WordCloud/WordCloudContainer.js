@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types';
 // import WordCloud from "react-d3-cloud";
 import WordCloud from "react-wordcloud";
-import callApi from '../../util/callApi';
+import { formatData, callApi, subsetWords } from '../../util/api';
 import { findWordProject } from '../../util/findWord';
 import Sentences from '../Sentences/Sentences';
 import { getRandomColor, getPrimaryColor, getQuaternaryColor } from '../../util/colors';
+import { combineTexts } from '../../util/projects';
 
 /**
  * 
@@ -62,58 +63,6 @@ export default function WordCloudContainer(props) {
         setMinWord(minWord);
     }, [words])
 
-    /**
-     * Combine project objectives.
-     * @param {[]} projects 
-     */
-    const combineTexts = (projects) => {
-        let totalString = "";
-        projects.forEach(project => {
-            totalString = totalString + " " + project.objective;
-        });
-        // console.log("All abstracts length", totalString.length);
-        // console.log("Combined abstract", totalString);
-
-        return totalString;
-    }
-
-    /**
-     * 
-     * @param {[]} list 
-     * @param {Number} number 
-     */
-    const subsetWords = (list, number = 0) => {
-        if (number === 0) {
-            let sortedList = list.sort(compareWordsWeightDesc);
-            return sortedList;
-        }
-        let sortedList = list.sort(compareWordsWeightDesc);
-        return sortedList.slice(0, number);
-    }
-
-    const compareWordsWeightDesc = (a, b) => {
-        if (a.value < b.value) {
-            // less return negative
-            return 1;
-        }
-        if (a.value > b.value) {
-            // greater return positive
-            return -1;
-        }
-        //  equal return 0
-        return 0;
-    }
-
-    const formatData = (data) => {
-        let newData = [];
-        //FIXME: Should not use the map function like this.
-        Object.keys(data).map((key, i) => {
-            let scaledInteger = Math.floor(data[key] * 1000)
-            let element = { text: key, value: scaledInteger }
-            newData.push(element)
-        });
-        return newData;
-    }
 
     const findMax = (data) => {
         let max = { text: null, value: 0 }
