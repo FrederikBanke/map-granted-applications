@@ -19,7 +19,16 @@ from custom_logic.src.cluster import cluster_abstracts
 # import custom_logic.src.co_occurrence as co
 import custom_logic.src.api as api
 
-mpl.use('TkAgg')  # Change backend
+all_projects = pd.DataFrame()
+print("In main outside of functions")
+
+def get_projects():
+    global all_projects
+    if all_projects.empty:
+        print("Getting all projects from database")
+        all_projects = ul.get_projects_as_df()
+
+    return all_projects
 
 def get_tfidf(user_project=None):
     """
