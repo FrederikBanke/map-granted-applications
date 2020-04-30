@@ -6,6 +6,8 @@ import custom_logic.src.main as main
 import custom_logic.src.train as train
 import custom_logic.src.user_logic as ul
 import custom_logic.src.similar as sml
+import pandas as pd
+import time
 
 
 def get_projects():
@@ -76,7 +78,7 @@ def closest_vectors(user_project):
 
 def closest_projects(user_project):
     """
-    
+    Find the closest projects to the given project. Converts the given project to a vector, and finds the closest vectors.
     
     Parameters
     ----------
@@ -84,12 +86,17 @@ def closest_projects(user_project):
     
     Returns
     -------
-    `list` : A list containing the closest projects to the `text`.
+    `list` : A list containing the closest projects to the `text`, where each element is a json string.
     """
     # Get the closest projects, and extract only the ids directly.
     closest_ids = closest_vectors(user_project)[1]
-    # make a list of closest projects (sorted)
-    project_list = [requests.get('http://localhost:8000/api/projects/{}'.format(i)).json() for i in closest_ids]
     
+    # make a list of closest projects (sorted)
+    all_projects = main.get_projects()
+
+    closest_projects_df = pd.concat([all_projects[all_projects['id']==i] for i in closest_ids])
+
+    project_list = closest_projects_df.to_dict(orient="records")
+
     # Find top n closest
     return project_list

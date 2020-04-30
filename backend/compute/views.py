@@ -56,15 +56,3 @@ class ClosestVectorsView(APIView):
     def post(self, request):
         project = ul.json_to_dataframe(request.data)
         return Response(api.closest_vectors(project))        
-
-class MyOwnView(APIView):
-    """
-    Test API endpoint. It is not to be used in production.
-    """
-    def get(self, request):
-        projects = api.get_projects()
-        return Response(projects)
-    def post(self, request):
-        pass
-        api.fill_database_with_data()
-        return Response({"status": "done"})
