@@ -17,6 +17,8 @@ const WordTimeline = props => {
 
     const containerStyle = {
         display: "flex",
+        width: "100%",
+        height: "90%",
         flexFlow: "row"
     }
 
@@ -85,18 +87,16 @@ const WordTimeline = props => {
     }
 
     const renderChart = props => {
-        console.log("Rendering chart with words", props.data);
-
         return (
             <Chart
-                width="60%"
-                height="30%"
+                width="100%"
+                height={400}
                 chartType="ColumnChart"
                 loader={<div>Loading Chart</div>}
                 data={props.data}
                 options={{
                     title: 'Word importance by year',
-                    chartArea: { width: '30%' },
+                    chartArea: { width: '70%', height: "70%" },
                     hAxis: {
                         title: 'Year',
                         // minValue: 0,
@@ -126,15 +126,15 @@ const WordTimeline = props => {
         }
 
         setChosenWords(tempWords);
-        
     }
+
 
     const renderWordList = props => (
         <div style={listStyle}>
             {
                 props.words.map(word => (
                     <React.Fragment key={word.text}>
-                        <input onClick={onClickCheckBox} type="checkbox" name={word.text} value={word.text} />
+                        <input onClick={onClickCheckBox} type="checkbox" name={word.text} value={word.text} checked={chosenWords.includes(word.text)} />
                         <label for={word.text}>{word.text}</label><br />
                     </React.Fragment>
                 ))
@@ -146,10 +146,10 @@ const WordTimeline = props => {
 
 
     return (
-        <div>
+        <div style={{width: "100%", height: "100%"}}>
             <h2>Word Timeline</h2>
             <div style={containerStyle}>
-                {renderWordList({ "words": allWords })}
+                {renderWordList({ "words": allWords})}
                 {
                     chosenWords.length > 0
                         ? renderChart({ "data": formatDataBarGraph(weightsByYear, chosenWords) })
