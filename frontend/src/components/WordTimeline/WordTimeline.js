@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { combineTexts, groupProjectsByYear } from '../../util/projects';
 import { callApi, formatData, subsetWords } from '../../util/api';
+import { Chart } from "react-google-charts";
+import { formatDataBarGraph } from '../../util/barGraph';
 
 /**
  * 
@@ -10,6 +12,21 @@ import { callApi, formatData, subsetWords } from '../../util/api';
  */
 const WordTimeline = props => {
     const [weightsByYear, setWeightsByYear] = useState({});
+    const [allWords, setAllWords] = useState([]);
+    const [chosenWords, setChosenWords] = useState([]);
+
+    const containerStyle = {
+        display: "flex",
+        flexFlow: "row"
+    }
+
+    const listStyle = {
+        textAlign: "left",
+        height: "400px",
+        width: "200px",
+        overflowY: "auto"
+    }
+
 
     useEffect(() => {
         if (props.projects.length > 0) {
@@ -34,6 +51,23 @@ const WordTimeline = props => {
             Promise.all(apiPromises)
                 .then(() => {
                     setWeightsByYear(weightsByYearResponse);
+                    getWordWeight(props.projects)
+                        .then(weights => {
+                            let sorted = subsetWords(weights);
+
+                            setAllWords(sorted);
+
+                            let words = [];
+                            let subset = subsetWords(weights, 5);
+                            for (const key in subset) {
+                                if (subset.hasOwnProperty(key)) {
+                                    const element = subset[key];
+                                    words.push(element.text)
+                                }
+                            }
+
+                            setChosenWords(words)
+                        });
                 });
 
         }
@@ -46,10 +80,67 @@ const WordTimeline = props => {
         })
             .then(res => {
                 let formattedData = formatData(res);
-                let subset = subsetWords(formattedData);
-                return subset;
+                return formattedData;
             });
     }
+
+    const renderChart = props => {
+        console.log("Rendering chart with words", props.data);
+
+        return (
+            <Chart
+                width="60%"
+                height="30%"
+                chartType="ColumnChart"
+                loader={<div>Loading Chart</div>}
+                data={props.data}
+                options={{
+                    title: 'Word importance by year',
+                    chartArea: { width: '30%' },
+                    hAxis: {
+                        title: 'Year',
+                        // minValue: 0,
+                    },
+                    vAxis: {
+                        title: 'Word score',
+                        minValue: 0,
+                    },
+                }}
+                legendToggle
+            />
+        )
+    }
+
+    const onClickCheckBox = (event) => {
+        const isChecked = event.target.checked;
+        const word = event.target.getAttribute("name");
+        console.log(word, isChecked);
+
+        let tempWords = [...chosenWords];
+
+        if (isChecked) {
+            tempWords.push(word);
+        } else {
+            const wordIndex = tempWords.indexOf(word);
+            tempWords.splice(wordIndex, 1);
+        }
+
+        setChosenWords(tempWords);
+        
+    }
+
+    const renderWordList = props => (
+        <div style={listStyle}>
+            {
+                props.words.map(word => (
+                    <React.Fragment key={word.text}>
+                        <input onClick={onClickCheckBox} type="checkbox" name={word.text} value={word.text} />
+                        <label for={word.text}>{word.text}</label><br />
+                    </React.Fragment>
+                ))
+            }
+        </div>
+    )
 
 
 
@@ -57,7 +148,14 @@ const WordTimeline = props => {
     return (
         <div>
             <h2>Word Timeline</h2>
-            <WordList></WordList>
+            <div style={containerStyle}>
+                {renderWordList({ "words": allWords })}
+                {
+                    chosenWords.length > 0
+                        ? renderChart({ "data": formatDataBarGraph(weightsByYear, chosenWords) })
+                        : null
+                }
+            </div>
         </div>
     )
 }
@@ -67,11 +165,3 @@ WordTimeline.propTypes = {
 }
 
 export default WordTimeline;
-
-const WordList = props => {
-    return (
-        <div>
-
-        </div>
-    )
-}

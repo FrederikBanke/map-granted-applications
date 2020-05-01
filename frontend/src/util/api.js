@@ -35,29 +35,29 @@ export const formatData = (data) => {
     return newData;
 }
 
-    /**
-     * 
-     * @param {[]} list 
-     * @param {Number} number 
-     */
-    export const subsetWords = (list, number = 0) => {
-        if (number === 0) {
-            let sortedList = list.sort(compareWordsWeightDesc);
-            return sortedList;
-        }
+/**
+ * 
+ * @param {[]} list 
+ * @param {Number} number 
+ */
+export const subsetWords = (list, number = 0) => {
+    if (number === 0) {
         let sortedList = list.sort(compareWordsWeightDesc);
-        return sortedList.slice(0, number);
+        return sortedList;
     }
+    let sortedList = list.sort(compareWordsWeightDesc);
+    return sortedList.slice(0, number);
+}
 
-    const compareWordsWeightDesc = (a, b) => {
-        if (a.value < b.value) {
-            // less return negative
-            return 1;
-        }
-        if (a.value > b.value) {
-            // greater return positive
-            return -1;
-        }
-        //  equal return 0
-        return 0;
+const compareWordsWeightDesc = (a, b) => {
+    if (a.value < b.value) {
+        // less return negative
+        return 1;
     }
+    if (a.value > b.value) {
+        // greater return positive
+        return -1;
+    }
+    //  equal return 0
+    return 0;
+}
