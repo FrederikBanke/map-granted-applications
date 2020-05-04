@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { combineTexts, groupProjectsByYear } from '../../util/projects';
 import { callApi, formatData, subsetWords } from '../../util/api';
 import { Chart } from "react-google-charts";
-import { formatDataBarGraph } from '../../util/barGraph';
+import { formatDataBarGraph, formatDataLineChart } from '../../util/charts';
 
 /**
  * 
@@ -18,15 +18,23 @@ const WordTimeline = props => {
     const containerStyle = {
         display: "flex",
         width: "100%",
-        height: "90%",
+        height: "10%",
         flexFlow: "row"
     }
 
     const listStyle = {
         textAlign: "left",
-        height: "400px",
+        height: "100%",
+        maxHeight: "800px",
         width: "200px",
         overflowY: "auto"
+    }
+    const chartContainerStyle = {
+        display: "flex",
+        width: "100%",
+        height: "fit-content",
+        maxHeight: "100%",
+        flexFlow: "column"
     }
 
 
@@ -86,7 +94,7 @@ const WordTimeline = props => {
             });
     }
 
-    const renderChart = props => {
+    const renderBarChart = props => {
         return (
             <Chart
                 width="100%"
@@ -109,6 +117,25 @@ const WordTimeline = props => {
                 legendToggle
             />
         )
+    }
+
+    const renderLineChart = props => {
+        return <Chart
+            width="100%"
+            height={400}
+            chartType="LineChart"
+            loader={<div>Loading Chart</div>}
+            data={props.data}
+            options={{
+                hAxis: {
+                    title: 'Year',
+                },
+                vAxis: {
+                    title: 'Word score',
+                },
+            }}
+        // rootProps={{ 'data-testid': '1' }}
+        />
     }
 
     const onClickCheckBox = (event) => {
@@ -146,17 +173,22 @@ const WordTimeline = props => {
 
 
     return (
-        <div style={{width: "100%", height: "100%"}}>
+        <div style={{ width: "100%", height: "100%" }}>
             <h2>Word Timeline</h2>
             <div style={containerStyle}>
-                {renderWordList({ "words": allWords})}
-                {
-                    chosenWords.length > 0
-                        ? renderChart({ "data": formatDataBarGraph(weightsByYear, chosenWords) })
-                        : null
-                }
+                {renderWordList({ "words": allWords })}
+                <div style={chartContainerStyle}>
+                    {
+                        chosenWords.length > 0
+                            ? <React.Fragment>
+                                    {renderBarChart({ "data": formatDataBarGraph(weightsByYear, chosenWords) })}
+                                    {renderLineChart({ "data": formatDataLineChart(weightsByYear, chosenWords) })}
+                            </React.Fragment>
+                            : null
+                    }
+                </div>
             </div>
-        </div>
+        </div >
     )
 }
 
