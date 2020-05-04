@@ -18,6 +18,7 @@ import { getPrimaryColor, getTertiaryColor } from '../../util/colors';
  * @property {?string} startDate - 
  * @property {?string} endDate - 
  * @property {?string} projectUrl - 
+ * @property {?string} totalCost - Total cost of project
  * @property {?string} ecMaxContribution - 
  * @property {?string} call - 
  * @property {?string} fundingScheme - 
@@ -79,15 +80,36 @@ function ProjectView(props) {
         }
     }
 
+    /**
+     * 
+     * @param {String} text 
+     */
+    const renderList = text => {
+        let listOfThings = text.split(';')
+        return (
+            <ul>
+                {
+                    listOfThings.map((value, index) => (
+                        <li>{value}</li>
+                    ))
+                }
+            </ul>
+        )
+    }
+
     return (
         project
             ? (<div style={containerStyle}>
                 <h1 style={headerStyle}>Title: {project.title}</h1>
-                <p>Acronym: {project.acronym}</p>
+                {project.acronym ? <p>Acronym: {project.acronym}</p> : null}
                 <p>Project dates: {project.startDate} - {project.endDate} </p>
+                <p>Funding: {project.ecMaxContribution} / {project.totalCost} </p>
                 <h2 onClick={onClickObjective} >Objective</h2>
                 <p style={objectiveStyle}>{project.objective}</p>
-                {project.projectUrl ? <p>Read more at: {project.projectUrl}</p> : null}
+                <br />
+                {project.coordinator ? <p>Coordinator: {project.coordinator} {project.coordinatorCountry ? <span>({project.coordinatorCountry})</span> : null} </p>  : null}
+                {project.participants ? <p>Participants: {renderList(project.participants)} </p>  : null}
+                {project.projectUrl ? <p>Read more at: <a href={project.projectUrl}>{project.projectUrl}</a></p> : null}
                 <button onClick={onSaveClick}>Save and set project as active</button>
             </div>)
             : null
