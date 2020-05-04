@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import WordCloudContainer from './components/WordCloud/WordCloudContainer';
-import callApi from './util/callApi';
+import { callApi } from './util/api';
 import ListProjects from './components/ListProjects/ListProjects';
 import ProjectSubmission from './components/ProjectSubmission/ProjectSubmission';
 import { loadCurrentProject, getClosestProjects, saveClosestProjects, saveCurrentProject, saveProject } from './util/projectManagement';
 import TabsContainer from './components/Tabs/TabsContainer';
 import Tab from './components/Tabs/Tab';
-import { subsetProjects } from './util/subsetProjects';
+import { subsetProjects } from './util/projects';
+import WordTimeline from './components/WordTimeline/WordTimeline';
 
 
 function App() {
   const [activeTab, setActiveTab] = useState("");
   const [wordCloudTabId, setWordCloudTabId] = useState("wordcloud");
-  const [coocTabId, setCoocTabId] = useState("coocmap");
+  const [timelineTabId, setTimelineTabId] = useState("timeline");
 
 
   const [viewWordCloud, setViewWordCloud] = useState(false);
@@ -172,10 +173,8 @@ function App() {
     </div>
   }
 
-  const renderCoocMapTab = () => {
-    return <div>
-      <p>Co-occurrence map</p>
-    </div>
+  const renderWordTimelineTab = () => {
+    return <WordTimeline projects={subsetProjects(topProjects, topNumber)}/>
   }
 
   return (
@@ -194,7 +193,7 @@ function App() {
 
             <TabsContainer>
               <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
-              <Tab text="Co-occurrence map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
+              <Tab text="Word Timeline" id={timelineTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
             </TabsContainer>
             <hr />
             < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
@@ -204,8 +203,8 @@ function App() {
                 : null
             }
             {
-              activeTab === coocTabId
-                ? renderCoocMapTab()
+              activeTab === timelineTabId
+                ? renderWordTimelineTab()
                 : null
             }
           </div>

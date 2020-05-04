@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { getSecondaryColor, getTertiaryColor, getPrimaryColor, getQuinaryColor, getQuaternaryColor } from '../../util/colors'
-import { subsetProjects } from '../../util/subsetProjects';
+import { subsetProjects } from '../../util/projects';
 import { findSentences } from '../../util/findWord';
 
 export default function ListProjects(props) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
-import callApi from '../../util/callApi';
+import { callApi } from '../../util/api';
 
 /**
  * 
