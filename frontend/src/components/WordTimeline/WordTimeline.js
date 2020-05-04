@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { combineTexts, groupProjectsByYear } from '../../util/projects';
 import { callApi, formatData, subsetWords } from '../../util/api';
 import { Chart } from "react-google-charts";
-import { formatDataBarGraph, formatDataLineChart } from '../../util/charts';
+import { formatDataForCharts } from '../../util/charts';
 
 /**
  * 
@@ -181,8 +181,8 @@ const WordTimeline = props => {
                     {
                         chosenWords.length > 0
                             ? <React.Fragment>
-                                    {renderBarChart({ "data": formatDataBarGraph(weightsByYear, chosenWords) })}
-                                    {renderLineChart({ "data": formatDataLineChart(weightsByYear, chosenWords) })}
+                                    {renderBarChart({ "data": formatDataForCharts(weightsByYear, chosenWords) })}
+                                    {renderLineChart({ "data": formatDataForCharts(weightsByYear, chosenWords) })}
                             </React.Fragment>
                             : null
                     }

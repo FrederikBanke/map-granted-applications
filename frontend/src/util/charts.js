@@ -1,74 +1,5 @@
 /**
- * Function for formatting the data, so it works with the bar graph chart.
- * 
- * The format of the input data:
- * 
- * {
- *  'Object 1': 
- *   [
- *     {
- *       "text": "Bar 1",
- *       "value": bar1Value
- *     }
- *   ]
- * }
- * 
- * 
- * The format of the data returned:
- * 
- * [['Type', 'Bar 1', 'Bar 2'],
- * ['Object 1', bar1Value, bar2Value],
- * ['Object 2', bar1Value, bar2Value]]
- * 
- * @example
- * [
-    ['City', '2010 Population', '2000 Population'],
-    ['New York City, NY', 8175000, 8008000],
-    ['Los Angeles, CA', 3792000, 3694000],
-    ['Chicago, IL', 2695000, 2896000],
-    ['Houston, TX', 2099000, 1953000],
-    ['Philadelphia, PA', 1526000, 1517000],
-  ]
- * 
- * @param {*} data Data to format
- * @param {[]} words Words to show on graph
- * @returns {[]} A list of lists
- */
-export const formatDataBarGraph = (data, words) => {
-    let formattedData = [];
-    formattedData.push(['year']);
-    for (const year in data) {
-        if (data.hasOwnProperty(year)) {
-            formattedData.push([year]);
-        }
-    }
-    words.forEach(word => {
-        formattedData[0].push(word);
-        for (let index = 1; index < formattedData.length; index++) {
-            formattedData[index].push(0); // initialize all weights as 0
-        }
-    });
-
-    for (const year in data) {
-        if (data.hasOwnProperty(year)) {
-            const weights = data[year];
-            weights.forEach(element => {
-                let wordIndex = words.indexOf(element.text);
-                if (wordIndex >= 0) {
-                    let rowIndex = findRow(formattedData, year);
-
-                    formattedData[rowIndex][wordIndex + 1] = element.value;
-                }
-            });
-        }
-    }
-
-    return formattedData;
-}
-
-
-/**
- * Function for formatting the data, so it works with the line chart.
+ * Function for formatting the data, so it works with the google charts.
  * 
  * The format of the input data:
  * 
@@ -106,7 +37,7 @@ export const formatDataBarGraph = (data, words) => {
  * @param {[]} words Words to show on graph
  * @returns {[]} A list of lists
  */
-export const formatDataLineChart = (data, words) => {
+export const formatDataForCharts = (data, words) => {
     let formattedData = [];
     formattedData.push(['year']);
     for (const year in data) {
