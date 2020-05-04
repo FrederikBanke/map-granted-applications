@@ -85,7 +85,6 @@ function ListProjects(props) {
 
     const onProjectClick = (event) => {
         const clickedProjectId = event.target.getAttribute('data-projectid');
-        console.log(`Project ${clickedProjectId} was clicked`);
         setProjectId(clickedProjectId);
         setViewProject(true);
     }
