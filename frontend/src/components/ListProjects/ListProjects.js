@@ -2,9 +2,14 @@ import React, { useState } from 'react'
 import { getSecondaryColor, getTertiaryColor, getPrimaryColor, getQuinaryColor, getQuaternaryColor } from '../../util/colors'
 import { subsetProjects } from '../../util/projects';
 import { findSentences } from '../../util/findWord';
+import Overlay from '../Overlay/Overlay';
+import ProjectView from '../ProjectView/ProjectView';
+import PropTypes from 'prop-types'
 
-export default function ListProjects(props) {
+function ListProjects(props) {
     const [numberOfProjects, setNumberOfProjects] = useState(50);
+    const [viewProject, setViewProject] = useState(false);
+    const [projectId, setProjectId] = useState('');
 
     const containerStyle = {
         height: "400px",
@@ -72,18 +77,36 @@ export default function ListProjects(props) {
      * @param {String} objective 
      */
     const renderObjevtive = (objective) => {
+        if (objective.length <= 150) {
+            return objective
+        }
         return objective.substr(0, 150) + "...";
+    }
+
+    const onProjectClick = (event) => {
+        const clickedProjectId = event.target.getAttribute('data-projectid');
+        setProjectId(clickedProjectId);
+        setViewProject(true);
+    }
+
+    const renderProjectOverlay = (overlayClickClose, onProjectChange, projectId) => {
+        return <Overlay onClickClose={overlayClickClose}>
+            <ProjectView onProjectChange={onProjectChange} id={projectId} />
+        </Overlay>
     }
 
     return (
         <div style={containerStyle}>
+            {
+                viewProject ? renderProjectOverlay(setViewProject, props.onProjectChange, projectId) : null
+            }
             <h2 style={headerStyle}>List of closest projects</h2>
             < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={numberOfProjects} /> closest projects
             <div style={listStyle}>
                 {
                     subsetProjects(props.projects, numberOfProjects).map((element, index) => {
-                        return <div key={element.id} style={chooseElemStyle(index)}>
-                            <h4 style={headerStyle}>{index + 1}: {element.title}</h4>
+                        return <div key={element.id} style={chooseElemStyle(index)} onClick={onProjectClick} data-projectid={element.id} >
+                            <h4 style={headerStyle} data-projectid={element.id} >{index + 1}: {element.title}</h4>
                             <p style={objectiveStyle} >{renderObjevtive(element.objective)}</p>
                         </div>
                     })
@@ -92,3 +115,13 @@ export default function ListProjects(props) {
         </div>
     )
 }
+
+
+
+ListProjects.propTypes = {
+    projects: PropTypes.arrayOf(Object),
+    onProjectChange: PropTypes.func.isRequired
+}
+
+export default ListProjects;
+

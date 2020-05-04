@@ -174,7 +174,7 @@ function App() {
   }
 
   const renderWordTimelineTab = () => {
-    return <WordTimeline projects={subsetProjects(topProjects, topNumber)}/>
+    return <WordTimeline projects={subsetProjects(topProjects, topNumber)} />
   }
 
   return (
@@ -187,7 +187,7 @@ function App() {
           ? <div>
             {
               topProjects.length > 0
-                ? <ListProjects projects={topProjects} />
+                ? <ListProjects projects={topProjects} onProjectChange={saveAndSetProject} />
                 : <p>Finding similar projects...</p>
             }
 
