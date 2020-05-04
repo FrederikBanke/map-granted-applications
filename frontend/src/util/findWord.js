@@ -62,12 +62,12 @@ export function findWordSentence(word, sentence) {
         if (index === -1) {
             break;
         }
-        // if (index > 0) {
-        //     index++;
-        // }
-        // console.log("Pusing index:", index);
+        // increment by 1 since it takes the space before the word as well
+        if (index > 0) {
+            index++;
+        }
 
-        indexList.push(++index);
+        indexList.push(index);
         pos = index + word.length;
     }
     // console.log("Out of log");
