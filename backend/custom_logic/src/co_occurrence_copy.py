@@ -1,14 +1,5 @@
-# coding=utf-8
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-# import networkx as nx
 import numpy as np
-import utils
-from preprocessing import filter_words_TFIDF, abstract_to_clean_list, topn_vocabulary
-from functools import partial
 from sklearn.feature_extraction.text import CountVectorizer
-
-mpl.use('TkAgg')
 
 # TODO: Optimize by using csr_matrix instead of array_matrix?
 def create_binary_occurrence_matrix(documents):

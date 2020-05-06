@@ -103,7 +103,7 @@ def closest_projects(user_project):
     return project_list
 
 def co_occurrence_matrix(texts):
-    binary_occurrence_matrix =  cooc.create_binary_occurrence_matrix(texts)
+    sorted_vocab, binary_occurrence_matrix =  cooc.create_binary_occurrence_matrix(texts)
     cooccurrence_matrix = cooc.create_coocurrence_matrix(binary_occurrence_matrix)
     norm_cooccurrence_matrix = cooc.normalize_coocurrence_matrix(cooccurrence_matrix)
-    return norm_cooccurrence_matrix
+    return (sorted_vocab, norm_cooccurrence_matrix)

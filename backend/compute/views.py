@@ -64,4 +64,6 @@ class CooccurrenceMatrix(APIView):
     def get(self, request):
         pass
     def post(self, request):
-        return Response(api.co_occurrence_matrix())
+        texts = request.data['texts']
+        vocab, matrix = api.co_occurrence_matrix(texts)
+        return Response({"vocabulary": vocab, "coOccurrenceMatrix": matrix})
