@@ -180,7 +180,7 @@ function App() {
   }
 
   const renderCoocMapTab = () => {
-    return <CooccurrenceMap />
+    return <CooccurrenceMap  />
   }
 
   return (
