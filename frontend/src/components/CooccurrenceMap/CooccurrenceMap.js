@@ -10,14 +10,27 @@ const CooccurrenceMap = props => {
         backgroundColor: "#a1a1a1"
     }
 
+    const getColor = colorClass => {
+        const colors = [
+            ["blue", "lightblue"],
+            ["green", "lightgreen"],
+            ["yellow", "lightyellow"],
+            ["green", "lightgreen"],
+            ["green", "lightgreen"],
+            ["green", "lightgreen"],
+        ]
+
+        return colors[colorClass]
+    }
+
     const data = {
         nodes: [
-            { id: "innovation", weight: 20 },
-            { id: "nano", weight: 10 },
-            { id: "neuron", weight: 16 },
-            { id: "neuronal", weight: 6 },
-            { id: "synapse", weight: 12 },
-            { id: "smes", weight: 7 },
+            { id: "innovation", weight: 20, colorClass: 0 },
+            { id: "nano", weight: 10, colorClass: 0 },
+            { id: "neuron", weight: 16, colorClass: 1 },
+            { id: "neuronal", weight: 6, colorClass: 1 },
+            { id: "synapse", weight: 12, colorClass: 2 },
+            { id: "smes", weight: 7, colorClass: 3 },
         ],
         links: [
             { "source": "innovation", "target": "nano", weight: 2 },
@@ -32,10 +45,12 @@ const CooccurrenceMap = props => {
 
 
     const Line = ({ link, ...restProps }) => {
+        const sourceNode = data.nodes.find((value) => value.id === link.source);
+        const color = getColor(sourceNode.colorClass)[1];
         return (
             <line
                 {...restProps}
-                stroke={"blue"}
+                stroke={color}
                 strokeWidth={link.weight}
             />
         )
@@ -48,7 +63,7 @@ const CooccurrenceMap = props => {
         // colors
         // const familyMatch = node.family.match(/Tolst|Trubetsk|Volkonsk|Gorchakov/);
         // const stroke = colorSwitch(familyMatch);
-        const stroke = "blue"
+        const [fillColor, strokeColor] = getColor(node.colorClass)
 
 
         // sizes
@@ -63,8 +78,8 @@ const CooccurrenceMap = props => {
         return (
             <>
                 <circle
-                    fill={`light${stroke}`}
-                    stroke={stroke}
+                    fill={fillColor}
+                    stroke={strokeColor}
                     r={sizes.radius}
                 />
                 <g style={{ fontSize: sizes.textSize + 'px' }}>
