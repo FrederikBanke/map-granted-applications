@@ -100,3 +100,6 @@ def closest_projects(user_project):
 
     # Find top n closest
     return project_list
+
+def co_occurrence_matrix():
+    pass
