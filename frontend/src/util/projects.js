@@ -46,3 +46,16 @@ export const groupProjectsByYear = (projects) => {
   });
   return projectsByYear;
 }
+
+/**
+ * Return project objectives in a list.
+ * @param {[]} projects 
+ * @returns {[]}
+ */
+export const extractProjectObjectives = projects => {
+  let objectives = [];
+  projects.forEach(project => {
+    objectives.push(project.objective);
+  });
+  return objectives;
+}

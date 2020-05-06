@@ -1,29 +1,69 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import Graph from "react-graph-network";
+import { callApi, formatData, subsetWords } from '../../util/api';
+import { formatDataForCoOccurrenceMatrix } from '../../util/charts';
+import { subsetProjects, combineTexts, extractProjectObjectives } from '../../util/projects';
 
 const CooccurrenceMap = props => {
+    const [data, setData] = useState(null);
+    const [maxWeight, setMaxWeight] = useState(null);
+    const [minWeight, setMinWeight] = useState(null);
 
     const containerStyle = {
         width: "100%",
-        height: "400px",
+        height: "600px",
         backgroundColor: "#a1a1a1"
+    }
+
+    useEffect(() => {
+        console.log("renderCoocMap");
+
+        callApi('cooccurrencematrix', 'POST', {
+            "texts": extractProjectObjectives(props.projects),
+        })
+            .then((res) => {
+                getWordWeights(props.projects).then(weights => {
+                    // console.log("weights before", weights);
+                    let normWeights = sizeNormalizer(weights);
+                    // console.log("weights after", normWeights);
+                    
+                    let formattedData = formatDataForCoOccurrenceMatrix(res.vocabulary, normWeights, res.coOccurrenceMatrix);
+                    setData(formattedData);
+                });
+            });
+
+    }, [props.projects]);
+
+    const getWordWeights = (projects, userProject = null) => {
+        return callApi('wordweight', 'POST', {
+            "text": combineTexts(projects),
+            // "text": ["Test project", "andet project med flere ord"].join(" "),
+            "user_project": userProject
+        })
+            .then(res => {
+                let formattedData = formatData(res);
+                let subset = subsetWords(formattedData);
+
+                // setClosestProjectsWords(subset);
+                return subset;
+            });
     }
 
     const getColor = colorClass => {
         const colors = [
+            ["yellow", "lightyellow"],
             ["blue", "lightblue"],
             ["green", "lightgreen"],
-            ["yellow", "lightyellow"],
             ["green", "lightgreen"],
             ["green", "lightgreen"],
             ["green", "lightgreen"],
-        ]
+        ];
 
-        return colors[colorClass]
+        return colors[colorClass];
     }
 
-    const data = {
+    const tempData = {
         nodes: [
             { id: "innovation", weight: 20, colorClass: 0 },
             { id: "nano", weight: 10, colorClass: 0 },
@@ -45,13 +85,30 @@ const CooccurrenceMap = props => {
 
 
     const Line = ({ link, ...restProps }) => {
-        const sourceNode = data.nodes.find((value) => value.id === link.source);
+        // console.log(data.nodes);
+
+        const sourceNode = data.nodes.find((value) => {
+            // console.log(`${link.source}`);
+
+            return value.id === link.source;
+        });
+
+        if (sourceNode === undefined) {
+            return (
+                <line
+                    {...restProps}
+                    stroke={"#fff000"}
+                    strokeWidth={link.weight * 100}
+                />
+            )
+        }
+
         const color = getColor(sourceNode.colorClass)[1];
         return (
             <line
                 {...restProps}
                 stroke={color}
-                strokeWidth={link.weight}
+                strokeWidth={link.weight * 3}
             />
         )
     };
@@ -95,25 +152,69 @@ const CooccurrenceMap = props => {
         );
     };
 
+    const findMax = (data) => {
+        let max = { text: null, value: 0 }
+        data.forEach(word => {
+            if (word.value > max.value) {
+                max = word;
+            }
+        });
+        return max;
+    }
+
+    const findMin = (data) => {
+        let min = { text: null, value: 0 }
+        data.forEach(word => {
+            if (word.value < min.value) {
+                min = word;
+            }
+        });
+        return min;
+    }
+
+    const sizeNormalizer = weights => {
+        let normalizedWeights = [];        
+
+        const maxLimit = 20; // 143 is max for 800x800 canvas
+        const minLimit = 1;
+        const max = findMax(weights).value;
+        const min = findMin(weights).value;
+
+        weights.forEach(word => {
+            let normWeight = (maxLimit - minLimit) / (max - min) * (word.value - max) + maxLimit;
+            
+            normalizedWeights.push({
+                text: word.text,
+                value: normWeight
+            })
+        });
+
+        return normalizedWeights;
+    }
+
+
     return (
         <div style={containerStyle}>
-            <Graph
-                data={data}
-                NodeComponent={Node}
-                LineComponent={Line}
-                nodeDistance={300}
-                zoomDepth={3}
-                hoverOpacity={0.3}
-                enableDrag={true}
-                pullIn={true}
-            />
+            {
+                data ? <Graph
+                    data={data}
+                    NodeComponent={Node}
+                    LineComponent={Line}
+                    nodeDistance={300}
+                    zoomDepth={3}
+                    hoverOpacity={0.3}
+                    enableDrag={true}
+                    pullIn={true}
+                />
+                    : null
+            }
+
         </div>
     )
 }
 
 CooccurrenceMap.propTypes = {
-    wordWeights: PropTypes.object,
-    cooccurrenceMatrix: PropTypes.array
+    projects: PropTypes.array,
 }
 
 export default CooccurrenceMap
