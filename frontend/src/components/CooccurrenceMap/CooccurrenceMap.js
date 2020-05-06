@@ -114,7 +114,6 @@ const CooccurrenceMap = props => {
 CooccurrenceMap.propTypes = {
     wordWeights: PropTypes.object,
     cooccurrenceMatrix: PropTypes.array
-
 }
 
 export default CooccurrenceMap
