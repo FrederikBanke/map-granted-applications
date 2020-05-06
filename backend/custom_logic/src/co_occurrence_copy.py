@@ -8,12 +8,21 @@ from preprocessing import filter_words_TFIDF, abstract_to_clean_list, topn_vocab
 from functools import partial
 from sklearn.feature_extraction.text import CountVectorizer
 
-test_docs = ["woop, skru skru op for den lyd", "og lad bassen komme tæt på vi pumper", "det lige meget bla bla bla", "vi pumper musikken woop woop"]
-
 mpl.use('TkAgg')
 
 # TODO: Optimize by using csr_matrix instead of array_matrix?
-def create_binary_occurence_matrix(documents):
+def create_binary_occurrence_matrix(documents):
+    """
+    Creates a binary occurrence matrix over a list of documents.
+    
+    Parameters
+    ----------
+    documents : list of strings
+    
+    Returns
+    -------
+    tuple : tuple of occurrence matrix and vocabulary, where the first element in the vocab list corrosponds to the first colunm in oc_matrix
+    """
     counter = CountVectorizer()
 
     # make vocab and create document-term matrix with term frequnecies
@@ -33,13 +42,35 @@ def create_binary_occurence_matrix(documents):
                 
     return (sorted_vocab, occurence_matrix)
 
-def create_coocurence_matrix(occurence_matrix):
+def create_coocurrence_matrix(occurence_matrix):
+    """
+    Create coocurrence matrix from binary occurence matrix by transposing and multiplying
+    
+    Parameters
+    ----------
+    occurence_matrix : a binary occurrence matrix
+    
+    Returns
+    -------
+    cooc_matrix : a coocurrence matrix
+    """
     OT = occurence_matrix.transpose()
     cooc_matrix = np.matmul(OT, occurence_matrix)
     
     return cooc_matrix
 
-def normalize_coocurence_matrix(cooc_matrix):   
+def normalize_coocurrence_matrix(cooc_matrix):
+    """
+    Normalize a co-occurrence matrix using association strength.
+    
+    Parameters
+    ----------
+    list : A list of lists (matrix)
+    
+    Returns
+    -------
+    list : The normalized matrix
+    """
     norm_coop = np.zeros((cooc_matrix.shape[0], cooc_matrix.shape[1]))
     for i in range (cooc_matrix.shape[0]):
         for j in range (cooc_matrix.shape[1]):

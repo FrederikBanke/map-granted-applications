@@ -6,6 +6,7 @@ import custom_logic.src.main as main
 import custom_logic.src.train as train
 import custom_logic.src.user_logic as ul
 import custom_logic.src.similar as sml
+import custom_logic.src.co_occurrence_copy as cooc
 import pandas as pd
 import time
 
@@ -101,5 +102,8 @@ def closest_projects(user_project):
     # Find top n closest
     return project_list
 
-def co_occurrence_matrix():
-    pass
+def co_occurrence_matrix(texts):
+    binary_occurrence_matrix =  cooc.create_binary_occurrence_matrix(texts)
+    cooccurrence_matrix = cooc.create_coocurrence_matrix(binary_occurrence_matrix)
+    norm_cooccurrence_matrix = cooc.normalize_coocurrence_matrix(cooccurrence_matrix)
+    return norm_cooccurrence_matrix

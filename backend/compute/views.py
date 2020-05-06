@@ -65,4 +65,3 @@ class CooccurrenceMatrix(APIView):
         pass
     def post(self, request):
         return Response(api.co_occurrence_matrix())
-        pass
