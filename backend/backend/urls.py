@@ -26,5 +26,6 @@ urlpatterns = [
     path('api/', include(router.urls)), # add this
     path('api/wordweight/', views.WordWeightView.as_view()),
     path('api/closestvectors/', views.ClosestVectorsView.as_view()),
-    path('api/closestprojects/', views.ClosestProjectsView.as_view())
+    path('api/closestprojects/', views.ClosestProjectsView.as_view()),
+    path('api/cooccurrencematrix/', views.CooccurrenceMatrix.as_view()),
 ]

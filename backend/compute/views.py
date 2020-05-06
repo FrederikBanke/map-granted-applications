@@ -55,4 +55,14 @@ class ClosestVectorsView(APIView):
         return Response({"status": "There is nothing to GET here, use POST"})
     def post(self, request):
         project = ul.json_to_dataframe(request.data)
-        return Response(api.closest_vectors(project))        
+        return Response(api.closest_vectors(project))
+
+class CooccurrenceMatrix(APIView):
+    """
+    API for getting a co-occurrence matrix.
+    """
+    def get(self, request):
+        pass
+    def post(self, request):
+        return Response(api.co_occurrence_matrix())
+        pass
