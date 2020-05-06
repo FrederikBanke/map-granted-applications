@@ -9,12 +9,14 @@ import TabsContainer from './components/Tabs/TabsContainer';
 import Tab from './components/Tabs/Tab';
 import { subsetProjects } from './util/projects';
 import WordTimeline from './components/WordTimeline/WordTimeline';
+import CooccurrenceMap from './components/CooccurrenceMap/CooccurrenceMap';
 
 
 function App() {
   const [activeTab, setActiveTab] = useState("");
   const [wordCloudTabId, setWordCloudTabId] = useState("wordcloud");
   const [timelineTabId, setTimelineTabId] = useState("timeline");
+  const [coocTabId, setCoocTabId] = useState("coocmap");
 
 
   const [viewWordCloud, setViewWordCloud] = useState(false);
@@ -177,9 +179,13 @@ function App() {
     return <WordTimeline projects={subsetProjects(topProjects, topNumber)} />
   }
 
+  const renderCoocMapTab = () => {
+    return <CooccurrenceMap />
+  }
+
   return (
     <div className="App">
-      <h1>App</h1>
+      <h1>Look up most related projects</h1>
       <ProjectSubmission currentProject={currentProject} onChange={onProjectChange} />
       <hr />
       {
@@ -194,6 +200,7 @@ function App() {
             <TabsContainer>
               <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
               <Tab text="Word Timeline" id={timelineTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
+              <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
             </TabsContainer>
             <hr />
             < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
@@ -205,6 +212,11 @@ function App() {
             {
               activeTab === timelineTabId
                 ? renderWordTimelineTab()
+                : null
+            }
+            {
+              activeTab === coocTabId
+                ? renderCoocMapTab()
                 : null
             }
           </div>
