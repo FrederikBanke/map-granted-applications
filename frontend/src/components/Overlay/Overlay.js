@@ -4,7 +4,9 @@ import PropTypes from 'prop-types'
 function Overlay(props) {
     const overlayStyle = {
         position: "fixed", /* Sit on top of the page content */
+        margin: "auto",
         width: "fit-content", /* Full width (cover the whole page) */
+        maxWidth: "90%",
         height: "fit-content", /* Full height (cover the whole page) */
         top: "50px",
         left: "50px",
