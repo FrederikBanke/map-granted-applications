@@ -29,8 +29,9 @@ def word_weights(data, user_project=None):
         texts.append(data)
     elif type(data) == list:
         texts = data
+    else:
+        raise TypeError("word weight API given wrong data type")
     
-    abstracts_list = []
     weight_dict = dict()
     for text in texts:
         # create word weight dictionary for each abstract
@@ -40,6 +41,47 @@ def word_weights(data, user_project=None):
         weight_dict = utils.merge_dicts(weight_dict, temp_dict)
 
     return weight_dict
+
+def filter_objectives_on_weights(objectives_list, weight_dict=None):
+    """
+    Filter project objectives (or others strings) using a dictionary of word weights. 
+    If a word in the objevtive is not in the weight dictionary, 
+    it will be removed from the filtered objective.
+    
+    Parameters
+    ----------
+    objective_list : A `list` of `strings`
+
+    weight_dict : A `dict` that needs to have the format that `word_weights` function returns.
+    
+    Returns
+    -------
+    `list` : A `list` of documents with the necessary words removed
+    """
+    texts = []
+    if type(objectives_list) == str:
+        objectives_list = [objectives_list]
+    elif type(objectives_list) == list:
+        pass
+    else:
+        raise TypeError("filter_objectives_on_weights API given wrong data type")
+
+    if weight_dict == None:
+        weight_dict = word_weights(" ".join(objectives_list))
+    
+    word_list = weight_dict.keys()
+
+    filtered_objective_list = []
+
+    for objective in objectives_list:
+        trimmed_objective = preprocessing.remove_symbols(objective)
+        list_of_words = trimmed_objective.split(' ')
+        filtered_list_of_words = list(filter(lambda word: word in word_list, list_of_words))
+        filtered_objective = " ".join(filtered_list_of_words)
+        filtered_objective_list.append(filtered_objective)
+
+
+    return {"filteredObjectives": filtered_objective_list, "wordWeights": weight_dict}
 
 def closest_vectors(user_project):
     """

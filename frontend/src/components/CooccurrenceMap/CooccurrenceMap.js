@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import Graph from "react-graph-network";
-import { callApi, formatData, subsetWords } from '../../util/api';
+import { callApi, formatWordWeightsData, sortWordWeights, scaleWordWeights } from '../../util/api';
 import { formatDataForCoOccurrenceMatrix } from '../../util/charts';
 import { subsetProjects, combineTexts, extractProjectObjectives } from '../../util/projects';
 
 const CooccurrenceMap = props => {
-    const [data, setData] = useState(null);
+    const [matrixData, setMatrixData] = useState(null);
     const [maxWeight, setMaxWeight] = useState(null);
     const [minWeight, setMinWeight] = useState(null);
 
@@ -16,21 +16,62 @@ const CooccurrenceMap = props => {
         backgroundColor: "#a1a1a1"
     }
 
-    useEffect(() => {
-        console.log("renderCoocMap");
+    const tempData = {
+        nodes: [
+            { id: "innovation", weight: 20, colorClass: 0 },
+            { id: "nano", weight: 10, colorClass: 0 },
+            { id: "neuron", weight: 16, colorClass: 1 },
+            { id: "neuronal", weight: 6, colorClass: 1 },
+            { id: "synapse", weight: 12, colorClass: 2 },
+            { id: "smes", weight: 7, colorClass: 3 },
+        ],
+        links: [
+            { "source": "innovation", "target": "nano", weight: 2 },
+            { "source": "innovation", "target": "synapse", weight: 4 },
+            { "source": "nano", "target": "neuronal", weight: 4 },
+            { "source": "nano", "target": "neuron", weight: 2 },
+            { "source": "nano", "target": "synapse", weight: 2 },
+            { "source": "smes", "target": "synapse", weight: 2 },
+        ]
+    };
 
-        callApi('cooccurrencematrix', 'POST', {
-            "texts": extractProjectObjectives(props.projects),
+    useEffect(() => {
+        console.log("mount CoocMap");
+
+        callApi('filterobjectives', 'POST', {
+            texts: extractProjectObjectives(props.projects),
+            // weight_dict: {}
         })
-            .then((res) => {
-                getWordWeights(props.projects).then(weights => {
-                    // console.log("weights before", weights);
-                    let normWeights = sizeNormalizer(weights);
-                    // console.log("weights after", normWeights);
-                    
-                    let formattedData = formatDataForCoOccurrenceMatrix(res.vocabulary, normWeights, res.coOccurrenceMatrix);
-                    setData(formattedData);
-                });
+            .then(res => {
+                callApi('cooccurrencematrix', 'POST', {
+                    "texts": res.filteredObjectives,
+                })
+                    .then((vocabAndMatrix) => {
+                        let formattedWeightsData = formatWordWeightsData(res.wordWeights);
+                        let weights = sortWordWeights(formattedWeightsData);
+
+                        // console.log("weights before", weights);
+                        weights = scaleWordWeights(weights, 1000);
+                        let normWeights = sizeNormalizer(weights);
+                        // console.log("weights after", normWeights);
+
+                        const threshold = 0.03;
+
+                        let formattedMatrixData = formatDataForCoOccurrenceMatrix(vocabAndMatrix.vocabulary, normWeights, vocabAndMatrix.coOccurrenceMatrix, threshold);
+                        console.log("setMatrixData");
+                        console.log("Vocabulary", vocabAndMatrix.vocabulary.length);
+                        console.log("word weights", normWeights.length);
+
+                        formattedMatrixData.links.forEach(element => {
+                            if (element.source.id === "at") {
+                                console.log(element);
+                                
+                            }
+                        });
+                        
+                        
+                        setMatrixData(formattedMatrixData);
+                    });
             });
 
     }, [props.projects]);
@@ -42,11 +83,11 @@ const CooccurrenceMap = props => {
             "user_project": userProject
         })
             .then(res => {
-                let formattedData = formatData(res);
-                let subset = subsetWords(formattedData);
+                let formattedData = formatWordWeightsData(res);
+                let sorted = sortWordWeights(formattedData);
 
                 // setClosestProjectsWords(subset);
-                return subset;
+                return sorted;
             });
     }
 
@@ -63,44 +104,19 @@ const CooccurrenceMap = props => {
         return colors[colorClass];
     }
 
-    const tempData = {
-        nodes: [
-            { id: "innovation", weight: 20, colorClass: 0 },
-            { id: "nano", weight: 10, colorClass: 0 },
-            { id: "neuron", weight: 16, colorClass: 1 },
-            { id: "neuronal", weight: 6, colorClass: 1 },
-            { id: "synapse", weight: 12, colorClass: 2 },
-            { id: "smes", weight: 7, colorClass: 3 },
-        ],
-        links: [
-            { "source": "innovation", "target": "nano", weight: 2 },
-            { "source": "innovation", "target": "synapse", weight: 4 },
-            { "source": "nano", "target": "neuronal", weight: 8 },
-            { "source": "nano", "target": "neuron", weight: 2 },
-            { "source": "nano", "target": "synapse", weight: 2 },
-            { "source": "smes", "target": "synapse", weight: 2 },
-        ]
-    };
-
-
-
     const Line = ({ link, ...restProps }) => {
         // console.log(data.nodes);
 
-        const sourceNode = data.nodes.find((value) => {
+        const sourceNode = matrixData.nodes.find((value) => {
             // console.log(`${link.source}`);
 
             return value.id === link.source;
         });
 
         if (sourceNode === undefined) {
-            return (
-                <line
-                    {...restProps}
-                    stroke={"#fff000"}
-                    strokeWidth={link.weight * 100}
-                />
-            )
+            console.log("Could not find node with id", link.source);
+            
+            throw new Error(`Could not find node with id: ${link.source}`)
         }
 
         const color = getColor(sourceNode.colorClass)[1];
@@ -108,27 +124,26 @@ const CooccurrenceMap = props => {
             <line
                 {...restProps}
                 stroke={color}
-                strokeWidth={link.weight * 3}
+                strokeWidth={link.weight}
             />
         )
     };
 
     const fontSize = 14;
-    const radius = 10;
 
     const Node = ({ node }) => {
         // colors
         // const familyMatch = node.family.match(/Tolst|Trubetsk|Volkonsk|Gorchakov/);
         // const stroke = colorSwitch(familyMatch);
-        const [fillColor, strokeColor] = getColor(node.colorClass)
+        const [fillColor, strokeColor] = getColor(node.colorClass);
 
 
         // sizes
         const sizes = {
             radius: node.weight,
             textSize: fontSize,
-            textX: radius * 1.5,
-            textY: radius / 2,
+            textX: 0,
+            textY: 0,
         };
 
 
@@ -141,8 +156,8 @@ const CooccurrenceMap = props => {
                 />
                 <g style={{ fontSize: sizes.textSize + 'px' }}>
                     <text
-                        x={sizes.radius + 7}
-                        y={sizes.radius / 2}
+                        x={sizes.textX}
+                        y={sizes.textY}
                     >
                         {node.id}
                     </text>
@@ -152,7 +167,7 @@ const CooccurrenceMap = props => {
         );
     };
 
-    const findMax = (data) => {
+    const findMaxWord = (data) => {
         let max = { text: null, value: 0 }
         data.forEach(word => {
             if (word.value > max.value) {
@@ -162,7 +177,7 @@ const CooccurrenceMap = props => {
         return max;
     }
 
-    const findMin = (data) => {
+    const findMinWord = (data) => {
         let min = { text: null, value: 0 }
         data.forEach(word => {
             if (word.value < min.value) {
@@ -173,20 +188,20 @@ const CooccurrenceMap = props => {
     }
 
     const sizeNormalizer = weights => {
-        let normalizedWeights = [];        
+        let normalizedWeights = [];
 
-        const maxLimit = 20; // 143 is max for 800x800 canvas
-        const minLimit = 1;
-        const max = findMax(weights).value;
-        const min = findMin(weights).value;
+        const maxLimit = 30;
+        const minLimit = 3;
+        const max = findMaxWord(weights).value;
+        const min = findMinWord(weights).value;
 
         weights.forEach(word => {
             let normWeight = (maxLimit - minLimit) / (max - min) * (word.value - max) + maxLimit;
-            
+
             normalizedWeights.push({
                 text: word.text,
                 value: normWeight
-            })
+            });
         });
 
         return normalizedWeights;
@@ -195,12 +210,13 @@ const CooccurrenceMap = props => {
 
     return (
         <div style={containerStyle}>
+            {console.log("coocmap render")}
             {
-                data ? <Graph
-                    data={data}
+                matrixData ? <Graph
+                    data={matrixData}
                     NodeComponent={Node}
                     LineComponent={Line}
-                    nodeDistance={300}
+                    nodeDistance={700}
                     zoomDepth={3}
                     hoverOpacity={0.3}
                     enableDrag={true}

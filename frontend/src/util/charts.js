@@ -95,7 +95,7 @@ const findRow = (list, term) => {
  * @param {[[]]} coOccurrenceMatrix 
  * @returns {Object}
  */
-export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccurrenceMatrix) => {
+export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccurrenceMatrix, coOccurrenceThreshold=0) => {
     let nodes = [];
     let edges = [];
 
@@ -108,6 +108,7 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
 
         }))
         if (word1 === undefined) {
+            console.error("Could not find word in vocabulary");
             return;
         }
 
@@ -116,13 +117,22 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
         nodes.push(node);
     });
 
+    const minEdgeSize = 0;
+    const maxEdgeSize = 1;
+
+    console.log("Min and max", minEdgeSize, maxEdgeSize);
+    
+
     for (let row = 0; row < coOccurrenceMatrix.length - 1; row++) {
         for (let column = row + 1; column < coOccurrenceMatrix.length; column++) {
             const coOccurrenceValue = coOccurrenceMatrix[row][column];
             const sourceNode = vocabulary[row];
             const targetNode = vocabulary[column];
-            if (coOccurrenceValue > 0 && isInNodes(sourceNode, nodes) && isInNodes(targetNode, nodes)) {
-                let edge = createEdge(sourceNode, targetNode, coOccurrenceValue);
+            if (coOccurrenceValue > coOccurrenceThreshold) {
+                let edge = createEdge(sourceNode, targetNode, coOccurrenceValue, minEdgeSize, maxEdgeSize);
+                edges.push(edge);
+            } else {
+                let edge = createEdge(sourceNode, targetNode, 0, minEdgeSize, maxEdgeSize);
                 edges.push(edge);
             }
         }
@@ -144,27 +154,34 @@ const createNode = (id, weight, colorClass) => {
     return { id, weight, colorClass }
 }
 
-const createEdge = (source, target, weight) => {
-    return { "source": source, "target": target, weight }
+const createEdge = (source, target, weight, min, max) => {
+    // const normWeight = sizeNormalizer(weight, min, max, 3, 6);
+    const normWeight = weight * 20;
+    // console.log("Edge size", normWeight);
+    
+    return { "source": source, "target": target, weight: normWeight }
 }
 
 
-// Output:
-// {
-//     nodes: [
-//         { id: "innovation", weight: 20, colorClass: 0 },
-//         { id: "nano", weight: 10, colorClass: 0 },
-//         { id: "neuron", weight: 16, colorClass: 1 },
-//         { id: "neuronal", weight: 6, colorClass: 1 },
-//         { id: "synapse", weight: 12, colorClass: 2 },
-//         { id: "smes", weight: 7, colorClass: 3 },
-//     ],
-//     links: [
-//         { "source": "innovation", "target": "nano", weight: 2 },
-//         { "source": "innovation", "target": "synapse", weight: 4 },
-//         { "source": "nano", "target": "neuronal", weight: 8 },
-//         { "source": "nano", "target": "neuron", weight: 2 },
-//         { "source": "nano", "target": "synapse", weight: 2 },
-//         { "source": "smes", "target": "synapse", weight: 2 },
-//     ]
-// };
+/**
+ * Normalize number.
+ * @param {Number} value 
+ * @param {Number} min 
+ * @param {Number} max 
+ * @param {Number} minLimit 
+ * @param {Number} maxLimit 
+ * @returns {Number}
+ */
+export const sizeNormalizer = (value, min, max, minLimit, maxLimit) => {
+    let normalizedSize = (maxLimit - minLimit) / (max - min) * (value - max) + maxLimit;
+
+    return normalizedSize;
+}
+
+export const findMaxValue = (listOfNumbers) => {
+    return Math.max(...listOfNumbers);
+}
+
+export const findMinValue = (listOfNumbers) => {
+    return Math.min(...listOfNumbers);
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import { combineTexts, groupProjectsByYear } from '../../util/projects';
-import { callApi, formatData, subsetWords } from '../../util/api';
+import { callApi, formatWordWeightsData, sortWordWeights, subsetWords } from '../../util/api';
 import { Chart } from "react-google-charts";
 import { formatDataForCharts } from '../../util/charts';
 
@@ -63,12 +63,12 @@ const WordTimeline = props => {
                     setWeightsByYear(weightsByYearResponse);
                     getWordWeight(props.projects)
                         .then(weights => {
-                            let sorted = subsetWords(weights);
+                            let sorted = sortWordWeights(weights);
 
                             setAllWords(sorted);
 
                             let words = [];
-                            let subset = subsetWords(weights, 5);
+                            let subset = subsetWords(sorted, 5);
                             for (const key in subset) {
                                 if (subset.hasOwnProperty(key)) {
                                     const element = subset[key];
@@ -89,7 +89,7 @@ const WordTimeline = props => {
             "user_project": props.userProject || null
         })
             .then(res => {
-                let formattedData = formatData(res);
+                let formattedData = formatWordWeightsData(res);
                 return formattedData;
             });
     }

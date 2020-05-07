@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import WordCloudContainer from './components/WordCloud/WordCloudContainer';
-import { callApi, subsetWords, formatData } from './util/api';
+import { callApi } from './util/api';
 import ListProjects from './components/ListProjects/ListProjects';
 import ProjectSubmission from './components/ProjectSubmission/ProjectSubmission';
 import { loadCurrentProject, getClosestProjects, saveClosestProjects, saveCurrentProject, saveProject } from './util/projectManagement';

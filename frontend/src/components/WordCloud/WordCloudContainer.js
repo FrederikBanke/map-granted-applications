@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types';
 // import WordCloud from "react-d3-cloud";
 import WordCloud from "react-wordcloud";
-import { formatData, callApi, subsetWords } from '../../util/api';
+import { formatWordWeightsData, callApi, sortWordWeights } from '../../util/api';
 import { findWordProject } from '../../util/findWord';
 import Sentences from '../Sentences/Sentences';
 import { getRandomColor, getPrimaryColor, getQuaternaryColor } from '../../util/colors';
@@ -39,15 +39,15 @@ export default function WordCloudContainer(props) {
             "text": combineTexts(props.projects),
             "user_project": props.userProject || null
         })
-            .then(res => {
+            .then(weightDict => {
                 // console.log(res);
-                let formattedData = formatData(res);
-                let subset = subsetWords(formattedData);
+                let formattedData = formatWordWeightsData(weightDict);
+                let sortedWordWeights = sortWordWeights(formattedData);
                 // console.log(formattedData);
                 // console.log(subset);
 
-                setWords(subset);
-                props.setWords(subset);
+                setWords(sortedWordWeights);
+                props.setWords(sortedWordWeights);
             });
 
         return (() => {

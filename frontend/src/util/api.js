@@ -22,17 +22,41 @@ export const callApi = (endpoint, method = 'GET', body = null) => {
 
 /**
  * Format word weights. Scales the weights from decimal points to integers.
+ * 
+ * The output will look like:
+ * @example
+ * [
+ *  {
+ *   text: "word",
+ *   value: 1
+ *  }...
+ * ]
  * @param {*} data 
+ * @returns {[]} A list containing word weights.
  */
-export const formatData = (data) => {
+export const formatWordWeightsData = (data) => {
     let newData = [];
-    //FIXME: Should not use the map function like this.
-    Object.keys(data).map((key, i) => {
-        let scaledInteger = Math.floor(data[key] * 1000)
-        let element = { text: key, value: scaledInteger }
+    Object.keys(data).forEach((key, i) => {
+        let element = { text: key, value: data[key] }
         newData.push(element)
     });
     return newData;
+}
+
+/**
+ * Scale the weight of words using the given scale. Rounds weight to integer (floor).
+ * @param {[]} weights 
+ * @param {Number} scale 
+ */
+export const scaleWordWeights = (weights, scale) => {
+    let scaledWordWeights = []
+    weights.forEach(word => {
+        // let scaledInteger = Math.floor(word.value * scale) // Used to floor because old word cloud lib couldn't use floats
+        let scaledValue = word.value * scale
+        let element = { text: word.text, value: scaledValue }
+        scaledWordWeights.push(element)
+    })
+    return scaledWordWeights;
 }
 
 /**
@@ -40,13 +64,17 @@ export const formatData = (data) => {
  * @param {[]} list 
  * @param {Number} number 
  */
-export const subsetWords = (list, number = 0) => {
-    if (number === 0) {
-        let sortedList = list.sort(compareWordsWeightDesc);
-        return sortedList;
-    }
-    let sortedList = list.sort(compareWordsWeightDesc);
-    return sortedList.slice(0, number);
+export const subsetWords = (list, number = list.length) => {
+    return list.slice(0, number);
+}
+
+/**
+ * Sort word weigth list.
+ * @param {[]} list List of word weights unsorted.
+ * @returns {[]} A list sorted on weights descending
+ */
+export const sortWordWeights = (list) => {
+    return list.sort(compareWordsWeightDesc);
 }
 
 const compareWordsWeightDesc = (a, b) => {

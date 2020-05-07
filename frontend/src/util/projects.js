@@ -50,7 +50,7 @@ export const groupProjectsByYear = (projects) => {
 /**
  * Return project objectives in a list.
  * @param {[]} projects 
- * @returns {[]}
+ * @returns {[]} A `list` containing project objectives.
  */
 export const extractProjectObjectives = projects => {
   let objectives = [];

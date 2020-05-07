@@ -26,13 +26,26 @@ class WordWeightView(APIView):
     def get(self, request):
         return Response({"status": "There is nothing to GET here, use POST"})
     def post(self, request):
-        print("Word cloud type ", type(request.data))
         text = request.data['text']
         try:
             user_project = request.data['user_project']
         except KeyError as identifier:
             user_project = None
         return Response(api.word_weights(text, user_project))
+
+class FilterObjectivesOnWeightsView(APIView):
+    """
+    API for filtereing project objectives using word weights.
+    """
+    def get(self, request):
+        return Response({"status": "There is nothing to GET here, use POST"})
+    def post(self, request):
+        texts = request.data['texts']
+        try:
+            weight_dict = request.data['weight_dict']
+        except KeyError as identifier:
+            weight_dict = None
+        return Response(api.filter_objectives_on_weights(texts, weight_dict))
 
 class ClosestProjectsView(APIView):
     """

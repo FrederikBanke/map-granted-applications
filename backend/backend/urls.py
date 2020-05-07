@@ -28,4 +28,5 @@ urlpatterns = [
     path('api/closestvectors/', views.ClosestVectorsView.as_view()),
     path('api/closestprojects/', views.ClosestProjectsView.as_view()),
     path('api/cooccurrencematrix/', views.CooccurrenceMatrix.as_view()),
+    path('api/filterobjectives/', views.FilterObjectivesOnWeightsView.as_view()),
 ]

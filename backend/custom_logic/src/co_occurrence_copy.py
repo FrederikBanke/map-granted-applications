@@ -14,7 +14,7 @@ def create_binary_occurrence_matrix(documents):
     -------
     tuple : tuple of occurrence matrix and vocabulary, where the first element in the vocab list corrosponds to the first colunm in oc_matrix
     """
-    counter = CountVectorizer()
+    counter = CountVectorizer(token_pattern = r"(?u)\b\w+\b") #include single letter words
 
     # make vocab and create document-term matrix with term frequnecies
     csr_occurence_matrix = counter.fit_transform(raw_documents=documents)
@@ -69,7 +69,7 @@ def normalize_coocurrence_matrix(cooc_matrix):
             cij = cooc_matrix[i][j]
             si = cooc_matrix[i][i]
             sj = cooc_matrix[j][j]
-            if (cij != 0 and si != 0 and sj != 0):
+            if (cij != 0):
                 norm_coop[i][j] = cij/(si*sj)
 
     return norm_coop
