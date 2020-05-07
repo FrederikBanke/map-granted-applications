@@ -142,7 +142,7 @@ const CooccurrenceMap = props => {
         const sizes = {
             radius: node.weight,
             textSize: fontSize,
-            textX: 0,
+            textX: -3,
             textY: 0,
         };
 
