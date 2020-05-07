@@ -132,8 +132,8 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
                 let edge = createEdge(sourceNode, targetNode, coOccurrenceValue, minEdgeSize, maxEdgeSize);
                 edges.push(edge);
             } else {
-                let edge = createEdge(sourceNode, targetNode, 0, minEdgeSize, maxEdgeSize);
-                edges.push(edge);
+                // let edge = createEdge(sourceNode, targetNode, 0, minEdgeSize, maxEdgeSize);
+                // edges.push(edge);
             }
         }
     }

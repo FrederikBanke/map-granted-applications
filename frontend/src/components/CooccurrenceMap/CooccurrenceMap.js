@@ -12,7 +12,7 @@ const CooccurrenceMap = props => {
 
     const containerStyle = {
         width: "100%",
-        height: "600px",
+        height: "1000px",
         backgroundColor: "#a1a1a1"
     }
 
@@ -55,7 +55,7 @@ const CooccurrenceMap = props => {
                         let normWeights = sizeNormalizer(weights);
                         // console.log("weights after", normWeights);
 
-                        const threshold = 0.03;
+                        const threshold = 0.05;
 
                         let formattedMatrixData = formatDataForCoOccurrenceMatrix(vocabAndMatrix.vocabulary, normWeights, vocabAndMatrix.coOccurrenceMatrix, threshold);
                         console.log("setMatrixData");
@@ -129,7 +129,7 @@ const CooccurrenceMap = props => {
         )
     };
 
-    const fontSize = 14;
+    const fontSize = 12;
 
     const Node = ({ node }) => {
         // colors
@@ -152,6 +152,7 @@ const CooccurrenceMap = props => {
                 <circle
                     fill={fillColor}
                     stroke={strokeColor}
+                    // strokeWidth={2}
                     r={sizes.radius}
                 />
                 <g style={{ fontSize: sizes.textSize + 'px' }}>
@@ -191,7 +192,7 @@ const CooccurrenceMap = props => {
         let normalizedWeights = [];
 
         const maxLimit = 30;
-        const minLimit = 3;
+        const minLimit = 1;
         const max = findMaxWord(weights).value;
         const min = findMinWord(weights).value;
 
@@ -216,7 +217,7 @@ const CooccurrenceMap = props => {
                     data={matrixData}
                     NodeComponent={Node}
                     LineComponent={Line}
-                    nodeDistance={700}
+                    nodeDistance={300}
                     zoomDepth={3}
                     hoverOpacity={0.3}
                     enableDrag={true}
