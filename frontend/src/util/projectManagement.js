@@ -56,9 +56,10 @@ export function saveProject(project, chooseProject) {
  */
 export function deleteProject(project, chooseProject) {
     let projects = getProjects();
+    const currentProject = loadCurrentProject();
     let newProjects = projects.filter(value => {
         if (value.id === project.id) {
-            if (loadCurrentProject().id === project.id) {
+            if (currentProject && currentProject.id === project.id) {
                 chooseProject(null);
             }
             return false;

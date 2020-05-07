@@ -53,7 +53,8 @@ export default function ProjectSubmission(props) {
     const onRemoveClick = event => {
         let projectId = event.target.getAttribute('data-projectid');
         let project = getProject(projectId);
-        deleteProject(project, chooseProject);
+        let newProjects = deleteProject(project, chooseProject);
+        setProjectsList(newProjects);
     }
 
     const renderView = () => {
