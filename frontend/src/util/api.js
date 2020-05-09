@@ -1,3 +1,12 @@
+/**
+ * Uses @function fetch to call our backend at the `endpoint`.
+ * If `method` is 'POST' it will use `body` as the request body.
+ * It returns a `Promise` where the JSON is already extracted from the request.
+ * @param {String} endpoint API endpoint
+ * @param {String} method http request type. Default is 'GET'.
+ * @param {Object} body Request body. Default is `null`.
+ * @returns {Promise} A `Promise` where the resolved value is response JSON.
+ */
 export const callApi = (endpoint, method = 'GET', body = null) => {
     if (method === 'GET') {
         return fetch(`http://localhost:8000/api/${endpoint}/`, {
@@ -21,7 +30,7 @@ export const callApi = (endpoint, method = 'GET', body = null) => {
 }
 
 /**
- * Format word weights. Scales the weights from decimal points to integers.
+ * Format word weights data. Puts the words and their weights in a `list`.
  * 
  * The output will look like:
  * @example
@@ -29,9 +38,10 @@ export const callApi = (endpoint, method = 'GET', body = null) => {
  *  {
  *   text: "word",
  *   value: 1
- *  }...
+ *  }
+ * ...
  * ]
- * @param {*} data 
+ * @param {Object} data An `Object` with keys: `text` and `value`.
  * @returns {[]} A list containing word weights.
  */
 export const formatWordWeightsData = (data) => {
@@ -45,8 +55,9 @@ export const formatWordWeightsData = (data) => {
 
 /**
  * Scale the weight of words using the given scale. Rounds weight to integer (floor).
- * @param {[]} weights 
- * @param {Number} scale 
+ * @param {[]} weights `list` of weights
+ * @param {Number} scale The number to multiply with
+ * @returns {[]} `List` of `objects` with keys: `text` and `value`.
  */
 export const scaleWordWeights = (weights, scale) => {
     let scaledWordWeights = []
@@ -60,11 +71,13 @@ export const scaleWordWeights = (weights, scale) => {
 }
 
 /**
- * 
+ * Take a subset of the provided words.
  * @param {[]} list 
  * @param {Number} number 
+ * @returns {[]} A new `list`
  */
 export const subsetWords = (list, number = list.length) => {
+    //FIXME: Could just use slice directly.
     return list.slice(0, number);
 }
 
@@ -77,6 +90,11 @@ export const sortWordWeights = (list) => {
     return list.sort(compareWordsWeightDesc);
 }
 
+/**
+ * Helper function for comparing word weights.
+ * @param {Object} a 
+ * @param {Object} b 
+ */
 const compareWordsWeightDesc = (a, b) => {
     if (a.value < b.value) {
         // less return negative

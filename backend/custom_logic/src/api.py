@@ -6,7 +6,7 @@ import custom_logic.src.main as main
 import custom_logic.src.train as train
 import custom_logic.src.user_logic as ul
 import custom_logic.src.similar as sml
-import custom_logic.src.co_occurrence_copy as cooc
+import custom_logic.src.co_occurrence as cooc
 import pandas as pd
 import time
 
@@ -16,13 +16,28 @@ def get_projects():
     return response.json()
 
 def fill_database_with_data():
-    with open('/home/banke/Projects/BachelorProject/map-granted-applications/backend/custom_logic/src/Project-2020-02-07.json') as f:
-        data = json.load(f)
+    with open('/home/banke/Projects/BachelorProject/map-granted-applications/backend/custom_logic/src/2007-2013-projects.json', 'r') as f:
+        decoded_data=f.read().encode().decode('utf-8-sig') 
+        data = json.loads(decoded_data)
     for project in data:
         requests.post("http://localhost:8000/api/projects/", project)
     return
 
+
 def word_weights(data, user_project=None):
+    """
+    Create a `dict` of {term: weight} for each term in a document, using TFIDF, if the term's weight passed a certain threshold.
+
+    Parameters
+    ----------
+    data : a `string` or a `list` of `strings` whose terms is to be scored
+    userproject : optional parameter, if given, TFIDF model is retrained with the user project
+
+    Returns
+    -------
+    `dict` : A `dict` of {term: weight} for each term in a document
+    """
+
     tfidf_model = main.get_tfidf(user_project)
     texts = []
     if type(data) == str:
@@ -145,6 +160,17 @@ def closest_projects(user_project):
     return project_list
 
 def co_occurrence_matrix(texts):
+    """
+    Create co-occurrunce matrix from a `list` of strings
+    
+    Parameters
+    ----------
+     : 
+    
+    Returns
+    -------
+     : 
+    """
     sorted_vocab, binary_occurrence_matrix =  cooc.create_binary_occurrence_matrix(texts)
     cooccurrence_matrix = cooc.create_coocurrence_matrix(binary_occurrence_matrix)
     norm_cooccurrence_matrix = cooc.normalize_coocurrence_matrix(cooccurrence_matrix)

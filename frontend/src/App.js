@@ -15,17 +15,14 @@ import { formatDataForCoOccurrenceMatrix } from './util/charts';
 
 function App() {
     const [activeTab, setActiveTab] = useState("");
-    const [wordCloudTabId, setWordCloudTabId] = useState("wordcloud");
-    const [timelineTabId, setTimelineTabId] = useState("timeline");
-    const [coocTabId, setCoocTabId] = useState("coocmap");
+    const [wordCloudTabId,] = useState("wordcloud");
+    const [timelineTabId,] = useState("timeline");
+    const [coocTabId,] = useState("coocmap");
 
-    const [viewWordCloud, setViewWordCloud] = useState(false);
-    const [viewWordCloud2, setViewWordCloud2] = useState(false);
+    const [viewWordCloud, setViewWordCloudSingle] = useState(false);
+    const [viewWordCloud2, setViewWordCloudClosest] = useState(false);
     const [curProjectWords, setCurProjectWords] = useState([]);
     const [closestProjectsWords, setClosestProjectsWords] = useState([]);
-
-    const [coocMatrix, setCoocMatrix] = useState(null);
-
 
     const [uploadedProjects, setUploadedProjects] = useState(null);
     const [currentProject, setCurrentProject] = useState(null);
@@ -44,15 +41,21 @@ function App() {
         // minWidth: "100%"
     }
 
+    const inputStyle = { width: "50px" }
+
     const activeTabStyle = {
         backgroundImage: "linear-gradient(to top, white, #DCDCDC)",
         boxShadow: "inset 0 0 10px #000000",
     }
 
-    const inActiveTabStyle = {
+    const inactiveTabStyle = {
         backgroundImage: "linear-gradient(to top, #DCDCDC, white)"
     }
 
+    /**
+     * Chooses a style for a tab button. It checks if the button is for the currently active tab.
+     * @param {String} tabId ID of the tab to change style on
+     */
     const chooseTabStyle = (tabId) => {
         let tabStyle = {
             width: "200px",
@@ -65,13 +68,20 @@ function App() {
             textShadow: "1px 1px #ffffff",
         }
         return tabId === activeTab ? Object.assign(tabStyle, activeTabStyle)
-            : Object.assign(tabStyle, inActiveTabStyle)
+            : Object.assign(tabStyle, inactiveTabStyle)
     }
 
+    /**
+     * Effect for setting the current project on page load. Only runs one time on intial page load.
+     */
     useEffect(() => {
         setCurrentProject(loadCurrentProject());
     }, []);
 
+    /**
+     * Effect for fetching the closest projects to the currently active project.
+     * Runs every time the currently active project changes in the state.
+     */
     useEffect(() => {
         if (currentProject) {
             let closestProjects = getClosestProjects();
@@ -79,40 +89,62 @@ function App() {
                 setTopProjects(closestProjects);
             }
             else {
-                console.log("Find new closest projects!");
+                console.group("GetClosestProjects");
+                console.info("Calling backend for closest projects!");
+                console.time("FindNewClosestProjects");
                 findClosest(currentProject)
                     .then(newClosestProjects => {
-                        console.log(newClosestProjects);
-
                         saveClosestProjects(newClosestProjects);
                         setTopProjects(newClosestProjects);
+                        console.timeEnd("FindNewClosestProjects");
+                        console.groupEnd();
                     });
             }
         }
     }, [currentProject]);
 
-    const toggleWordCloud = () => {
-        setViewWordCloud(!viewWordCloud)
+    /**
+     * Toggle the visibility of the word cloud for the currently selected project.
+     */
+    const toggleWordCloudSingle = () => {
+        setViewWordCloudSingle(!viewWordCloud)
     }
-    const toggleWordCloud2 = () => {
-        setViewWordCloud2(!viewWordCloud2)
+    /**
+     * Toggle the visibility of the word cloud for the closest projects.
+     */
+    const toggleWordCloudClosest = () => {
+        setViewWordCloudClosest(!viewWordCloud2)
     }
 
+    /**
+     * Calls the backend API for the most similar projects.
+     * @param {Object} project The project to find similar abstracts to
+     * @returns {Promise} A `Promise` where the resolved value is the extracted JSON from the API response.
+     */
     const findClosest = (project) => {
         return callApi('closestprojects', 'POST', project);
     }
 
+    /**
+     * Sets word cloud of closest projects visibility to `false`. Sets `topNumber` in state to the new value entered into the input.
+     * @param {Event} event The DOM event that is triggered when input changes
+     */
     const onInputChange = event => {
-        setViewWordCloud2(false);
+        setViewWordCloudClosest(false);
         let value = parseInt(event.target.value);
         if (isNaN(value)) {
             value = 0;
         }
+        // TODO: Make it so if a number over 1000 is entered, it will automatically be reduced to 1000.
         if (0 <= value && value <= 1000) {
             setTopNumber(value);
         }
     }
 
+    /**
+     * Checks if there is a project currently active. Returns `true` if there is and `false` otherwise.
+     * @returns {boolean}
+     */
     const currentProjectExists = () => {
         if (currentProject) {
             return true;
@@ -120,6 +152,10 @@ function App() {
         return false;
     }
 
+    /**
+     * Saves a project to the browser's local state. After the project is saved it runs the @function onProjectChange function. 
+     * @param {Object} project The project to save and set active
+     */
     const saveAndSetProject = project => {
         if (project) {
             saveProject(project);
@@ -127,25 +163,31 @@ function App() {
         onProjectChange(project);
     }
 
+    /**
+     * A handler for running other functions when the currently active project changes. It sets the project as the current project in state.
+     * @param {Object} project The project that is being changed to
+     */
     const onProjectChange = project => {
-        setViewWordCloud(false);
-        setViewWordCloud2(false);
+        setViewWordCloudSingle(false);
+        setViewWordCloudClosest(false);
         if (project) {
             if (currentProject) {
+                // Only runs if changing to a new project (based on project id)
                 if (project.id !== currentProject.id) {
                     localStorage.removeItem('closestProjects');
                     saveCurrentProject(project);
-                    setTopProjects([]);
+                    setTopProjects([]); // cleans the list view while fetching for new closest projects
                     setCurrentProject(project);
                 }
             } else {
+                // FIXME: Repeated code
                 localStorage.removeItem('closestProjects');
                 saveCurrentProject(project);
                 setTopProjects([]);
                 setCurrentProject(project);
             }
-        }
-        else {
+        } else {
+            // If the project is null: delete data saved in local storage and in state
             localStorage.removeItem('closestProjects');
             localStorage.removeItem('currentProject');
             setCurrentProject(null);
@@ -153,23 +195,24 @@ function App() {
         }
     }
 
+    /**
+     * Handler for changing tab.
+     * @param {String} tabId ID of the tab to change to
+     */
     const onClickTab = tabId => {
         setActiveTab(tabId)
     }
 
-    const inputStyle = { width: "50px" }
-
-
     const renderWordCloudTab = () => {
         return <div style={wordCloudWrapperStyle}>
             <div style={{ width: "50%" }}>
-                <button disabled={!currentProjectExists()} onClick={toggleWordCloud}>Generate word cloud for your project</button>
+                <button disabled={!currentProjectExists()} onClick={toggleWordCloudSingle}>Generate word cloud for your project</button>
                 {viewWordCloud ? <WordCloudContainer wordsToCompare={closestProjectsWords} setWords={setCurProjectWords} onProjectChange={onProjectChange} projects={[currentProject]} />
                     : null
                 }
             </div>
             <div style={{ width: "50%" }}>
-                <button disabled={topProjects.length < 1} onClick={toggleWordCloud2}>Generate word cloud for closest projects</button>
+                <button disabled={topProjects.length < 1} onClick={toggleWordCloudClosest}>Generate word cloud for closest projects</button>
                 {viewWordCloud2 ? <WordCloudContainer wordsToCompare={curProjectWords} setWords={setClosestProjectsWords} onProjectChange={saveAndSetProject} projects={subsetProjects(topProjects, topNumber)} />
                     : null
                 }

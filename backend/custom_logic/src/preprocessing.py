@@ -40,9 +40,9 @@ def TFIDF_list_of_weigths(TFIDF_model, abstract):
     
     Parameters
     ----------
-    TFIDF_model : 
+    TFIDF_model : A trained TF-IDF model 
 
-    abstract : 
+    abstract : The abstract, whose words should be calculated
     
     Returns
     -------
@@ -53,7 +53,7 @@ def TFIDF_list_of_weigths(TFIDF_model, abstract):
 
     score = {}
     # Transform the abstract into TfIdf coordinates
-    # FIXME: Måske opdaterer den ikke, men den erstatter
+    # TODO: test if fit_transform adds the abstract to the TFIDF vocab, and stop retraining the model
     X = TFIDF_model.transform([abstract])
     # get the score/weight from each word in the abstract
     # and create a list of tuples with word and score, in order, with the most importent word first
@@ -100,17 +100,8 @@ def train_new_TFIDF(abstract=None):
     # abstracts = [" ".join(list(filter(filter_words, re.sub(r'[^\w]', ' ', str(x).lower()).split()))) for x in abstracts]
     abstracts = [remove_symbols(str(x).lower()) for x in abstracts]
 
-    # create vocabolary
-
-
-    # vocabulary = set()
-    # for doc in abstracts:
-    #     vocabulary.update(doc.split())
-
-    # vocabulary = list(vocabulary)
-    # word_index = {w: idx for idx, w in enumerate(vocabulary)}
-
-    tfidf = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b", max_df=0.7)
+    # choosing tfidf model parameters
+    tfidf = TfidfVectorizer(max_df=0.7, ngram_range=(1,2), stop_words='english')
 
     # Fit the TfIdf model
     tfidf.fit_transform(abstracts)

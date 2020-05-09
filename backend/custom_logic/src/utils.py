@@ -1,9 +1,11 @@
+import pandas as pd
+from sklearn.decomposition import PCA
+
 def print_progress(string):
     whitespace = ' ' * (40-len(string))
     print('\r{}: In progress{}'.format(string, whitespace), end='', flush=True)
     # sys.stdout.flush()
     # time.sleep(1)
-
 
 def print_done(string):
     whitespace = ' ' * (40-len(string))
@@ -39,3 +41,15 @@ def filter_dict(dictionary = {}, threshold = 0):
         if value > threshold:
             newDict[key] = value
     return newDict
+
+def transform_pca(vectors, dimensions=2):
+    """Helper function for PCA. Reduces vector to given dimensions.\n
+    Paramters:\n
+    `vectors` - the vectors to run PCA on\n
+    `dimensions` - how many dimensions the PCA should reduce to
+
+    Returns:\n
+    The new reduced vectors
+    """
+    pca = PCA(n_components=dimensions)  # n-dimensional PCA.
+    return pd.DataFrame(pca.fit_transform(vectors))

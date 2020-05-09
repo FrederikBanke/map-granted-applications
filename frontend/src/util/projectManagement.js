@@ -32,15 +32,17 @@ export function getProject(projectId) {
 export function saveProject(project, chooseProject) {
     let projects = getProjects();
     let projectAlreadySaved = false;
+    // Check if the project we are saving is already in local storage.
     projects.forEach(value => {
         if (project.id === value.id) {
             projectAlreadySaved = true;
         }
     })
+    // If the project is already saved, delete it from storage and push the new project.
     if (projectAlreadySaved) {
         projects = deleteProject(project, chooseProject);
         projects.push(project);
-        
+
     }
     else {
         projects.push(project);
@@ -50,9 +52,10 @@ export function saveProject(project, chooseProject) {
 }
 
 /**
- * Delete a project from local storage.
+ * Delete a project from local storage. Returns the updated `list` with the project removed.
  * @param {{}} project Project to delete
- * @param {Function} chooseProject
+ * @param {Function} chooseProject Function for changing the current project in state
+ * @returns {[Object]} `list` of `objects`
  */
 export function deleteProject(project, chooseProject) {
     let projects = getProjects();
@@ -70,12 +73,15 @@ export function deleteProject(project, chooseProject) {
     return newProjects;
 }
 
+/**
+ * Save project as the currently active project in browser's local storage.
+ * @param {Object} project Project to save
+ */
 export function saveCurrentProject(project) {
-    if (project === null || project === undefined) {
-        console.error("Saving an undefined project");
-    }
-    else {
+    try {
         localStorage.setItem('currentProject', JSON.stringify(project));
+    } catch (error) {
+        console.error("Saving an undefined project.", error);
     }
 }
 
@@ -95,6 +101,11 @@ export function saveClosestProjects(closestProjects) {
     localStorage.setItem('closestProjects', JSON.stringify(closestProjects));
 }
 
+/**
+ * Fetches the closest projects stored in the browser's local storage.
+ * Returns a `list` containing the closest projects as objects or `null` if local storage was empty.
+ * @returns {[Object] | null} `[Object]` or `null`
+ */
 export function getClosestProjects() {
     let string = localStorage.getItem('closestProjects');
 
