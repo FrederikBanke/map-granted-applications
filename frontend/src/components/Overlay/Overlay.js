@@ -3,15 +3,15 @@ import PropTypes from 'prop-types'
 
 function Overlay(props) {
     const overlayStyle = {
-        position: "fixed", /* Sit on top of the page content */
+        position: "fixed",
         margin: "auto",
-        width: "fit-content", /* Full width (cover the whole page) */
+        width: "fit-content",
         maxWidth: "90%",
-        height: "fit-content", /* Full height (cover the whole page) */
+        height: "fit-content", 
         top: "50px",
         left: "50px",
         right: "50px",
-        zIndex: "2", /* Specify a stack order in case you're using a different order for other elements */
+        zIndex: "2",
     }
 
     const onClickClose = () => {

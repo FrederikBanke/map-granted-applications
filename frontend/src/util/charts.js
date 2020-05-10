@@ -76,6 +76,7 @@ export const formatDataForCharts = (data, words) => {
  * Find index for row
  * @param {[]} list
  * @param {String} term
+ * @returns {number} Retruns found index. Returns -1 if nothing was found.
  */
 const findRow = (list, term) => {
     let index = 0;
@@ -157,7 +158,6 @@ const createNode = (id, weight, colorClass) => {
 const createEdge = (source, target, weight, min, max) => {
     // const normWeight = sizeNormalizer(weight, min, max, 3, 6);
     const normWeight = weight * 20;
-    // console.log("Edge size", normWeight);
     
     return { "source": source, "target": target, weight: normWeight }
 }
@@ -178,10 +178,20 @@ export const sizeNormalizer = (value, min, max, minLimit, maxLimit) => {
     return normalizedSize;
 }
 
+/**
+ * Finds the maximum number in a list of numbers
+ * @param {[Number]} listOfNumbers 
+ * @returns {Number} Maximum number in list
+ */
 export const findMaxValue = (listOfNumbers) => {
     return Math.max(...listOfNumbers);
 }
 
+/**
+ * Finds the minimum number in a list of numbers
+ * @param {[Number]} listOfNumbers 
+ * @returns {Number} Minimum number in list
+ */
 export const findMinValue = (listOfNumbers) => {
     return Math.min(...listOfNumbers);
 }

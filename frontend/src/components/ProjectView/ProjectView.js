@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { callApi } from '../../util/api';
-import { getPrimaryColor, getTertiaryColor } from '../../util/colors';
+import { getTertiaryColor } from '../../util/colors';
 
 /**
- * The complete Triforce, or one or more components of the Triforce.
+ * Type definition for Project.
  * @typedef {Object} Project
  * @property {string} id - 
  * @property {?string} acronym - 
@@ -36,7 +36,7 @@ import { getPrimaryColor, getTertiaryColor } from '../../util/colors';
  * @param {Function} props.onProjectChange
  * 
  */
-function ProjectView(props) {
+const ProjectView = (props) => {
     const [project, setProject] = useState(props.project);
     const [objectiveStyle, setObjectiveStyle] = useState({ display: "block" });
 
@@ -50,6 +50,12 @@ function ProjectView(props) {
         color: getTertiaryColor()
     }
 
+    /**
+     * Checks if there is a project passed to it from parent,
+     * if yes, set that project in state, 
+     * if no, use project ID passed to look up in API.
+     * Runs when ID or project changes.
+     */
     useEffect(() => {
         if (props.project) {
             setProject(props.project)
@@ -63,11 +69,16 @@ function ProjectView(props) {
 
     }, [props.id, props.project]);
 
+    /**
+     * Calls callback function from App component to save the project.
+     */
     const onSaveClick = () => {
-
         props.onProjectChange(project);
     }
 
+    /**
+     * Collapses objective text when header clicked.
+     */
     const onClickObjective = () => {
         if (objectiveStyle.display === "none") {
             setObjectiveStyle({
@@ -82,7 +93,7 @@ function ProjectView(props) {
 
     /**
      * 
-     * @param {String} text 
+     * @param {String} text One string that will be split on ';'
      */
     const renderList = text => {
         let listOfThings = text.split(';')
@@ -107,8 +118,8 @@ function ProjectView(props) {
                 <h2 onClick={onClickObjective} >Objective</h2>
                 <p style={objectiveStyle}>{project.objective}</p>
                 <br />
-                {project.coordinator ? <p>Coordinator: {project.coordinator} {project.coordinatorCountry ? <span>({project.coordinatorCountry})</span> : null} </p>  : null}
-                {project.participants ? <p>Participants: {renderList(project.participants)} </p>  : null}
+                {project.coordinator ? <p>Coordinator: {project.coordinator} {project.coordinatorCountry ? <span>({project.coordinatorCountry})</span> : null} </p> : null}
+                {project.participants ? <p>Participants: {renderList(project.participants)} </p> : null}
                 {project.projectUrl ? <p>Read more at: <a href={project.projectUrl}>{project.projectUrl}</a></p> : null}
                 <button onClick={onSaveClick}>Save and set project as active</button>
             </div>)

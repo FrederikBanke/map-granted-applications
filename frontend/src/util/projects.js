@@ -1,3 +1,9 @@
+/**
+ * Get a subset of projects.
+ * @param {[Object]} projects Full project list
+ * @param {number} limit How many projects to return
+ * @returns {[]} A list of subset
+ */
 export const subsetProjects = (projects, limit) => {
   let subProjects = [];
   if (limit === 0) {
@@ -12,15 +18,14 @@ export const subsetProjects = (projects, limit) => {
 
 /**
 * Combine project objectives.
-* @param {[]} projects 
+* @param {[]} projects List of projects to combine
+* @returns {string} Combined string
 */
 export const combineTexts = (projects) => {
   let totalString = "";
   projects.forEach(project => {
     totalString = totalString + " " + project.objective;
   });
-  // console.log("All abstracts length", totalString.length);
-  // console.log("Combined abstract", totalString);
 
   return totalString;
 }
@@ -28,7 +33,7 @@ export const combineTexts = (projects) => {
 /**
  * Seperate project objectives by year.
  * @param {[]} projects 
- * @returns {{}}
+ * @returns {{}} An `object` with the year as key.
  */
 export const groupProjectsByYear = (projects) => {
   let projectsByYear = {};

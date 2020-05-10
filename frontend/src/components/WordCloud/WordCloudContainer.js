@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types';
-// import WordCloud from "react-d3-cloud";
 import WordCloud from "react-wordcloud";
 import { formatWordWeightsData, callApi, sortWordWeights } from '../../util/api';
 import { findWordProject } from '../../util/findWord';
 import Sentences from '../Sentences/Sentences';
-import { getRandomColor, getPrimaryColor, getQuaternaryColor } from '../../util/colors';
+import { getRandomColor, getQuaternaryColor } from '../../util/colors';
 import { combineTexts } from '../../util/projects';
 
 /**
@@ -19,8 +18,6 @@ import { combineTexts } from '../../util/projects';
  */
 export default function WordCloudContainer(props) {
     const [words, setWords] = useState([]);
-    const [maxWord, setMaxWord] = useState({});
-    const [minWord, setMinWord] = useState({})
     const [isRotate, setIsRotate] = useState(false);
     const [viewSentences, setViewSentences] = useState(false);
     const [sentences, setSentences] = useState([]);
@@ -32,9 +29,10 @@ export default function WordCloudContainer(props) {
         maxHeight: "500px"
     }
 
+    /**
+     * Combines project objectives and gets the weights of the words.
+     */
     useEffect(() => {
-        console.log("WordCloud mounted");
-
         callApi('wordweight', 'POST', {
             "text": combineTexts(props.projects),
             "user_project": props.userProject || null
@@ -55,13 +53,6 @@ export default function WordCloudContainer(props) {
             props.setWords([]);
         });
     }, [props.text])
-
-    useEffect(() => {
-        let maxWord = findMax(words);
-        let minWord = findMin(words);
-        setMaxWord(maxWord);
-        setMinWord(minWord);
-    }, [words])
 
 
     const findMax = (data) => {
@@ -84,22 +75,14 @@ export default function WordCloudContainer(props) {
         return min;
     }
 
-    const posOrNeg = () => {
-        const rand = Math.random()
-        return rand > 0.5 ? 1 : -1;
-    }
-
     /**
-     * 
+     * Check if a word is in a list of words.
      * @param {Word} word 
      * @param {[]} list 
+     * @returns {boolean} `true` or `false`
      */
     const isWordInList = (word, list) => {
-        // console.log(word);
-        // console.log(list);
-
         for (const value of list) {
-            //    console.log(`Compare ${word.text} with ${value.text}`);
             if (word.text === value.text) {
                 return true;
             }
@@ -107,36 +90,27 @@ export default function WordCloudContainer(props) {
         return false;
     }
 
-    // const fontSizeMapper = word => {
-    //     const maxLimit = 92; // 143 is max for 800x800 canvas
-    //     const minLimit = 6;
-    //     const max = maxWord.value;
-    //     const min = minWord.value;
-
-    //     let fontSize = (maxLimit - minLimit) / (max - min) * (word.value - max) + maxLimit;
-    //     // console.log(`${word.text} font size: ${fontSize}`);
-
-    //     return fontSize;
-    // }
-    // const rotate = word => {
-    //     return isRotate
-    //         ? word.value % 60 * posOrNeg()
-    //         : 0
-    // }
-
     const refresh = () => {
         isRotate ? setIsRotate(false) : setIsRotate(true) // just used to refresh word cloud
     }
 
+    /**
+     * When a word is clicked in the word cloud. Change current word in state and find sentences where the word occurs.
+     * @param {Object} word Word that was clicked
+     */
     const onWordClick = word => {
-        // console.log(word.text);
         let projectSentences = findWordProject(word.text, props.projects);
-        // console.log(projectSentences);
         setCurrentWord(word.text);
         setSentences(projectSentences);
         setViewSentences(true);
     }
 
+    /**
+     * Set the color of the word. If only one word cloud is viewable, set random colors for words.
+     * If both word clouds are present, set same color for words that appear in both clouds, and black if they are unique.
+     * @param {Object} word Word to set color for
+     * @returns {string} String representing a color
+     */
     const setWordColor = word => {
         if (props.wordsToCompare.length > 0) {
             if (isWordInList(word, props.wordsToCompare)) {
@@ -152,10 +126,10 @@ export default function WordCloudContainer(props) {
 
     const wordCloudOptions = {
         fontSizes: [12, 92],
-        rotationAngles: [0, 0],
-        rotations: 1,
+        rotationAngles: [0, 0], // min and max rotation angle
+        rotations: 1, // rotation steps
         // colors: ["#de7f3f", "#1680b2", "#052b58"],
-        deterministic: true
+        deterministic: true // keep same word placements
     };
 
     const wordCloudMinSize = [200, 200];

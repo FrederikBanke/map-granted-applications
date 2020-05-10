@@ -37,7 +37,9 @@ const WordTimeline = props => {
         flexFlow: "column"
     }
 
-
+    /**
+     * Groups projects by year and fetches word weights for each year. Runs every time props.projects changes.
+     */
     useEffect(() => {
         if (props.projects.length > 0) {
             let projectsByYear = groupProjectsByYear(props.projects);
@@ -46,6 +48,7 @@ const WordTimeline = props => {
 
             let apiPromises = [];
 
+            // Fetch word weights for projects for each year and make promise for each one
             for (const year in projectsByYear) {
                 if (projectsByYear.hasOwnProperty(year)) {
                     const projects = projectsByYear[year];
@@ -58,6 +61,7 @@ const WordTimeline = props => {
                 }
             }
 
+            // When all weights have been gathered run this code
             Promise.all(apiPromises)
                 .then(() => {
                     setWeightsByYear(weightsByYearResponse);
@@ -67,6 +71,7 @@ const WordTimeline = props => {
 
                             setAllWords(sorted);
 
+                            // Set the top 5 words to be the chosen words by default
                             let words = [];
                             let subset = subsetWords(sorted, 5);
                             for (const key in subset) {
@@ -83,6 +88,11 @@ const WordTimeline = props => {
         }
     }, [props.projects]);
 
+    /**
+     * Gets word weights based on the given projects and returns the formatted data.
+     * @param {[Objects]} projects List of projects
+     * @returns {Promise} The resolved value is the word weights formatted.
+     */
     const getWordWeight = (projects) => {
         return callApi('wordweight', 'POST', {
             "text": combineTexts(projects),
@@ -94,14 +104,18 @@ const WordTimeline = props => {
             });
     }
 
-    const renderBarChart = props => {
+    /**
+     * 
+     * @param {*} param0 
+     */
+    const renderChart = ({ data, chartType }) => {
         return (
             <Chart
                 width="100%"
                 height={400}
-                chartType="ColumnChart"
+                chartType={chartType}
                 loader={<div>Loading Chart</div>}
-                data={props.data}
+                data={data}
                 options={{
                     title: 'Word importance by year',
                     chartArea: { width: '70%', height: "70%" },
@@ -114,45 +128,29 @@ const WordTimeline = props => {
                         minValue: 0,
                     },
                 }}
-                legendToggle
+            // legendToggle
             />
         )
     }
 
-    const renderLineChart = props => {
-        return <Chart
-            width="100%"
-            height={400}
-            chartType="LineChart"
-            loader={<div>Loading Chart</div>}
-            data={props.data}
-            options={{
-                hAxis: {
-                    title: 'Year',
-                },
-                vAxis: {
-                    title: 'Word score',
-                },
-            }}
-        // rootProps={{ 'data-testid': '1' }}
-        />
-    }
-
+    /**
+     * When check box is changed add or remove word from chosen words list.
+     * @param {Event} event DOM event
+     */
     const onClickCheckBox = (event) => {
         const isChecked = event.target.checked;
         const word = event.target.getAttribute("name");
-        console.log(word, isChecked);
 
-        let tempWords = [...chosenWords];
+        let newChosenWords = [...chosenWords];
 
         if (isChecked) {
-            tempWords.push(word);
+            newChosenWords.push(word);
         } else {
-            const wordIndex = tempWords.indexOf(word);
-            tempWords.splice(wordIndex, 1);
+            const wordIndex = newChosenWords.indexOf(word);
+            newChosenWords.splice(wordIndex, 1);
         }
 
-        setChosenWords(tempWords);
+        setChosenWords(newChosenWords);
     }
 
 
@@ -181,8 +179,8 @@ const WordTimeline = props => {
                     {
                         chosenWords.length > 0
                             ? <React.Fragment>
-                                    {renderBarChart({ "data": formatDataForCharts(weightsByYear, chosenWords) })}
-                                    {renderLineChart({ "data": formatDataForCharts(weightsByYear, chosenWords) })}
+                                {renderChart({ "data": formatDataForCharts(weightsByYear, chosenWords), chartType: "ColumnChart" })}
+                                {renderChart({ "data": formatDataForCharts(weightsByYear, chosenWords), chartType: "LineChart" })}
                             </React.Fragment>
                             : null
                     }

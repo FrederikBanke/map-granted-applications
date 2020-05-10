@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-function Tab(props) {
+const Tab = (props) => {
     const onClickHandler = () => {
         props.onClick(props.id);
     }

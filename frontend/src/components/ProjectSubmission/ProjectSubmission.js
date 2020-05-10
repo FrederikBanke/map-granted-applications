@@ -27,9 +27,10 @@ export default function ProjectSubmission(props) {
         setViewChooseProject(true);
     }
 
+    
     const uploadProject = () => {
-        let title = prompt("Project title") || "";
-        let objective = prompt("Project objective") || "";
+        let title = prompt("Project title") || "Unnamed project";
+        let objective = prompt("Project objective") || "No objective";
         let id = prompt("Project id") || "1";
         let newProject = {
             id,
