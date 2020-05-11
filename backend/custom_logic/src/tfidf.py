@@ -132,9 +132,6 @@ def refit_tfidf(tfidf_model, project_objective):
 
     # tfidf_new.fit_transform(project_objective)
 
-    starttime = time.time()
     tfidf_new.fit(project_objective)
-    endtime = time.time()
-    print(endtime-starttime, " seconds to refit")
 
     return tfidf_new
