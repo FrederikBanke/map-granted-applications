@@ -22,6 +22,7 @@ export default function WordCloudContainer(props) {
     const [viewSentences, setViewSentences] = useState(false);
     const [sentences, setSentences] = useState([]);
     const [currentWord, setCurrentWord] = useState("");
+    const [maxWordsInCloud, setMaxWordsInCloud] = useState(50);
 
     const containerStyle = {
         width: "100%",
@@ -47,7 +48,7 @@ export default function WordCloudContainer(props) {
                 
 
                 setWords(sortedWordWeights);
-                props.setWords(sortedWordWeights);
+                props.setWords(sortedWordWeights.slice(0, maxWordsInCloud));
             });
 
         return (() => {
@@ -152,7 +153,7 @@ export default function WordCloudContainer(props) {
                 options={wordCloudOptions}
                 minSize={wordCloudMinSize}
                 callbacks={wordCloudCallbacks}
-                maxWords={50}
+                maxWords={maxWordsInCloud}
                 />
                 : <p>Generating word cloud...</p>
             }
