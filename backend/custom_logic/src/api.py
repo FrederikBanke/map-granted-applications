@@ -28,21 +28,21 @@ def fill_database_with_data():
     return
 
 
-def word_weights(data, user_project=None):
+def word_weights(data, extra_document=None):
     """
     Create a `dict` of {term: weight} for each term in a document, using TFIDF, if the term's weight passed a certain threshold.
 
     Parameters
     ----------
     data : a `string` or a `list` of `strings` whose terms are to be scored
-    userproject : optional parameter, if given, TFIDF model is retrained with the user project
+    extra_document : `string`. Optional parameter, if given, TFIDF model is retrained with the user project
 
     Returns
     -------
     `dict` : A `dict` of {term: weight} for each term in a document
     """
 
-    tfidf_model = main.get_tfidf(user_project)
+    tfidf_model = main.get_tfidf(extra_document)
     texts = []
     if type(data) == str:
         texts.append(data)
@@ -58,9 +58,7 @@ def word_weights(data, user_project=None):
         # create word weight dictionary for each abstract
         weight_list = tfidf.TFIDF_list_of_weigths(TFIDF_model=tfidf_model, objective=text)
         temp_dict = utils.tuples_to_dict(weight_list)
-        print(temp_dict)
-        temp_dict = utils.filter_dict(dictionary=temp_dict, threshold=0.05)
-        print(temp_dict)
+        # temp_dict = utils.filter_dict(dictionary=temp_dict, threshold=0.05)
         weight_dict = utils.sum_dicts(weight_dict, temp_dict)
 
     return weight_dict
@@ -84,27 +82,29 @@ def filter_objectives_on_weights(objectives_list, weight_dict=None):
     texts = []
     if type(objectives_list) == str:
         objectives_list = [objectives_list]
-    elif type(objectives_list) == list:
-        pass
-    else:
-        raise TypeError("filter_objectives_on_weights API given wrong data type")
+    elif type(objectives_list) != list:
+        raise TypeError("Could not filter objectives on weights. objective_list was not a list or string.")
 
     if weight_dict == None:
-        weight_dict = word_weights(" ".join(objectives_list))
+        weight_dict = word_weights(objectives_list)
+    sorted_weights = utils.sort_dict_by_value(weight_dict)
+    subset_weights = utils.subset_dict(sorted_weights, 500)
+    # print("sorted_weight_dict: ", subset_weights)
+    chosen_objective_terms = subset_weights.keys()
     
-    word_list = weight_dict.keys()
 
     filtered_objective_list = []
 
     for objective in objectives_list:
         trimmed_objective = tp.remove_symbols(objective)
-        list_of_words = trimmed_objective.split(' ')
-        filtered_list_of_words = list(filter(lambda word: word in word_list, list_of_words))
-        filtered_objective = " ".join(filtered_list_of_words)
+        # list_of_words = trimmed_objective.split(' ')
+        objective_terms = tfidf.get_term_list([trimmed_objective])
+        filtered_list_of_terms = list(filter(lambda term: term in chosen_objective_terms, objective_terms))
+        filtered_objective = " ".join(filtered_list_of_terms)
         filtered_objective_list.append(filtered_objective)
 
 
-    return {"filteredObjectives": filtered_objective_list, "wordWeights": weight_dict}
+    return {"filteredObjectives": filtered_objective_list, "wordWeights": subset_weights}
 
 def closest_vectors(user_project):
     """
@@ -169,7 +169,7 @@ def closest_projects(user_project):
     # Find top n closest
     return project_list
 
-def co_occurrence_matrix(texts):
+def co_occurrence_matrix(texts, vocab):
     """
     Create co-occurrunce matrix from a `list` of strings
     
@@ -181,7 +181,10 @@ def co_occurrence_matrix(texts):
     -------
      : 
     """
-    sorted_vocab, binary_occurrence_matrix =  cooc.create_binary_occurrence_matrix(texts)
+    sorted_vocab, binary_occurrence_matrix =  cooc.create_binary_occurrence_matrix(texts, vocab)
+    # print("bin_oc_matrix: ", binary_occurrence_matrix)
     cooccurrence_matrix = cooc.create_coocurrence_matrix(binary_occurrence_matrix)
+    # print("cooc_matrix: ", cooccurrence_matrix)
     norm_cooccurrence_matrix = cooc.normalize_coocurrence_matrix(cooccurrence_matrix)
+    # print("norm_cooc_matrix: ", norm_cooccurrence_matrix)
     return (sorted_vocab, norm_cooccurrence_matrix)

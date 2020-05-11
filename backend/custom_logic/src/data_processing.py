@@ -38,7 +38,6 @@ def json_to_dataframe(json, subset=0):
     if type(json) != list:
         json = [json]
         print("Not a list")
-    print("Number of projects ", len(json))
     try:
         df = pd.DataFrame(json, [i for i in range(0, len(json))])
     except KeyError as identifier:

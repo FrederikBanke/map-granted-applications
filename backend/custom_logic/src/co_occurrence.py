@@ -2,25 +2,29 @@ import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 
 # TODO: Optimize by using csr_matrix instead of array_matrix?
-def create_binary_occurrence_matrix(documents):
+def create_binary_occurrence_matrix(documents, vocab):
     """
     Creates a binary occurrence matrix over a list of documents.
     
     Parameters
     ----------
-    documents : list of strings
+    documents : `list` of `strings`\n
+    `vocab` : `dict`. A predetermined vocabulary.
     
     Returns
     -------
     tuple : tuple of occurrence matrix and vocabulary, where the first element in the vocab list corrosponds to the first colunm in oc_matrix
     """
-    counter = CountVectorizer(token_pattern = r"(?u)\b\w+\b") #include single letter words
+    counter = CountVectorizer(token_pattern = r"(?u)\b\w+\b", ngram_range=(1,2), vocabulary=vocab) #include single letter words
 
     # make vocab and create document-term matrix with term frequnecies
-    csr_occurence_matrix = counter.fit_transform(raw_documents=documents)
+    csr_occurence_matrix = counter.transform(raw_documents=documents)
 
     # transform csr_matrix to "regular" array matrix
     occurence_matrix = csr_occurence_matrix.toarray()
+    
+    # for entry in csr_occurence_matrix:
+    #     print(entry)
 
     # decresing positive frequencies to 1, making 0 = false and 1 = true, as to whether the term occured in the document
     for i in range(occurence_matrix.shape[0]):

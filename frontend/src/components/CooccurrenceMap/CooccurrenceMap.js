@@ -4,6 +4,7 @@ import Graph from "react-graph-network";
 import { callApi, formatWordWeightsData, sortWordWeights, scaleWordWeights } from '../../util/api';
 import { formatDataForCoOccurrenceMatrix } from '../../util/charts';
 import { subsetProjects, combineTexts, extractProjectObjectives } from '../../util/projects';
+import { getTermsFromList } from '../../util/weights';
 
 const CooccurrenceMap = props => {
     const [matrixData, setMatrixData] = useState(null);
@@ -25,20 +26,21 @@ const CooccurrenceMap = props => {
             // weight_dict: {}
         })
             .then(res => {
+                let formattedWeightsData = formatWordWeightsData(res.wordWeights);
+                let weights = sortWordWeights(formattedWeightsData);
+                let subsetWeights = weights.slice(0, 50);
                 callApi('cooccurrencematrix', 'POST', {
                     "texts": res.filteredObjectives,
+                    "vocabulary": getTermsFromList(subsetWeights)
                 })
                     .then((vocabAndMatrix) => {
-                        let formattedWeightsData = formatWordWeightsData(res.wordWeights);
-                        let weights = sortWordWeights(formattedWeightsData);
-
-                        // console.log("weights before", weights);
-                        weights = scaleWordWeights(weights, 1000);
-                        let normWeights = sizeNormalizer(weights);
-                        // console.log("weights after", normWeights);
-
-                        const threshold = 0.05;
-
+                        let scaledWeights = scaleWordWeights(subsetWeights, 1000);
+                        let normWeights = sizeNormalizer(scaledWeights);
+                        console.log(normWeights);
+                        console.log(vocabAndMatrix.vocabulary);
+                        
+                        
+                        const threshold = 0.001;
                         let formattedMatrixData = formatDataForCoOccurrenceMatrix(vocabAndMatrix.vocabulary, normWeights, vocabAndMatrix.coOccurrenceMatrix, threshold);
                         console.log("setMatrixData");
                         console.log("Vocabulary", vocabAndMatrix.vocabulary.length);
@@ -47,11 +49,11 @@ const CooccurrenceMap = props => {
                         formattedMatrixData.links.forEach(element => {
                             if (element.source.id === "at") {
                                 console.log(element);
-                                
+
                             }
                         });
-                        
-                        
+
+
                         setMatrixData(formattedMatrixData);
                     });
             });
@@ -75,10 +77,10 @@ const CooccurrenceMap = props => {
 
     const getColor = colorClass => {
         const colors = [
-            ["yellow", "lightyellow"],
-            ["blue", "lightblue"],
-            ["green", "lightgreen"],
-            ["green", "lightgreen"],
+            ["#FFE800", "#FFF26E"], // yellow
+            ["#0098FF", "#61BFFF"], // blue
+            ["#00FF46", "#33FF6B"], // green
+            ["green", "lightgreen"], // 
             ["green", "lightgreen"],
             ["green", "lightgreen"],
         ];
@@ -96,12 +98,10 @@ const CooccurrenceMap = props => {
         });
 
         if (sourceNode === undefined) {
-            console.log("Could not find node with id", link.source);
-            
             throw new Error(`Could not find node with id: ${link.source}`)
         }
 
-        const color = getColor(sourceNode.colorClass)[1];
+        const color = getColor(sourceNode.colorClass)[1] + "10";
         return (
             <line
                 {...restProps}
@@ -142,7 +142,7 @@ const CooccurrenceMap = props => {
                         x={sizes.textX}
                         y={sizes.textY}
                     >
-                        {node.id}
+                        {node.label}
                     </text>
                 </g>
 
@@ -199,7 +199,7 @@ const CooccurrenceMap = props => {
                     data={matrixData}
                     NodeComponent={Node}
                     LineComponent={Line}
-                    nodeDistance={300}
+                    nodeDistance={500}
                     zoomDepth={3}
                     hoverOpacity={0.3}
                     enableDrag={true}

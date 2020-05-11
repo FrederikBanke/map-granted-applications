@@ -14,7 +14,7 @@ def train_doc2vec_model(delete_model=False):
     if delete_model:
         return train_new_doc2vec_model()
     try:
-        print("Loading model...") # FIXME: May print before finding exception
+        print("Loading doc2vec model...") # FIXME: May print before finding exception
         model_loaded = Doc2Vec.load('custom_logic/src/models/doc2vec_model.doc2vec')
         return model_loaded
     except FileNotFoundError as identifier:

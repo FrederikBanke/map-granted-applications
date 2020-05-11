@@ -40,7 +40,7 @@ def get_tfidf(project_objective=None, delete_model=False):
     # Create a new dataframe with the users project
     if type(project_objective) != type(None):
         TFIDF_model = tfidf.train_TFIDF(delete_model=delete_model)
-        TFIDF_model = tfidf.refit_tfidf(TFIDF_model, project_objective)
+        TFIDF_model = tfidf.refit_tfidf(project_objective)
     else:
         TFIDF_model = tfidf.train_TFIDF(delete_model=delete_model)
     

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import { combineTexts, groupProjectsByYear } from '../../util/projects';
+import { combineTexts, groupProjectsByYear, extractProjectObjectives } from '../../util/projects';
 import { callApi, formatWordWeightsData, sortWordWeights, subsetWords } from '../../util/api';
 import { Chart } from "react-google-charts";
 import { formatDataForCharts } from '../../util/charts';
@@ -95,7 +95,7 @@ const WordTimeline = props => {
      */
     const getWordWeight = (projects) => {
         return callApi('wordweight', 'POST', {
-            "text": combineTexts(projects),
+            "text": extractProjectObjectives(projects),
             "user_project": props.userProject || null
         })
             .then(res => {
@@ -157,7 +157,7 @@ const WordTimeline = props => {
     const renderWordList = props => (
         <div style={listStyle}>
             {
-                props.words.map(word => (
+                props.words.slice(0,50).map(word => (
                     <React.Fragment key={word.text}>
                         <input onClick={onClickCheckBox} type="checkbox" name={word.text} value={word.text} checked={chosenWords.includes(word.text)} />
                         <label for={word.text}>{word.text}</label><br />
