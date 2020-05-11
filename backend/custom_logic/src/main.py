@@ -23,23 +23,26 @@ def get_projects():
 
     return all_projects
 
-def get_tfidf(user_project=None):
+def get_tfidf(project_objective=None, delete_model=False):
     """
-    Gets the TFIDF model. Trains a new one if none exists.
+    Gets the TFIDF model. Trains a new one if none exists.\n
+    If a new project is given, it will return a refitted model.
     
     Parameters
     ----------
-    user_project : `dataframe`. Must be a Pandas `dataframe`. Default is `None`.
+    project_objective : `string`. Document to refit on. Default is `None`.\n
+    delete_model : `boolean`. Should it force delete model.
     
     Returns
     -------
     `TfidfVectorizer` : The TFIDF model
     """
     # Create a new dataframe with the users project
-    if type(user_project) != type(None):
-        TFIDF_model = tfidf.train_TFIDF(abstract=user_project['objective'][0], delete_model=True)
+    if type(project_objective) != type(None):
+        TFIDF_model = tfidf.train_TFIDF(delete_model=delete_model)
+        TFIDF_model = tfidf.refit_tfidf(TFIDF_model, project_objective)
     else:
-        TFIDF_model = tfidf.train_TFIDF(delete_model=False)
+        TFIDF_model = tfidf.train_TFIDF(delete_model=delete_model)
     
     return TFIDF_model
 

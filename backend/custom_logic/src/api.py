@@ -56,7 +56,7 @@ def word_weights(data, user_project=None):
     # FIXME: there may be something wrong with combining weights from list of docs.
     for text in texts:
         # create word weight dictionary for each abstract
-        weight_list = tfidf.TFIDF_list_of_weigths(TFIDF_model=tfidf_model, abstract=text)
+        weight_list = tfidf.TFIDF_list_of_weigths(TFIDF_model=tfidf_model, objective=text)
         temp_dict = utils.tuples_to_dict(weight_list)
         print(temp_dict)
         temp_dict = utils.filter_dict(dictionary=temp_dict, threshold=0.05)
@@ -120,8 +120,8 @@ def closest_vectors(user_project):
     `tuple` : A tuple containing 2 `lists`. Index 0 is the vectors and index 1 the tags. ([vectors], [tags])
     """
 
-
-    TFIDF_model = main.get_tfidf(user_project)
+    # Gets TFIDF model refitted on user project
+    TFIDF_model = main.get_tfidf(user_project['objective'])
     doc2vec_model = main.get_doc2vec()
 
     # print(user_project)

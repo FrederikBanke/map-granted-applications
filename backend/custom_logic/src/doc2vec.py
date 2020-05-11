@@ -22,7 +22,7 @@ def train_doc2vec_model(delete_model=False):
         return train_new_doc2vec_model()
 
 def train_new_doc2vec_model():
-    ''' Trains the model based on the parameter given.\n
+    ''' Trains the model.\n
     Builds a vector from a document, builds a vocabulary (frequency of words), and then train.\n
     It saves the model at the end.
 

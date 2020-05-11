@@ -26,10 +26,10 @@ def remove_symbols(string):
     -------
     `string` : The string without symbols
     """
-    string = re.sub(r'[^\w\n\-— ]', '', string)
-    string = re.sub(r'[\-\—]', ' ', string)
-    string = re.sub(r'(\s\s+)|\n', ' ', string)
-    string = re.sub(r'^ | $', '', string)
+    string = re.sub(r'[^\w\n\-—/ ]', '', string) # removes all but the listed symbols
+    string = re.sub(r'[\-\—/]', ' ', string) # removes dash, mdash and forward slash
+    string = re.sub(r'(\s\s+)|\n', ' ', string) # removes double space
+    string = re.sub(r'^ | $', '', string) # Removes newlines
 
     return string
 
