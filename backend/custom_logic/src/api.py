@@ -30,7 +30,7 @@ def word_weights(data, user_project=None):
 
     Parameters
     ----------
-    data : a `string` or a `list` of `strings` whose terms is to be scored
+    data : a `string` or a `list` of `strings` whose terms are to be scored
     userproject : optional parameter, if given, TFIDF model is retrained with the user project
 
     Returns
@@ -52,7 +52,9 @@ def word_weights(data, user_project=None):
         # create word weight dictionary for each abstract
         weight_list = preprocessing.TFIDF_list_of_weigths(TFIDF_model=tfidf_model, abstract=text)
         temp_dict = utils.tuples_to_dict(weight_list)
+        print(temp_dict)
         temp_dict = utils.filter_dict(dictionary=temp_dict, threshold=0.05)
+        print(temp_dict)
         weight_dict = utils.merge_dicts(weight_dict, temp_dict)
 
     return weight_dict
@@ -111,6 +113,8 @@ def closest_vectors(user_project):
     -------
     `tuple` : A tuple containing 2 `lists`. Index 0 is the vectors and index 1 the tags. ([vectors], [tags])
     """
+
+
     TFIDF_model = main.get_tfidf(user_project)
     doc2vec_model = main.get_doc2vec()
 

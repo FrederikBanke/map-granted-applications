@@ -1,4 +1,5 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import CountVectorizer
 import operator
 import re
 from functools import partial
@@ -57,9 +58,14 @@ def TFIDF_list_of_weigths(TFIDF_model, abstract):
     X = TFIDF_model.transform([abstract])
     # get the score/weight from each word in the abstract
     # and create a list of tuples with word and score, in order, with the most importent word first
-    for word in abstract.split(sep=" "):
+
+    counter = CountVectorizer(ngram_range=(1,2), stop_words='english') 
+    counter.fit([abstract]) # There is probably a faster way to get this vocab
+    term_list = list(counter.vocabulary_.keys())
+    
+    for term in term_list:
         try: # FIXME: May skip new words introduced by our own abstract
-            score[word] = X[0, TFIDF_model.vocabulary_[word]]
+            score[term] = X[0, TFIDF_model.vocabulary_[term]]
         except KeyError as identifier:
             # print("Key error, word was {}".format(word))
             pass
@@ -130,12 +136,12 @@ def abstract_to_clean_list(abstract, TFIDF_model):
     List with words from an abstract
     """
     # create an ordered list of tuples, with the word and its score, with the most important word first, for this abstract
-    list_of_weigths = TFIDF_list_of_weigths(TFIDF_model, abstract)
+    #list_of_weigths = TFIDF_list_of_weigths(TFIDF_model, abstract)
 
     # FIXME: May not need to filter based on word weights, since we have a `max_df` when training TFIDF model
     # filter out each word not making the threshold in filter_words_TFIDF
-    clean_list = list(filter(partial(
-        filter_words_TFIDF, list_of_weigths=list_of_weigths), abstract.lower().split()))
+    # clean_list = list(filter(partial(filter_words_TFIDF, list_of_weigths=list_of_weigths), abstract.lower().split()))
+    clean_list = abstract.lower().split()
 
     return clean_list
 
