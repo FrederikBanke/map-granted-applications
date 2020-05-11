@@ -16,28 +16,10 @@ const CooccurrenceMap = props => {
         backgroundColor: "#a1a1a1"
     }
 
-    const tempData = {
-        nodes: [
-            { id: "innovation", weight: 20, colorClass: 0 },
-            { id: "nano", weight: 10, colorClass: 0 },
-            { id: "neuron", weight: 16, colorClass: 1 },
-            { id: "neuronal", weight: 6, colorClass: 1 },
-            { id: "synapse", weight: 12, colorClass: 2 },
-            { id: "smes", weight: 7, colorClass: 3 },
-        ],
-        links: [
-            { "source": "innovation", "target": "nano", weight: 2 },
-            { "source": "innovation", "target": "synapse", weight: 4 },
-            { "source": "nano", "target": "neuronal", weight: 4 },
-            { "source": "nano", "target": "neuron", weight: 2 },
-            { "source": "nano", "target": "synapse", weight: 2 },
-            { "source": "smes", "target": "synapse", weight: 2 },
-        ]
-    };
-
+    /**
+     * When projects changes, filter objectives such that words that are not important are removed. 
+     */
     useEffect(() => {
-        console.log("mount CoocMap");
-
         callApi('filterobjectives', 'POST', {
             texts: extractProjectObjectives(props.projects),
             // weight_dict: {}

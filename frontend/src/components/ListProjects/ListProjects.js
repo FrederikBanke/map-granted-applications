@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
-import { getSecondaryColor, getTertiaryColor, getPrimaryColor, getQuinaryColor, getQuaternaryColor } from '../../util/colors'
+import { getSecondaryColor, getTertiaryColor, getPrimaryColor } from '../../util/colors'
 import { subsetProjects } from '../../util/projects';
-import { findSentences } from '../../util/findWord';
 import Overlay from '../Overlay/Overlay';
 import ProjectView from '../ProjectView/ProjectView';
 import PropTypes from 'prop-types'
@@ -30,7 +29,6 @@ function ListProjects(props) {
 
     const projectStyle1 = {
         margin: 0,
-        // backgroundColor: "#404040",
         backgroundColor: getTertiaryColor(),
         color: "whitesmoke",
         paddingBottom: "10px",
@@ -55,6 +53,11 @@ function ListProjects(props) {
 
     const inputStyle = { width: "50px" }
 
+    /**
+     * Switch style for every other element.
+     * @param {number} number index of current element
+     * @returns {StyleSheet} CSS styles
+     */
     const chooseElemStyle = number => {
         if ((number % 2) === 0) {
             return projectStyle1;
@@ -62,10 +65,17 @@ function ListProjects(props) {
         return projectStyle2;
     }
 
+/**
+ * When input changes, change state. If input is set to something greater than 1000, set state to 1000.
+ * @param {Event} event DOM event
+ */
     const onInputChange = event => {
         let value = parseInt(event.target.value);
         if (isNaN(value)) {
             value = 0;
+        }
+        if (value > 1000) {
+            setNumberOfProjects(1000);
         }
         if (0 <= value && value <= 1000) {
             setNumberOfProjects(value);
@@ -83,6 +93,10 @@ function ListProjects(props) {
         return objective.substr(0, 150) + "...";
     }
 
+    /**
+     * Extract project id from element. Set project ID in state, and view overlay.
+     * @param {Event} event DOM event
+     */
     const onProjectClick = (event) => {
         const clickedProjectId = event.target.getAttribute('data-projectid');
         setProjectId(clickedProjectId);

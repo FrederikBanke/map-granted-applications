@@ -1,10 +1,10 @@
 /**
- * 
- * @param {string} word 
- * @param {[Object]} projects 
+ * Find every occurrence of a word in a project. Returns a list of the sentences where the words is in.
+ * @param {string} word The word to find
+ * @param {[Object]} projects A list of projects to look in.
+ * @returns {[string]} A list of sentences (`strings`)
  */
 export function findWordProject(word, projects) {
-
     let projectSentences = []
     projects.forEach(project => {
         let sentencesList = findSentences(project.objective, word)
@@ -25,8 +25,6 @@ export function findWordProject(word, projects) {
  * @param {String} word 
  */
 export function findSentences(text, word = null) {
-    // let testSentence = "A bad sentence. A test sentence with 1.0 as a number, and 1,0 as well! Now for something else. More test.More test."
-    // [^.!?]*test(?:[^\!?.]|\.(?=\d))*[\!?.]
     // Matches with sentences, where we allow decimal numbers.
     let nonSentenceEnder = `[^.!?]`;
     let wordPrefix = `(\\s|^|-|,)`;
@@ -47,17 +45,12 @@ export function findSentences(text, word = null) {
  * @returns {[Number]}
  */
 export function findWordSentence(word, sentence) {
-    // console.log("Looking for word:", word);
-    // console.log("In sentence:", sentence);
     let indexList = [];
     let pos = 0;
 
     let re = new RegExp(`([\\s.!?,-]|^)${word}([\\s.,!?-]|$)`, 'gim');
-    // let index = sentence.search(re);
 
     while (true) {
-        // let index = sentence.indexOf(word, pos)
-        // let index = indexOfRegex(sentence, re, pos);
         let index = sentence.regexIndexOf(re, pos);
         if (index === -1) {
             break;
@@ -70,11 +63,15 @@ export function findWordSentence(word, sentence) {
         indexList.push(index);
         pos = index + word.length;
     }
-    // console.log("Out of log");
 
     return indexList;
 }
 
+/**
+ * Find the index of a substring using a regular expression to match.
+ * @param {RegExp} regex Regular expression to find index of
+ * @param {number} startpos Start position in string to search from
+ */
 String.prototype.regexIndexOf = function (regex, startpos) {
     var indexOf = this.substring(startpos || 0).search(regex);
     return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;

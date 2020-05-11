@@ -1,15 +1,18 @@
 import numpy as np
 
 def topn_similar(top_n, dec2vec_model, abstract):
-    """Creating a top n list of most similar abstracts
-
-    Parameters:\n
-    `top_n` - is the amount of most similar abstracts\n
-    `dec2vec_model` - the dec2vec model on the data\n
-    `abstract` - the abstract to find similar abstracts to. It should be vectorized before hand.\n
-
-    Returns:\n
-    A 2-tuple with list of "inferred vectors" of the top n most similar abstracts, 
+    """
+    Creating a top n list of most similar abstracts
+    
+    Parameters
+    ----------
+    `top_n` : is the amount of most similar abstracts\n
+    `dec2vec_model` : the dec2vec model on the data\n
+    `abstract` : the abstract to find similar abstracts to. It should be vectorized before hand.\n
+    
+    Returns
+    -------
+    `tuple` : A 2-tuple with list of "inferred vectors" of the top n most similar abstracts, 
     and a list of the corrosponding tags
     """
     # The parameter `docvecs` contains all of the vector documents that was used during training.

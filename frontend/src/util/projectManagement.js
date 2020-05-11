@@ -1,5 +1,5 @@
 /**
- * Get uploaded projects from local storage.
+ * Get uploaded projects from browser's local storage.
  * @returns {[]}
  */
 export function getProjects() {
@@ -12,7 +12,7 @@ export function getProjects() {
 }
 
 /**
- * Get a project from local storage.
+ * Get a project from browser's local storage.
  * @param {String} projectId ID of the project to get
  * @returns {{}} The project with the provided id
  */
@@ -26,8 +26,9 @@ export function getProject(projectId) {
 }
 
 /**
- * Add a project to the list in local storage.
+ * Add a project to the list in browser's local storage.
  * @param {{}} project Project to save
+ * @param {Function} chooseProject Function for choosing the project in App state
  */
 export function saveProject(project, chooseProject) {
     let projects = getProjects();
@@ -86,7 +87,8 @@ export function saveCurrentProject(project) {
 }
 
 /**
- * @returns {{}}
+ * Loads the project saved as the current project in browser's local storage.
+ * @returns {{} | null} The project as an `object` or `null` if nothing is saved in local storage.
  */
 export function loadCurrentProject() {
     let string = localStorage.getItem('currentProject');
@@ -97,6 +99,10 @@ export function loadCurrentProject() {
     return null;
 }
 
+/**
+ * Saves a list of projects as the closest projects in the browser's local storage.
+ * @param {[Object]} closestProjects List of objects
+ */
 export function saveClosestProjects(closestProjects) {
     localStorage.setItem('closestProjects', JSON.stringify(closestProjects));
 }
