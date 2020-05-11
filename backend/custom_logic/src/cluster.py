@@ -1,10 +1,6 @@
 from sklearn.cluster import KMeans
 from sklearn.datasets._samples_generator import make_blobs
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
-
-mpl.use('TkAgg')
 
 class ClusterObject(object):
     def __init__(self, centers, predicted_cluster):

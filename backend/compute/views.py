@@ -9,7 +9,8 @@ import sys
 
 # sys.path.insert(1, '/backend/custom_logic/src/')
 from custom_logic.src import api
-import custom_logic.src.user_logic as ul
+import custom_logic.src.data_processing as dp
+
 
 
 # Create your views here.
@@ -55,7 +56,7 @@ class ClosestProjectsView(APIView):
         return Response({"status": "There is nothing to GET here, use POST"})
     def post(self, request):
         # print(type(request.data))
-        project = ul.json_to_dataframe(request.data)
+        project = dp.json_to_dataframe(request.data)
         # print(project)
         # return Response({"test": "response"})
         return Response(api.closest_projects(project))
@@ -67,7 +68,7 @@ class ClosestVectorsView(APIView):
     def get(self, request):
         return Response({"status": "There is nothing to GET here, use POST"})
     def post(self, request):
-        project = ul.json_to_dataframe(request.data)
+        project = dp.json_to_dataframe(request.data)
         return Response(api.closest_vectors(project))
 
 class CooccurrenceMatrix(APIView):

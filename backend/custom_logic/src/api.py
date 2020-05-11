@@ -1,12 +1,13 @@
 import requests
 import json
-import custom_logic.src.preprocessing as preprocessing
+import custom_logic.src.tfidf as tfidf
+import custom_logic.src.doc2vec as doc2vec
 import custom_logic.src.utils as utils
 import custom_logic.src.main as main
-import custom_logic.src.train as train
-import custom_logic.src.user_logic as ul
+import custom_logic.src.text_processing as tp
 import custom_logic.src.similar as sml
 import custom_logic.src.co_occurrence as cooc
+import custom_logic.src.data_processing as dp
 import pandas as pd
 import time
 
@@ -14,6 +15,9 @@ import time
 def get_projects():
     response = requests.get("http://localhost:8000/api/projects/")
     return response.json()
+
+def get_projects_as_df():
+    return dp.json_to_dataframe(get_projects())
 
 def fill_database_with_data():
     with open('/home/banke/Projects/BachelorProject/map-granted-applications/backend/custom_logic/src/2007-2013-projects.json', 'r') as f:
@@ -48,14 +52,16 @@ def word_weights(data, user_project=None):
         raise TypeError("word weight API given wrong data type")
     
     weight_dict = dict()
+
+    # FIXME: there may be something wrong with combining weights from list of docs.
     for text in texts:
         # create word weight dictionary for each abstract
-        weight_list = preprocessing.TFIDF_list_of_weigths(TFIDF_model=tfidf_model, abstract=text)
+        weight_list = tfidf.TFIDF_list_of_weigths(TFIDF_model=tfidf_model, abstract=text)
         temp_dict = utils.tuples_to_dict(weight_list)
         print(temp_dict)
         temp_dict = utils.filter_dict(dictionary=temp_dict, threshold=0.05)
         print(temp_dict)
-        weight_dict = utils.merge_dicts(weight_dict, temp_dict)
+        weight_dict = utils.sum_dicts(weight_dict, temp_dict)
 
     return weight_dict
 
@@ -91,7 +97,7 @@ def filter_objectives_on_weights(objectives_list, weight_dict=None):
     filtered_objective_list = []
 
     for objective in objectives_list:
-        trimmed_objective = preprocessing.remove_symbols(objective)
+        trimmed_objective = tp.remove_symbols(objective)
         list_of_words = trimmed_objective.split(' ')
         filtered_list_of_words = list(filter(lambda word: word in word_list, list_of_words))
         filtered_objective = " ".join(filtered_list_of_words)
@@ -122,7 +128,7 @@ def closest_vectors(user_project):
 
     #FIXME: Maybe move this into `sml.topn_similar()`
     # Creating a vector from the user's abstract using the trained doc2vec model
-    user_project_vector = ul.abstract_to_vector(
+    user_project_vector = doc2vec.abstract_to_vector(
         doc2vec_model=doc2vec_model, abstract=user_project['objective'][0], TFIDF_model=TFIDF_model)
 
     # Making top n list of most similar abstract

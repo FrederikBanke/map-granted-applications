@@ -1,20 +1,13 @@
 import sys
 
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-# import mplcursors
 import numpy as np
 import pandas as pd
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 
-# import plot
-# import custom_logic.src.plot_logic as pl
 import custom_logic.src.similar as sml
-import custom_logic.src.train as train
-import custom_logic.src.postprocessing as post_pro
-import custom_logic.src.preprocessing as pre_pro
+import custom_logic.src.doc2vec as doc2vec
+import custom_logic.src.tfidf as tfidf
 import time
-import custom_logic.src.user_logic as ul
 from custom_logic.src.cluster import cluster_abstracts
 # import custom_logic.src.co_occurrence as co
 import custom_logic.src.api as api
@@ -26,7 +19,7 @@ def get_projects():
     global all_projects
     if all_projects.empty:
         print("Getting all projects from database")
-        all_projects = ul.get_projects_as_df()
+        all_projects = api.get_projects_as_df()
 
     return all_projects
 
@@ -44,9 +37,9 @@ def get_tfidf(user_project=None):
     """
     # Create a new dataframe with the users project
     if type(user_project) != type(None):
-        TFIDF_model = pre_pro.train_TFIDF(abstract=user_project['objective'][0], delete_model=True)
+        TFIDF_model = tfidf.train_TFIDF(abstract=user_project['objective'][0], delete_model=True)
     else:
-        TFIDF_model = pre_pro.train_TFIDF(delete_model=False)
+        TFIDF_model = tfidf.train_TFIDF(delete_model=False)
     
     return TFIDF_model
 
@@ -63,7 +56,7 @@ def get_doc2vec(user_project=None):
     `Doc2Vec` : The doc2vec.
     """
     # Train the doc2vec model
-    doc2vec_model = train.train_doc2vec_model(delete_model=False)
+    doc2vec_model = doc2vec.train_doc2vec_model(delete_model=False)
     
     return doc2vec_model
 

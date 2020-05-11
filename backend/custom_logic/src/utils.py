@@ -19,7 +19,20 @@ def tuples_to_dict(tuple_list):
         dic[tup[0]] = tup[1]
     return dic
 
-def merge_dicts(dict1 = {}, dict2 = {}):
+def sum_dicts(dict1 = {}, dict2 = {}):
+    """
+    Merges to dictionaries. If they share keys, their values will be summed.\n
+    Values should be numbers, otherwise results might be weird.
+    
+    Parameters
+    ----------
+    dict1 : \n
+    dict2 : 
+    
+    Returns
+    -------
+    `dict` : Merged dictionary with all keys and summed values.
+    """
     new_dict = dict1.copy()
     dict1_keys = dict1.keys()
     # merge dictionaries
@@ -33,6 +46,18 @@ def merge_dicts(dict1 = {}, dict2 = {}):
     return new_dict
 
 def filter_dict(dictionary = {}, threshold = 0):
+    """
+    Filter a dictionary with word weights. It will be filtered by the threshold set for the weights.
+    
+    Parameters
+    ----------
+    dictionary : A `dict` to filter\n
+    threshold : Weight threshold to filter by. Default is 0.
+    
+    Returns
+    -------
+    `dict` : New dictionary with only words that surpass the weight threshold.
+    """
     newDict = dict()
     # Iterate over all the items in dictionary and filter items which has even keys
     for (key, value) in dictionary.items():

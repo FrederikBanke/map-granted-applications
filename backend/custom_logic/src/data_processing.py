@@ -1,4 +1,53 @@
-import custom_logic.src.user_logic as ul
+import pandas as pd
+import os
+import custom_logic.src.api as api
+import custom_logic.src.main as main
+
+
+def add_project(original_dataframe, new_project):
+    """Adds a new project to a given `dataframe`.
+    
+    Returns:\n
+    `dataframe` containing old projects and the new project.
+    """
+    return original_dataframe.append(new_project, ignore_index=True)
+
+def load_data(path, subset=0):
+    """Load data from path. The file needs to be a .csv
+
+    Returns:\n
+    Dataframe
+    """
+    # Load data into dataframe
+    workdir = os.getcwd()
+    df = pd.read_csv(
+    workdir + path)  # FIXME: Make it so the user can load any data set
+
+    if subset == 0:
+        return df
+    return df.head(subset)
+
+def json_to_dataframe(json, subset=0):
+    """Load data from path. The file needs to be a .csv
+
+    Returns:\n
+    Dataframe
+    """
+    # This is to make sure it has the right format when passed to pandas
+    print(type(json))
+    if type(json) != list:
+        json = [json]
+        print("Not a list")
+    print("Number of projects ", len(json))
+    try:
+        df = pd.DataFrame(json, [i for i in range(0, len(json))])
+    except KeyError as identifier:
+        print("There was an error")
+        # raise identifier
+
+    if subset == 0:
+        return df
+    return df.head(subset)
 
 def create_abstract_dict_all(df, new_project):
     """Create a full dictionary for abstract index where the key is the project id.\n
