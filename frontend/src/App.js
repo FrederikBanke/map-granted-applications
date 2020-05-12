@@ -15,6 +15,7 @@ import WordTimelineNew, { WordList, WordElement } from './components/WordTimelin
 import ChartContainer from './components/Charts/ChartContainer';
 import Chart from 'react-google-charts';
 import { formatDataForCharts } from './util/charts';
+import Autosuggest from 'react-autosuggest';
 
 
 function App() {
@@ -37,12 +38,11 @@ function App() {
     const [topNumber, setTopNumber] = useState(50);
 
     const [allWords, setAllWords] = useState([]);
-    const [chosenWordsTLAll, setChosenWordsTLAll] = useState(["et ord"]);
-    const [weightsByYear, setWeightsByYear] = useState({
-        "2010": [
-            { "text": "et ord", "value": 3 }
-        ]
-    });
+    const [chosenWordsTLAll, setChosenWordsTLAll] = useState([]);
+    const [weightsByYear, setWeightsByYear] = useState({});
+
+    const [suggestionValue, setSuggestionValue] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
 
     const wordCloudWrapperStyle = {
         display: "flex",
@@ -99,13 +99,12 @@ function App() {
                         newWeightsByYear[year] = sortWordWeights(formatWordWeightsData(weights))
                     }
                 }
-                
+
                 setWeightsByYear(newWeightsByYear);
                 callApi('getallterms')
-                .then(allTermsRaw => {
-                    console.log("All terms", allTermsRaw);
-                    
-                })
+                    .then(allTerms => {
+                        setAllWords(allTerms)
+                    });
             })
     }, []);
 
@@ -141,6 +140,40 @@ function App() {
                 });
         }
     }, [currentProject]);
+
+
+    const getSuggestions = value => {
+        const inputValue = value.trim().toLowerCase();
+        const inputLength = inputValue.length;
+
+        return inputLength === 0
+            ? []
+            : allWords.filter(word => word.toLowerCase().slice(0, inputLength) === inputValue)
+    }
+
+    const getSuggestionValue = suggestion => suggestion;
+
+    const renderSuggestion = suggestion => (
+        <span>{suggestion}</span>
+    )
+
+    const onChangeSearch = (event, { newValue }) => {
+        setSuggestionValue(newValue);
+    }
+
+    const onSuggestionFetchRequested = ({ value }) => {
+        setSuggestions(getSuggestions(value));
+    }
+
+    const onSuggestionsClearRequested = () => {
+        setSuggestions([]);
+    }
+
+    const onWordClickSearch = (event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }) => {
+        let newChosen = [...chosenWordsTLAll];
+        newChosen.push(suggestionValue);
+        setChosenWordsTLAll(newChosen)
+    }
 
     /**
      * Toggle the visibility of the word cloud for the currently selected project.
@@ -330,13 +363,27 @@ function App() {
 
     const renderWordTimelineAllTab = () => {
         return <WordTimelineNew >
+            <Autosuggest
+                suggestions={suggestions}
+                onSuggestionsFetchRequested={onSuggestionFetchRequested}
+                onSuggestionsClearRequested={onSuggestionsClearRequested}
+                getSuggestionValue={getSuggestionValue}
+                onSuggestionSelected={onWordClickSearch}
+                renderSuggestion={renderSuggestion}
+                inputProps={{
+                    placeholder: "Enter search term",
+                    value: suggestionValue,
+                    onChange: onChangeSearch
+                }}
+            />
+            <br />
             <WordList>
                 {
-                    allWords.map(word => (
+                    chosenWordsTLAll.map(word => (
                         <WordElement
-                            key={word.text}
-                            text={word.text}
-                            isChecked={chosenWordsTLAll.includes(word.text)}
+                            key={word}
+                            text={word}
+                            isChecked={chosenWordsTLAll.includes(word)}
                             onClickCheckBox={onClickCheckBox}
                         />
                     ))
