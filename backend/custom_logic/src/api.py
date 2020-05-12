@@ -73,7 +73,7 @@ def word_weights(data, extra_document=None):
     return weight_dict
 
 
-def filter_objectives_on_weights(objectives_list, weight_dict=None):
+def filter_objectives_on_weights(objectives_list, weight_list=[]):
     """
     Filter project objectives (or others strings)
     using a dictionary of word weights.
@@ -84,8 +84,7 @@ def filter_objectives_on_weights(objectives_list, weight_dict=None):
     ----------
     objective_list : A `list` of `strings`
 
-    weight_dict : A `dict` that needs to have the format that `word_weights`
-    function returns.
+    weight_list : `list`. A list of dictionarys. [{"text": x, "value" y}...]
 
     Returns
     -------
@@ -98,10 +97,17 @@ def filter_objectives_on_weights(objectives_list, weight_dict=None):
         raise TypeError(
             "Could not filter objectives on weights. objective_list was not a list or string.")
 
-    if weight_dict == None:
+    # print("weight_list: ", weight_list)
+
+    if len(weight_list) == 0:
         weight_dict = word_weights(objectives_list)
+    else:
+        weight_dict = {x['text']: x['value'] for x in weight_list}
+    
+    # print("Word weights to filter by: ", weight_dict)
+
     sorted_weights = utils.sort_dict_by_value(weight_dict)
-    subset_weights = utils.subset_dict(sorted_weights, 500)
+    subset_weights = utils.subset_dict(sorted_weights, 50)
     # print("sorted_weight_dict: ", subset_weights)
     chosen_objective_terms = subset_weights.keys()
 

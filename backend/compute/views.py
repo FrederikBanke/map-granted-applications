@@ -43,10 +43,10 @@ class FilterObjectivesOnWeightsView(APIView):
     def post(self, request):
         texts = request.data['texts']
         try:
-            weight_dict = request.data['weight_dict']
+            weight_list = request.data['weights']
         except KeyError as identifier:
-            weight_dict = None
-        return Response(api.filter_objectives_on_weights(texts, weight_dict))
+            weight_list = None
+        return Response(api.filter_objectives_on_weights(texts, weight_list))
 
 class ClosestProjectsView(APIView):
     """

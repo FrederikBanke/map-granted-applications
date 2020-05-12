@@ -15,9 +15,9 @@ import { combineTexts, extractProjectObjectives } from '../../util/projects';
  * @param {Function} [props.onWordClick]
  * @param {Function} [props.onProjectChange]
  * @param {[]} [props.wordsToCompare]
+ * @param {[]} props.words
  */
 export default function WordCloudContainer(props) {
-    const [words, setWords] = useState([]);
     const [isRotate, setIsRotate] = useState(false);
     const [viewSentences, setViewSentences] = useState(false);
     const [sentences, setSentences] = useState([]);
@@ -29,34 +29,6 @@ export default function WordCloudContainer(props) {
         height: "fit-content",
         maxHeight: "500px"
     }
-
-    /**
-     * Combines project objectives and gets the weights of the words.
-     */
-    useEffect(() => {
-        callApi('wordweight', 'POST', {
-            "text": extractProjectObjectives(props.projects),
-            "user_project": props.userProject || null
-        })
-            .then(weightDict => {
-                // console.log(res);
-                let formattedData = formatWordWeightsData(weightDict);
-                let sortedWordWeights = sortWordWeights(formattedData);
-                // console.log(formattedData);
-                // console.log(subset);
-                console.log(sortedWordWeights);
-                
-
-                setWords(sortedWordWeights);
-                props.setWords(sortedWordWeights.slice(0, maxWordsInCloud));
-            });
-
-        return (() => {
-            console.log("WordCloud unmounted");
-            props.setWords([]);
-        });
-    }, [props.text])
-
 
     const findMax = (data) => {
         let max = { text: null, value: 0 }
@@ -115,10 +87,9 @@ export default function WordCloudContainer(props) {
      * @returns {string} String representing a color
      */
     const setWordColor = word => {
-        if (props.wordsToCompare.length > 0) {
+        if (props.compare) {
             if (isWordInList(word, props.wordsToCompare)) {
                 return getQuaternaryColor();
-
             }
             return "#000000";
         }
@@ -146,24 +117,24 @@ export default function WordCloudContainer(props) {
         <div style={containerStyle}>
             <button onClick={refresh}>Refresh</button>
             <div style={containerStyle}>
-            {
-                words.length > 0
-                ? <WordCloud
-                words={words}
-                options={wordCloudOptions}
-                minSize={wordCloudMinSize}
-                callbacks={wordCloudCallbacks}
-                maxWords={maxWordsInCloud}
-                />
-                : <p>Generating word cloud...</p>
-            }
+                {
+                    props.words.length > 0
+                        ? <WordCloud
+                            words={props.words}
+                            options={wordCloudOptions}
+                            minSize={wordCloudMinSize}
+                            callbacks={wordCloudCallbacks}
+                            maxWords={maxWordsInCloud}
+                        />
+                        : <p>Generating word cloud...</p>
+                }
             </div>
             <div style={containerStyle}>
-            {
-                viewSentences
-                ? <Sentences onProjectChange={props.onProjectChange} projects={sentences} word={currentWord} />
-                : null
-            }
+                {
+                    viewSentences
+                        ? <Sentences onProjectChange={props.onProjectChange} projects={sentences} word={currentWord} />
+                        : null
+                }
             </div>
         </div>
     )
@@ -175,5 +146,7 @@ WordCloudContainer.propTypes = {
     onWordClick: PropTypes.func,
     onProjectChange: PropTypes.func,
     wordsToCompare: PropTypes.array,
-    setWords: PropTypes.func
+    setWords: PropTypes.func,
+    words: PropTypes.array,
+    compare: PropTypes.bool
 }

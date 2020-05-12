@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
 import Graph from "react-graph-network";
 import { callApi, formatWordWeightsData, sortWordWeights, scaleWordWeights } from '../../util/api';
-import { formatDataForCoOccurrenceMatrix } from '../../util/charts';
+import { formatDataForCoOccurrenceMatrix, findMaxValue } from '../../util/charts';
 import { subsetProjects, combineTexts, extractProjectObjectives } from '../../util/projects';
 import { getTermsFromList } from '../../util/weights';
+import { getQuaternaryColor, getQuinaryColor, getPrimaryColor, getSecondaryColor, getTertiaryColor } from '../../util/colors';
 
 const CooccurrenceMap = props => {
     const [matrixData, setMatrixData] = useState(null);
@@ -21,14 +22,16 @@ const CooccurrenceMap = props => {
      * When projects changes, filter objectives such that words that are not important are removed. 
      */
     useEffect(() => {
+        console.log();
+        
         callApi('filterobjectives', 'POST', {
             texts: extractProjectObjectives(props.projects),
-            // weight_dict: {}
+            weights: props.wordWeights
         })
             .then(res => {
                 let formattedWeightsData = formatWordWeightsData(res.wordWeights);
                 let weights = sortWordWeights(formattedWeightsData);
-                let subsetWeights = weights.slice(0, 50);
+                let subsetWeights = weights;
                 callApi('cooccurrencematrix', 'POST', {
                     "texts": res.filteredObjectives,
                     "vocabulary": getTermsFromList(subsetWeights)
@@ -38,10 +41,20 @@ const CooccurrenceMap = props => {
                         let normWeights = sizeNormalizer(scaledWeights);
                         console.log(normWeights);
                         console.log(vocabAndMatrix.vocabulary);
-                        
-                        
-                        const threshold = 0.001;
-                        let formattedMatrixData = formatDataForCoOccurrenceMatrix(vocabAndMatrix.vocabulary, normWeights, vocabAndMatrix.coOccurrenceMatrix, threshold);
+                        const flattenedMatrix = vocabAndMatrix.coOccurrenceMatrix.flat();
+                        let sumMatrix = flattenedMatrix.reduce((a, b) => {
+                            return a + b;
+                        }, 0);
+                        console.log("Sum of all co_occurrences: ", sumMatrix);
+
+                        const threshold = sumMatrix / (flattenedMatrix.length);
+                        console.log("Threshold", threshold);
+
+                        let formattedMatrixData = formatDataForCoOccurrenceMatrix(
+                            vocabAndMatrix.vocabulary, normWeights,
+                            vocabAndMatrix.coOccurrenceMatrix, threshold,
+                            props.wordsToColor
+                        );
                         console.log("setMatrixData");
                         console.log("Vocabulary", vocabAndMatrix.vocabulary.length);
                         console.log("word weights", normWeights.length);
@@ -77,12 +90,8 @@ const CooccurrenceMap = props => {
 
     const getColor = colorClass => {
         const colors = [
-            ["#FFE800", "#FFF26E"], // yellow
-            ["#0098FF", "#61BFFF"], // blue
-            ["#00FF46", "#33FF6B"], // green
-            ["green", "lightgreen"], // 
-            ["green", "lightgreen"],
-            ["green", "lightgreen"],
+            ["#ffffff", getSecondaryColor()],
+            [getQuinaryColor(), getQuaternaryColor()],
         ];
 
         return colors[colorClass];
@@ -101,7 +110,7 @@ const CooccurrenceMap = props => {
             throw new Error(`Could not find node with id: ${link.source}`)
         }
 
-        const color = getColor(sourceNode.colorClass)[1] + "10";
+        const color = getColor(sourceNode.colorClass)[1] + "c0";
         return (
             <line
                 {...restProps}
@@ -214,6 +223,8 @@ const CooccurrenceMap = props => {
 
 CooccurrenceMap.propTypes = {
     projects: PropTypes.array,
+    wordsToColor: PropTypes.array,
+    wordWeights: PropTypes.arrayOf(Object)
 }
 
 export default CooccurrenceMap

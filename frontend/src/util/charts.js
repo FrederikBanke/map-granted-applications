@@ -94,9 +94,10 @@ const findRow = (list, term) => {
  * @param {[]} vocabulary 
  * @param {[Object]} wordWeights
  * @param {[[]]} coOccurrenceMatrix 
+ * @param {[]} objectiveWords Words in chosen project
  * @returns {Object}
  */
-export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccurrenceMatrix, coOccurrenceThreshold=0) => {
+export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccurrenceMatrix, coOccurrenceThreshold = 0, objectiveWords) => {
     let nodes = [];
     let edges = [];
 
@@ -111,17 +112,22 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
         if (word1 === undefined) {
             throw TypeError(`word1 is undefined. Could not find '${word}' in word weights list.`)
         }
+        let colorClass;
+        if (objectiveWords.includes(word)) {
+            colorClass = 1;
+            console.log("Set color class 1");
+            
+        } else {
+            colorClass = 0;
+        }
+
+
 
         const weight = word1.value;
-        let node = createNode(word, weight, 0, word);
+        let node = createNode(word, weight, colorClass, word);
         nodes.push(node);
     });
 
-    const minEdgeSize = 0;
-    const maxEdgeSize = 1;
-
-    console.log("Min and max", minEdgeSize, maxEdgeSize);
-    
 
     for (let row = 0; row < coOccurrenceMatrix.length - 1; row++) {
         for (let column = row + 1; column < coOccurrenceMatrix.length; column++) {
@@ -129,7 +135,7 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
             const sourceNode = vocabulary[row];
             const targetNode = vocabulary[column];
             if (coOccurrenceValue >= coOccurrenceThreshold) {
-                let edge = createEdge(sourceNode, targetNode, coOccurrenceValue, minEdgeSize, maxEdgeSize);
+                let edge = createEdge(sourceNode, targetNode, coOccurrenceValue);
                 edges.push(edge);
             } else {
                 // let edge = createEdge(sourceNode, targetNode, 0, minEdgeSize, maxEdgeSize);
@@ -161,10 +167,9 @@ const createNode = (id, weight, colorClass, label) => {
     return { id, weight, colorClass, label }
 }
 
-const createEdge = (source, target, weight, min, max) => {
-    // const normWeight = sizeNormalizer(weight, min, max, 3, 6);
+const createEdge = (source, target, weight) => {
     const normWeight = weight * 20;
-    
+
     return { "source": source, "target": target, weight: normWeight }
 }
 
