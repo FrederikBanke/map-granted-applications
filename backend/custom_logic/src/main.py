@@ -89,7 +89,7 @@ def get_weights_for_each_year():
         weights_for_each_year = utils.load_weights_for_each_year()
     except FileNotFoundError:
         print("Making new weights by year")
-        projects = get_projects()
+        projects = get_projects().head(50)
         objectives_divided = utils.divide_objectives_by_year(projects)
         weights_for_each_year = utils.save_weights_for_each_year(objectives_divided)
     return weights_for_each_year
@@ -99,7 +99,7 @@ def get_all_terms():
         all_terms = utils.load_all_terms()
     except FileNotFoundError:
         print("Creating and saving all terms")
-        projects = get_projects()
+        projects = get_projects().head(50)
         all_terms = utils.save_all_terms(projects)
     return all_terms
 

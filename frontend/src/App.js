@@ -115,7 +115,7 @@ function App() {
      * Runs every time the currently active project changes in the state.
      */
     useEffect(() => {
-        if (currentProject) {
+        if (currentProjectExists()) {
             getSimilarProjects()
                 .then(similarProjects => {
                     callApi('wordweight', 'POST', {
@@ -129,29 +129,22 @@ function App() {
 
                             setCurProjectWordWeights(sortedWordWeights.slice(0, 50));
                         });
+
+                    callApi('wordweight', 'POST', {
+                        "text": extractProjectObjectives(similarProjects.slice(0, topNumber)),
+                        "user_project": null
+                    })
+                        .then(weightDict => {
+                            let formattedData = formatWordWeightsData(weightDict);
+                            let sortedWordWeights = sortWordWeights(formattedData);
+
+                            setSimProjectWordWeights(sortedWordWeights.slice(0, 50));
+                            setChosenWordsTL([...chosenWordsTL, ...getTermsFromList(sortedWordWeights.slice(0, 50))]);
+                            setActiveWordsTL([...activeWordsTL, ...getTermsFromList(sortedWordWeights.slice(0, 5))]);
+                        });
                 });
         }
     }, [currentProject, topNumber]);
-
-    useEffect(() => {
-        getSimilarProjects()
-            .then(similarProjects => {
-
-                callApi('wordweight', 'POST', {
-                    "text": extractProjectObjectives(similarProjects.slice(0, topNumber)),
-                    "user_project": null
-                })
-                    .then(weightDict => {
-                        let formattedData = formatWordWeightsData(weightDict);
-                        let sortedWordWeights = sortWordWeights(formattedData);
-
-                        setSimProjectWordWeights(sortedWordWeights.slice(0, 50));
-                        setChosenWordsTL(getTermsFromList(sortedWordWeights.slice(0, 50)));
-                        setActiveWordsTL(getTermsFromList(sortedWordWeights.slice(0, 5)));
-                    });
-            });
-    }, [topNumber])
-
 
     const getSuggestions = value => {
         const inputValue = value.trim().toLowerCase();
@@ -460,41 +453,38 @@ function App() {
             <h1>Look up most related projects</h1>
             <ProjectSubmission currentProject={currentProject} onChange={onProjectChange} />
             <hr />
-            {
-                currentProject
-                    ? <div>
-                        {
-                            topProjects.length > 0
-                                ? <ListProjects projects={topProjects} onProjectChange={saveAndSetProject} />
-                                : <p>Finding similar projects...</p>
-                        }
-
-                        <TabsContainer>
-                            <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
-                            <Tab text="Word Timeline" id={timelineTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
-                            <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
-                        </TabsContainer>
-                        <hr />
-                        < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={inputNumber} /> closest projects
-                        <button onClick={onClickSetN}>Click to set new 'n'</button>
-            {
-                            activeTab === wordCloudTabId
-                                ? renderWordCloudTab()
-                                : null
-                        }
-                        {
-                            activeTab === timelineTabId
-                                ? renderWordTimelineTab()
-                                : null
-                        }
-                        {
-                            activeTab === coocTabId
-                                ? renderCoocMapTab()
-                                : null
-                        }
-                    </div>
+            <div>
+                {currentProject ?
+                    topProjects.length > 0
+                        ? <ListProjects projects={topProjects} onProjectChange={saveAndSetProject} />
+                        : <p>Finding similar projects...</p>
                     : null
-            }
+                }
+
+                <TabsContainer>
+                    <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()}/>
+                    <Tab text="Word Timeline" id={timelineTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={true} />
+                    <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()} />
+                </TabsContainer>
+                <hr />
+                < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={inputNumber} /> closest projects
+                        <button onClick={onClickSetN}>Click to set new 'n'</button>
+                {
+                    activeTab === wordCloudTabId
+                        ? renderWordCloudTab()
+                        : null
+                }
+                {
+                    activeTab === timelineTabId
+                        ? renderWordTimelineTab()
+                        : null
+                }
+                {
+                    activeTab === coocTabId
+                        ? renderCoocMapTab()
+                        : null
+                }
+            </div>
         </div>
     );
 
