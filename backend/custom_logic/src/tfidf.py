@@ -19,7 +19,7 @@ def filter_words_TFIDF(TFIDF_model, word):
     Returns false otherwise.
     '''
     # print("List of weights: {}".format(list_of_weigths))
-    if (word not in TFIDF_model.stop_words):
+    if (word not in TFIDF_model.get_stop_words()):
         return True
     return False
 
@@ -55,7 +55,7 @@ def TFIDF_list_of_weigths(TFIDF_model, objective):
         try:
             score[term] = X[0, TFIDF_model.vocabulary_[term]]
         except KeyError:
-            if term not in TFIDF_model.stop_words:
+            if term not in TFIDF_model.get_stop_words():
                 print("max_df term", term, " (Ignored)")
                 score[term] = 0.0  # TODO: Find better value
             # print("Key error, word was {}".format(word))
@@ -129,7 +129,6 @@ def train_new_TFIDF(docs, save_as=None):
         pickle.dump(tfidf, open(
             "custom_logic/src/models/" + save_as + ".sav", 'wb')
         )
-
     return tfidf
 
 
@@ -222,7 +221,7 @@ def init_tfidf_model(max_df=0.7, vocabulary=None):
     """
     return TfidfVectorizer(
         max_df=max_df, ngram_range=(1, 2), lowercase=True,
-        stop_words="english", vocabulary=vocabulary
+        stop_words='english', vocabulary=vocabulary
     )  # max_df is maybe too low. Be careful
 
 

@@ -8,7 +8,8 @@ function_words = "i|we|you|he|she|it|they|me|us|him|her|them|myself|ourselves|yo
 
 def filter_words(word):
     '''
-    Helper function for filtering. Returns false if a word is in our list of filler words.
+    Helper function for filtering.
+    Returns false if a word is in our list of filler words.
     Returns true otherwise.
     '''
 
@@ -41,14 +42,17 @@ def remove_symbols(string):
 
 
 def abstract_to_clean_list(abstract, TFIDF_model):
-    """Creates a list containing the words of an abstract. It makes all words lower case and removes function words.
+    """Creates a list containing the words of an abstract.
+    It makes all words lower case and removes function words.
 
     Returns:\n
     List with words from an abstract
     """
-    # create an ordered list of tuples, with the word and its score, with the most important word first, for this abstract
+    # create an ordered list of tuples, with the word and its score,
+    # with the most important word first, for this abstract
 
-    # FIXME: May not need to filter based on word weights, since we have a `max_df` when training TFIDF model
+    # FIXME: May not need to filter based on word weights,
+    # since we have a `max_df` when training TFIDF model
     # filter out each word not making the threshold in filter_words_TFIDF
     clean_list = list(
         filter(
