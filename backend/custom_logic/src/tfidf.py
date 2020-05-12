@@ -6,8 +6,11 @@ import re
 import pickle
 import numpy as np
 import custom_logic.src.text_processing as tp
+import custom_logic.src.main as main
 import time
 import custom_logic.src.api as api
+from collections import defaultdict
+import copy
 
 
 def filter_words_TFIDF(word, list_of_weigths):
@@ -66,28 +69,45 @@ def TFIDF_list_of_weigths(TFIDF_model, objective):
     return sortedscore
 
 
-def train_TFIDF(delete_model=False):
-    if delete_model:
-        return train_new_TFIDF()
-    try:
-        # FIXME: May print before finding exception
-        print("Loading TFIDF model...")
-        model_loaded = pickle.load(
-            open("custom_logic/src/models/tfidf_model.sav", 'rb'))
-        return model_loaded
-    except FileNotFoundError as identifier:
-        print("No TFIDF model exists. Making new model...")
-        return train_new_TFIDF()
+def train_TFIDF(load_model=None, delete_model=False):
+    """
+    Train TFIDF on database projects
+
+    Parameters
+    ----------
+     : 
+
+    Returns
+    -------
+     : 
+    """
+    projects = api.get_projects_as_df()
+    objectives = list(projects['objective'])
+    if load_model:
+        if delete_model:
+            return train_new_TFIDF(objectives, save_as=load_model)
+        try:
+            # FIXME: May print before finding exception
+            print("Loading TFIDF model...")
+            model_loaded = pickle.load(
+                open("custom_logic/src/models/" + load_model + ".sav", 'rb'))
+            return model_loaded
+        except FileNotFoundError:
+            print("No TFIDF model exists. Making new model...")
+            return train_new_TFIDF(objectives, save_as=load_model)
+    else:
+        return train_new_TFIDF(objectives)
 
 
-def train_new_TFIDF():
+def train_new_TFIDF(docs, save_as=None):
     """
     Trains a new TFIDF model.\n
     If a user abstract is given, it is used for the training.
 
     Parameters
     ----------
-    abstract : A user abstract
+    docs : `[String]`. Documents to train on\n
+    save_as : `String`. Name to save model as.
 
     Returns
     -------
@@ -95,25 +115,28 @@ def train_new_TFIDF():
     """
     print("Started training TFIDF")
 
-    projects = api.get_projects_as_df()
-    objectives = list(projects['objective'])
-
-    objectives = prepare_documents_for_tfidf(objectives)
+    objectives = prepare_documents_for_tfidf(docs)
 
     # creating tfidf model with given parameters (not trained yet)
-    tfidf = init_tfidf_model()
+    if len(docs) == 1:
+        tfidf = init_tfidf_model(max_df=1.0)
+    else:
+        tfidf = init_tfidf_model()
 
     # Fit the TfIdf model. Learn vocab and IDF
     tfidf.fit(objectives)
 
     print("Finished training TFIDF")
 
-    pickle.dump(tfidf, open("custom_logic/src/models/tfidf_model.sav", 'wb'))
+    if (save_as):
+        pickle.dump(tfidf, open(
+            "custom_logic/src/models/" + save_as + ".sav", 'wb')
+        )
 
     return tfidf
 
 
-def refit_tfidf(project_objective):
+def refit_tfidf(old_tfidf_model, new_docs):
     """
     @deprecated\n
     Refit a TFIDF model using a new user project.\n
@@ -121,30 +144,48 @@ def refit_tfidf(project_objective):
 
     Parameters
     ----------
-    `project_objective` : The user project to refit on. Must be a `string`.
+    `new_docs` : `[String]`. The user project to refit on. Must be a `string`.
 
     Returns
     -------
     `TfidfVectorizer` : The new `TfidfVectorizer`
     refitted on the project objevtive.
     """
-    print("Refitting TFIDF model with new doc")
-    tfidf_new = init_tfidf_model()
-
-    # tfidf_new.fit_transform(project_objective)
-    projects = api.get_projects_as_df()
-    objectives = list(projects['objective'])
+    print("Refitting TFIDF model with new docs")
     starttime = time.time()
-    objectives = prepare_documents_for_tfidf(objectives, [project_objective])
-    endtime = time.time()
-    print(endtime-starttime, " seconds to prepare docs for refitting")
 
-    starttime = time.time()
-    tfidf_new.fit(objectives)
+    corpus_vocabulary = defaultdict(
+        None, copy.deepcopy(old_tfidf_model.vocabulary_)
+    )
+    corpus_vocabulary.default_factory = corpus_vocabulary.__len__
+
+    # Let's say I got a query value from somewhere
+
+    if len(new_docs) == 1:
+        temp_tfidf = init_tfidf_model(max_df=1.0)
+    else:
+        temp_tfidf = init_tfidf_model()
+    temp_tfidf.fit(new_docs)
+    for term in temp_tfidf.get_feature_names():
+        # Added with proper index if not in vocabulary
+        corpus_vocabulary[term]
+
+    refitted_tfidf = init_tfidf_model(vocabulary=corpus_vocabulary)
+    refitted_tfidf = init_tfidf_model(max_df=1.0)
+
+    database_projects = main.get_projects()
+
+    project_objectives = list(database_projects['objective'])
+    print(type(project_objectives))
+    docs_wout_symbls = prepare_documents_for_tfidf(
+        project_objectives, new_docs
+    )
+
+    refitted_tfidf.fit(docs_wout_symbls)
+
     endtime = time.time()
     print(endtime-starttime, " seconds to refit model")
-
-    return tfidf_new
+    return refitted_tfidf
 
 
 def prepare_documents_for_tfidf(docs, extra_docs=[]):
@@ -169,17 +210,22 @@ def prepare_documents_for_tfidf(docs, extra_docs=[]):
     return documents
 
 
-def init_tfidf_model():
+def init_tfidf_model(max_df=0.7, vocabulary=None):
     """
     Initialize TFIDF model.
+
+    Parameters:
+    -------
+    `max_df` : `Float` or `Int`. Overwrite max_df. Default 0.7.\n
+    `vocabulary`: `list` or `None`. Default `None`. Overwrite vocabulary.
 
     Returns
     -------
     `TfidfVectorizer` : The initialized tfidf model.
     """
     return TfidfVectorizer(
-        max_df=0.4, ngram_range=(1, 2), lowercase=True,
-        stop_words="english"
+        max_df=max_df, ngram_range=(1, 2), lowercase=True,
+        stop_words="english", vocabulary=vocabulary
     )  # max_df is maybe too low. Be careful
 
 

@@ -30,7 +30,7 @@ class WordWeightView(APIView):
         text = request.data['text']
         try:
             extra_doc = request.data['user_project']['objective']
-        except (KeyError, TypeError) as identifier:
+        except (KeyError, TypeError):
             extra_doc = None
         return Response(api.word_weights(text, extra_doc))
 
