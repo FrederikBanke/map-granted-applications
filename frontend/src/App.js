@@ -189,6 +189,7 @@ function App() {
 
     const onClickSetN = () => {
         setSimProjectWordWeights([]);
+        setCurProjectWordWeights([]);
         setTopNumber(inputNumber);
     }
 
