@@ -27,12 +27,12 @@ def filter_words_TFIDF(word, list_of_weigths):
 def TFIDF_list_of_weigths(TFIDF_model, objective):
     """
     Uses the TFIDF model on a given text, to weight words of importance.
-    
+
     Parameters
     ----------
     `TFIDF_model` : A trained TF-IDF model. `TfidfVectorizer`\n
     `objective` : The abstract, whose words should be calculated. `string`.
-    
+
     Returns
     -------
     `list` : A list of tuples of words with their weight
@@ -42,20 +42,22 @@ def TFIDF_list_of_weigths(TFIDF_model, objective):
 
     score = {}
     # Transform the abstract into TfIdf coordinates
-    # TODO: test if fit_transform adds the abstract to the TFIDF vocab, and stop retraining the model
+    # TODO: test if fit_transform adds the abstract to the TFIDF vocab,
+    # and stop retraining the model
     X = TFIDF_model.transform([objective_wout_symbls])
     # get the score/weight from each word in the abstract
-    # and create a list of tuples with word and score, in order, with the most importent word first
+    # and create a list of tuples with word and score, in order,
+    # with the most importent word first
 
     term_list = get_term_list([objective_wout_symbls])
-    
+
     for term in term_list:
         try:
             score[term] = X[0, TFIDF_model.vocabulary_[term]]
         except KeyError as identifier:
             if term not in TFIDF_model.stop_words:
                 print("Unique term", term, " (Ignored)")
-                score[term] = 0.0 # TODO: Find better value
+                score[term] = 0.0  # TODO: Find better value
             # print("Key error, word was {}".format(word))
             pass
     sortedscore = sorted(
@@ -70,7 +72,8 @@ def train_TFIDF(delete_model=False):
     try:
         # FIXME: May print before finding exception
         print("Loading TFIDF model...")
-        model_loaded = pickle.load(open("custom_logic/src/models/tfidf_model.sav", 'rb'))
+        model_loaded = pickle.load(
+            open("custom_logic/src/models/tfidf_model.sav", 'rb'))
         return model_loaded
     except FileNotFoundError as identifier:
         print("No TFIDF model exists. Making new model...")
@@ -79,12 +82,13 @@ def train_TFIDF(delete_model=False):
 
 def train_new_TFIDF():
     """
-    Trains a new TFIDF model. If a user abstract is given, it is used for the training.
-    
+    Trains a new TFIDF model.\n
+    If a user abstract is given, it is used for the training.
+
     Parameters
     ----------
     abstract : A user abstract
-    
+
     Returns
     -------
     `TfidfVectorizer : The newly trained TFIDF model
@@ -108,15 +112,17 @@ def train_new_TFIDF():
 
     return tfidf
 
+
 def refit_tfidf(project_objective):
     """
     @deprecated\n
-    Refit a TFIDF model using a new user project. Does not save the refitted model.
-    
+    Refit a TFIDF model using a new user project.\n
+    Does not save the refitted model.
+
     Parameters
     ----------
     `project_objective` : The user project to refit on. Must be a `string`.
-    
+
     Returns
     -------
     `TfidfVectorizer` : The new `TfidfVectorizer` refitted on the project objevtive.
@@ -132,7 +138,6 @@ def refit_tfidf(project_objective):
     endtime = time.time()
     print(endtime-starttime, " seconds to prepare docs for refitting")
 
-
     starttime = time.time()
     tfidf_new.fit(objectives)
     endtime = time.time()
@@ -140,14 +145,16 @@ def refit_tfidf(project_objective):
 
     return tfidf_new
 
+
 def prepare_documents_for_tfidf(docs, extra_docs=[]):
     """
-    Prepare documents for tfidf training. Gets all documents from database and removes symbols.
-    
+    Prepare documents for tfidf training.\n
+    Gets all documents from database and removes symbols.
+
     Parameters
     ----------
     `extra_docs` : `list`. A list containing extra documents to train on.
-    
+
     Returns
     -------
     `list` : A list of `strings`.
@@ -157,33 +164,39 @@ def prepare_documents_for_tfidf(docs, extra_docs=[]):
         docs.append(doc)
     # removing symbols from all documents
     documents = [tp.remove_symbols(str(x)) for x in docs]
-    
+
     return documents
+
 
 def init_tfidf_model():
     """
-    Initialize TFIDF model.    
-    
+    Initialize TFIDF model.
+
     Returns
     -------
     `TfidfVectorizer` : The initialized tfidf model.
     """
-    return TfidfVectorizer(max_df=0.7, ngram_range=(1,2), stop_words='english', lowercase=True)
+    return TfidfVectorizer(
+        max_df=0.7, ngram_range=(1, 2),
+        stop_words='english', lowercase=True
+    )
 
-def get_term_list(docs, ngram_range=(1,2)):
+
+def get_term_list(docs, ngram_range=(1, 2)):
     """
-    
-    
+
+
     Parameters
     ----------
     `docs` : `list` of `strings`.
-    
+
     Returns
     -------
     `list` : 
     """
-    counter = CountVectorizer(ngram_range=ngram_range, stop_words='english') 
+    counter = CountVectorizer(ngram_range=ngram_range, stop_words='english')
     counter.fit(docs)
     dict_keys = counter.vocabulary_.keys()
-    term_list = list(dict_keys) # There is probably a faster way to get this vocab
+    # There is probably a faster way to get this vocab
+    term_list = list(dict_keys)
     return term_list
