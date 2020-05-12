@@ -36,6 +36,7 @@ function App() {
     const [topProjectsList, setTopProjectsList] = useState(null);
     const [topProjects, setTopProjects] = useState([]);
     const [topNumber, setTopNumber] = useState(50);
+    const [inputNumber, setInputNumber] = useState(50);
 
     const [allWords, setAllWords] = useState([]);
     const [chosenWordsTL, setChosenWordsTL] = useState([]);
@@ -128,21 +129,28 @@ function App() {
 
                             setCurProjectWordWeights(sortedWordWeights.slice(0, 50));
                         });
-                    callApi('wordweight', 'POST', {
-                        "text": extractProjectObjectives(similarProjects.slice(0, topNumber)),
-                        "user_project": null
-                    })
-                        .then(weightDict => {
-                            let formattedData = formatWordWeightsData(weightDict);
-                            let sortedWordWeights = sortWordWeights(formattedData);
-
-                            setSimProjectWordWeights(sortedWordWeights.slice(0, 50));
-                            setChosenWordsTL(getTermsFromList(sortedWordWeights.slice(0, 50)));
-                            setActiveWordsTL(getTermsFromList(sortedWordWeights.slice(0, 5)));
-                        });
                 });
         }
-    }, [currentProject]);
+    }, [currentProject, topNumber]);
+
+    useEffect(() => {
+        getSimilarProjects()
+            .then(similarProjects => {
+
+                callApi('wordweight', 'POST', {
+                    "text": extractProjectObjectives(similarProjects.slice(0, topNumber)),
+                    "user_project": null
+                })
+                    .then(weightDict => {
+                        let formattedData = formatWordWeightsData(weightDict);
+                        let sortedWordWeights = sortWordWeights(formattedData);
+
+                        setSimProjectWordWeights(sortedWordWeights.slice(0, 50));
+                        setChosenWordsTL(getTermsFromList(sortedWordWeights.slice(0, 50)));
+                        setActiveWordsTL(getTermsFromList(sortedWordWeights.slice(0, 5)));
+                    });
+            });
+    }, [topNumber])
 
 
     const getSuggestions = value => {
@@ -172,11 +180,16 @@ function App() {
         setSuggestions([]);
     }
 
-    const onWordClickSearchSim = (event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }) => {
+    const onWordClickSearch = (event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }) => {
         let newChosen = [suggestionValue, ...chosenWordsTL];
         setChosenWordsTL(newChosen);
         let newActive = [suggestionValue, ...activeWordsTL];
         setActiveWordsTL(newActive);
+    }
+
+    const onClickSetN = () => {
+        setSimProjectWordWeights([]);
+        setTopNumber(inputNumber);
     }
 
     /**
@@ -206,14 +219,15 @@ function App() {
      * @param {Event} event The DOM event that is triggered when input changes
      */
     const onInputChange = event => {
-        setViewWordCloudClosest(false);
         let value = parseInt(event.target.value);
         if (isNaN(value)) {
             value = 0;
         }
         // TODO: Make it so if a number over 1000 is entered, it will automatically be reduced to 1000.
         if (0 <= value && value <= 1000) {
-            setTopNumber(value);
+            setInputNumber(value);
+        } else {
+            setInputNumber(1000);
         }
     }
 
@@ -370,7 +384,7 @@ function App() {
                 onSuggestionsFetchRequested={onSuggestionFetchRequested}
                 onSuggestionsClearRequested={onSuggestionsClearRequested}
                 getSuggestionValue={getSuggestionValue}
-                onSuggestionSelected={onWordClickSearchSim}
+                onSuggestionSelected={onWordClickSearch}
                 renderSuggestion={renderSuggestion}
                 inputProps={{
                     placeholder: "Enter search term",
@@ -460,7 +474,8 @@ function App() {
                             <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
                         </TabsContainer>
                         <hr />
-                        < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
+                        < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={inputNumber} /> closest projects
+                        <button onClick={onClickSetN}>Click to set new 'n'</button>
             {
                             activeTab === wordCloudTabId
                                 ? renderWordCloudTab()
