@@ -38,7 +38,8 @@ function App() {
     const [topNumber, setTopNumber] = useState(50);
 
     const [allWords, setAllWords] = useState([]);
-    const [chosenWordsTLAll, setChosenWordsTLAll] = useState([]);
+    const [chosenWordsTL, setChosenWordsTL] = useState([]);
+    const [activeWordsTL, setActiveWordsTL] = useState([]);
     const [weightsByYear, setWeightsByYear] = useState({});
 
     const [suggestionValue, setSuggestionValue] = useState('');
@@ -136,6 +137,8 @@ function App() {
                             let sortedWordWeights = sortWordWeights(formattedData);
 
                             setSimProjectWordWeights(sortedWordWeights.slice(0, 50));
+                            setChosenWordsTL(getTermsFromList(sortedWordWeights.slice(0, 50)));
+                            setActiveWordsTL(getTermsFromList(sortedWordWeights.slice(0, 5)));
                         });
                 });
         }
@@ -169,10 +172,11 @@ function App() {
         setSuggestions([]);
     }
 
-    const onWordClickSearch = (event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }) => {
-        let newChosen = [...chosenWordsTLAll];
-        newChosen.push(suggestionValue);
-        setChosenWordsTLAll(newChosen)
+    const onWordClickSearchSim = (event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }) => {
+        let newChosen = [suggestionValue, ...chosenWordsTL];
+        setChosenWordsTL(newChosen);
+        let newActive = [suggestionValue, ...activeWordsTL];
+        setActiveWordsTL(newActive);
     }
 
     /**
@@ -293,26 +297,27 @@ function App() {
         }
     }
 
+
     /**
      * When check box is changed add or remove word from chosen words list.
      * @param {Event} event DOM event
      */
-    const onClickCheckBox = (event) => {
+    const onClickCheckBoxSim = (event) => {
         const isChecked = event.target.checked;
         const word = event.target.getAttribute("name");
         console.log(word, "is checked:", isChecked);
 
-        let newChosenWords = [...chosenWordsTLAll];
+        let newActiveWords = [...activeWordsTL];
 
         if (isChecked) {
-            newChosenWords.push(word);
+            newActiveWords.push(word);
         } else {
-            const wordIndex = newChosenWords.indexOf(word);
-            newChosenWords.splice(wordIndex, 1);
+            const wordIndex = newActiveWords.indexOf(word);
+            newActiveWords.splice(wordIndex, 1);
         }
-        console.log("New chosen words", newChosenWords);
+        console.log("New active words", newActiveWords);
 
-        setChosenWordsTLAll(newChosenWords);
+        setActiveWordsTL(newActiveWords);
     }
 
     /**
@@ -358,17 +363,14 @@ function App() {
     }
 
     const renderWordTimelineTab = () => {
-        return <WordTimeline projects={subsetProjects(topProjects, topNumber)} />
-    }
-
-    const renderWordTimelineAllTab = () => {
+        // return <WordTimeline projects={subsetProjects(topProjects, topNumber)} />
         return <WordTimelineNew >
             <Autosuggest
                 suggestions={suggestions}
                 onSuggestionsFetchRequested={onSuggestionFetchRequested}
                 onSuggestionsClearRequested={onSuggestionsClearRequested}
                 getSuggestionValue={getSuggestionValue}
-                onSuggestionSelected={onWordClickSearch}
+                onSuggestionSelected={onWordClickSearchSim}
                 renderSuggestion={renderSuggestion}
                 inputProps={{
                     placeholder: "Enter search term",
@@ -379,19 +381,19 @@ function App() {
             <br />
             <WordList>
                 {
-                    chosenWordsTLAll.map(word => (
+                    chosenWordsTL.map(word => (
                         <WordElement
                             key={word}
                             text={word}
-                            isChecked={chosenWordsTLAll.includes(word)}
-                            onClickCheckBox={onClickCheckBox}
+                            isChecked={activeWordsTL.includes(word)}
+                            onClickCheckBox={onClickCheckBoxSim}
                         />
                     ))
                 }
             </WordList>
             <ChartContainer>
-                {renderChart(formatDataForCharts(weightsByYear, chosenWordsTLAll), "ColumnChart")}
-                {renderChart(formatDataForCharts(weightsByYear, chosenWordsTLAll), "LineChart")}
+                {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "ColumnChart")}
+                {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "LineChart")}
             </ChartContainer>
         </WordTimelineNew>
     }
@@ -410,27 +412,31 @@ function App() {
     * @param {string} chartType
     */
     const renderChart = (data, chartType) => {
+        console.log(data);
+
         return (
-            <Chart
-                width="100%"
-                height={400}
-                chartType={chartType}
-                loader={<div>Loading Chart</div>}
-                data={data}
-                options={{
-                    title: 'Word importance by year',
-                    chartArea: { width: '70%', height: "70%" },
-                    hAxis: {
-                        title: 'Year',
-                        // minValue: 0,
-                    },
-                    vAxis: {
-                        title: 'Word score',
-                        minValue: 0,
-                    },
-                }}
-            // legendToggle
-            />
+            data[0].length > 1 ?
+                <Chart
+                    width="100%"
+                    height={400}
+                    chartType={chartType}
+                    loader={<div>Loading Chart</div>}
+                    data={data}
+                    options={{
+                        title: 'Word importance by year',
+                        chartArea: { width: '70%', height: "70%" },
+                        hAxis: {
+                            title: 'Year',
+                            // minValue: 0,
+                        },
+                        vAxis: {
+                            title: 'Word score',
+                            minValue: 0,
+                        },
+                    }}
+                // legendToggle
+                />
+                : null
         )
     }
 
@@ -452,7 +458,6 @@ function App() {
                             <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
                             <Tab text="Word Timeline" id={timelineTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
                             <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
-                            <Tab text="Word Timeline All" id={timelineAllTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
                         </TabsContainer>
                         <hr />
                         < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
@@ -469,11 +474,6 @@ function App() {
                         {
                             activeTab === coocTabId
                                 ? renderCoocMapTab()
-                                : null
-                        }
-                        {
-                            activeTab === timelineAllTabId
-                                ? renderWordTimelineAllTab()
                                 : null
                         }
                     </div>
