@@ -11,10 +11,12 @@ import time
 from custom_logic.src.cluster import cluster_abstracts
 # import custom_logic.src.co_occurrence as co
 import custom_logic.src.api as api
+import custom_logic.src.utils as utils
 
 # Used to store all projects locally, so we do not have to
 # get from database every time.
 all_projects = pd.DataFrame()
+
 
 def get_projects():
     global all_projects
@@ -81,6 +83,25 @@ def get_doc2vec(user_project=None):
 def setup_with_user_project(parameter_list):
     pass
 
+
+def get_weights_for_each_year():
+    try:
+        weights_for_each_year = utils.load_weights_for_each_year()
+    except FileNotFoundError:
+        print("Making new weights by year")
+        projects = get_projects().head(50)
+        objectives_divided = utils.divide_objectives_by_year(projects)
+        weights_for_each_year = utils.save_weights_for_each_year(objectives_divided)
+    return weights_for_each_year
+
+def get_all_terms():
+    try:
+        all_terms = utils.load_all_terms()
+    except FileNotFoundError:
+        print("Creating and saving all terms")
+        projects = get_projects().head(50)
+        all_terms = utils.save_all_terms(projects)
+    return all_terms
 
 """
 # Make "sanity check" on the model. Use training data as test data, to see if abstracts are most similar to themselves

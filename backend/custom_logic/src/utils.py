@@ -1,5 +1,10 @@
 import pandas as pd
+import pickle
+import custom_logic.src.api as api
 from sklearn.decomposition import PCA
+import custom_logic.src.main as main
+from sklearn.feature_extraction.text import CountVectorizer
+
 
 def print_progress(string):
     whitespace = ' ' * (40-len(string))
@@ -7,9 +12,11 @@ def print_progress(string):
     # sys.stdout.flush()
     # time.sleep(1)
 
+
 def print_done(string):
     whitespace = ' ' * (40-len(string))
     print('\r{}: Done{}'.format(string, whitespace), flush=True)
+
 
 def tuples_to_dict(tuple_list):
     if type(tuple_list) != list:
@@ -19,16 +26,17 @@ def tuples_to_dict(tuple_list):
         dic[tup[0]] = tup[1]
     return dic
 
-def sum_dicts(dict1 = {}, dict2 = {}):
+
+def sum_dicts(dict1={}, dict2={}):
     """
     Merges to dictionaries. If they share keys, their values will be summed.\n
     Values should be numbers, otherwise results might be weird.
-    
+
     Parameters
     ----------
     dict1 : \n
     dict2 : 
-    
+
     Returns
     -------
     `dict` : Merged dictionary with all keys and summed values.
@@ -39,21 +47,22 @@ def sum_dicts(dict1 = {}, dict2 = {}):
     new_dict.update(dict2)
     all_keys = new_dict.keys()
     dict2_keys = dict2.keys()
-    
+
     for key in all_keys:
         if key in dict1_keys and key in dict2_keys:
             new_dict[key] = dict1[key] + dict2[key]
     return new_dict
 
-def filter_dict_weight(dictionary = {}, threshold = 0):
+
+def filter_dict_weight(dictionary={}, threshold=0):
     """
     Filter a dictionary with word weights. It will be filtered by the threshold set for the weights.
-    
+
     Parameters
     ----------
     dictionary : A `dict` to filter\n
     threshold : Weight threshold to filter by. Default is 0.
-    
+
     Returns
     -------
     `dict` : New dictionary with only words that surpass the weight threshold.
@@ -67,15 +76,16 @@ def filter_dict_weight(dictionary = {}, threshold = 0):
             newDict[key] = value
     return newDict
 
-def subset_dict(dictionary = {}, subset_size = 1):
+
+def subset_dict(dictionary={}, subset_size=1):
     """
     Make a subset of a dictionary.
-    
+
     Parameters
     ----------
     dictionary : A `dict` to filter\n
     subset_size : Size of new dictionary. Default is 1.
-    
+
     Returns
     -------
     `dict` : New dictionary with only words that surpass the weight threshold.
@@ -83,9 +93,11 @@ def subset_dict(dictionary = {}, subset_size = 1):
     newDict = {k: v for k, v in list(dictionary.items())[:subset_size]}
     return newDict
 
+
 def sort_dict_by_value(_dict):
     # Set reverse to True to get descending order
     return {k: v for k, v in sorted(_dict.items(), key=lambda item: item[1], reverse=True)}
+
 
 def transform_pca(vectors, dimensions=2):
     """Helper function for PCA. Reduces vector to given dimensions.\n
@@ -98,3 +110,58 @@ def transform_pca(vectors, dimensions=2):
     """
     pca = PCA(n_components=dimensions)  # n-dimensional PCA.
     return pd.DataFrame(pca.fit_transform(vectors))
+
+
+def divide_objectives_by_year(projects):
+    objectives_by_year = {}
+    dates = list(projects['startDate'])
+    objectives = list(projects['objective'])
+    for i in range(len(dates)):
+        year = dates[i].split("-")[0]
+        if (year not in list(objectives_by_year.keys())):
+            objectives_by_year[year] = []
+        objectives_by_year[year].append(
+            objectives[i]
+        )
+
+    return objectives_by_year
+
+
+def save_weights_for_each_year(objectives_by_year):
+    word_weights_by_year = {}
+    for year in objectives_by_year:
+        word_weights = api.word_weights(objectives_by_year[year])
+        word_weights_by_year[year] = word_weights
+    pickle.dump(word_weights_by_year, open(
+        "custom_logic/src/models/word_weights_by_year.sav", 'wb')
+    )
+
+    return word_weights_by_year
+
+
+def save_all_terms(projects):
+    counter = CountVectorizer(ngram_range=(1, 2))
+
+    counter.fit(list(projects['objective']))
+
+    all_terms = counter.get_feature_names()
+
+    pickle.dump(all_terms, open(
+        "custom_logic/src/models/all_terms.sav", 'wb')
+    )
+
+    return all_terms
+
+
+def load_all_terms():
+    all_terms = pickle.load(
+        open("custom_logic/src/models/all_terms.sav", 'rb'))
+
+    return all_terms
+
+
+def load_weights_for_each_year():
+    word_weights = pickle.load(
+        open("custom_logic/src/models/word_weights_by_year.sav", 'rb'))
+
+    return word_weights

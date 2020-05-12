@@ -45,6 +45,7 @@ export const formatDataForCharts = (data, words) => {
             formattedData.push([year]); // FIXME: Perhaps cast year to an int
         }
     }
+    
     words.forEach(word => {
         formattedData[0].push(word); // push each word to the first row
         for (let index = 1; index < formattedData.length; index++) {

@@ -29,4 +29,7 @@ urlpatterns = [
     path('api/closestprojects/', views.ClosestProjectsView.as_view()),
     path('api/cooccurrencematrix/', views.CooccurrenceMatrix.as_view()),
     path('api/filterobjectives/', views.FilterObjectivesOnWeightsView.as_view()),
+    path('api/wordweightsyear/', views.WordWeightYearView.as_view()),
+    path('api/getallterms/', views.AllTermsView.as_view()),
+
 ]

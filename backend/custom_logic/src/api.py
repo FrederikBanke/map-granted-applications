@@ -103,7 +103,7 @@ def filter_objectives_on_weights(objectives_list, weight_list=[]):
         weight_dict = word_weights(objectives_list)
     else:
         weight_dict = {x['text']: x['value'] for x in weight_list}
-    
+
     # print("Word weights to filter by: ", weight_dict)
 
     sorted_weights = utils.sort_dict_by_value(weight_dict)
@@ -218,3 +218,13 @@ def co_occurrence_matrix(texts, vocab):
         cooccurrence_matrix)
     # print("norm_cooc_matrix: ", norm_cooccurrence_matrix)
     return (sorted_vocab, norm_cooccurrence_matrix)
+
+
+def word_weights_year():
+    weights_for_each_year = main.get_weights_for_each_year()
+    return weights_for_each_year
+
+
+def all_terms():
+    all_terms = main.get_all_terms()
+    return all_terms

@@ -10,8 +10,11 @@ import Tab from './components/Tabs/Tab';
 import { subsetProjects, combineTexts, extractProjectObjectives } from './util/projects';
 import WordTimeline from './components/WordTimeline/WordTimeline';
 import CooccurrenceMap from './components/CooccurrenceMap/CooccurrenceMap';
-import { formatDataForCoOccurrenceMatrix } from './util/charts';
 import { getTermsFromList } from './util/weights';
+import WordTimelineNew, { WordList, WordElement } from './components/WordTimeline/WordTimelineNew';
+import ChartContainer from './components/Charts/ChartContainer';
+import Chart from 'react-google-charts';
+import { formatDataForCharts } from './util/charts';
 
 
 function App() {
@@ -19,20 +22,27 @@ function App() {
     const [wordCloudTabId,] = useState("wordcloud");
     const [timelineTabId,] = useState("timeline");
     const [coocTabId,] = useState("coocmap");
+    const [timelineAllTabId,] = useState("timelineall");
 
     const [curProjectWordWeights, setCurProjectWordWeights] = useState([]);
     const [simProjectWordWeights, setSimProjectWordWeights] = useState([]);
 
     const [viewWordCloudSingle, setViewWordCloudSingle] = useState(false);
     const [viewWordCloudClosest, setViewWordCloudClosest] = useState(false);
-    const [curProjectWords, setCurProjectWords] = useState([]);
-    const [closestProjectsWords, setClosestProjectsWords] = useState([]);
 
     const [uploadedProjects, setUploadedProjects] = useState(null);
     const [currentProject, setCurrentProject] = useState(null);
     const [topProjectsList, setTopProjectsList] = useState(null);
     const [topProjects, setTopProjects] = useState([]);
     const [topNumber, setTopNumber] = useState(50);
+
+    const [allWords, setAllWords] = useState([]);
+    const [chosenWordsTLAll, setChosenWordsTLAll] = useState(["et ord"]);
+    const [weightsByYear, setWeightsByYear] = useState({
+        "2010": [
+            { "text": "et ord", "value": 3 }
+        ]
+    });
 
     const wordCloudWrapperStyle = {
         display: "flex",
@@ -80,6 +90,23 @@ function App() {
      */
     useEffect(() => {
         setCurrentProject(loadCurrentProject());
+        callApi('wordweightsyear', 'GET')
+            .then(res => {
+                let newWeightsByYear = {}
+                for (const year in res) {
+                    if (res.hasOwnProperty(year)) {
+                        const weights = res[year];
+                        newWeightsByYear[year] = sortWordWeights(formatWordWeightsData(weights))
+                    }
+                }
+                
+                setWeightsByYear(newWeightsByYear);
+                callApi('getallterms')
+                .then(allTermsRaw => {
+                    console.log("All terms", allTermsRaw);
+                    
+                })
+            })
     }, []);
 
     /**
@@ -88,8 +115,6 @@ function App() {
      */
     useEffect(() => {
         if (currentProject) {
-            console.log("Current project", currentProject);
-
             getSimilarProjects()
                 .then(similarProjects => {
                     callApi('wordweight', 'POST', {
@@ -236,6 +261,28 @@ function App() {
     }
 
     /**
+     * When check box is changed add or remove word from chosen words list.
+     * @param {Event} event DOM event
+     */
+    const onClickCheckBox = (event) => {
+        const isChecked = event.target.checked;
+        const word = event.target.getAttribute("name");
+        console.log(word, "is checked:", isChecked);
+
+        let newChosenWords = [...chosenWordsTLAll];
+
+        if (isChecked) {
+            newChosenWords.push(word);
+        } else {
+            const wordIndex = newChosenWords.indexOf(word);
+            newChosenWords.splice(wordIndex, 1);
+        }
+        console.log("New chosen words", newChosenWords);
+
+        setChosenWordsTLAll(newChosenWords);
+    }
+
+    /**
      * Handler for changing tab.
      * @param {String} tabId ID of the tab to change to
      */
@@ -281,12 +328,63 @@ function App() {
         return <WordTimeline projects={subsetProjects(topProjects, topNumber)} />
     }
 
+    const renderWordTimelineAllTab = () => {
+        return <WordTimelineNew >
+            <WordList>
+                {
+                    allWords.map(word => (
+                        <WordElement
+                            key={word.text}
+                            text={word.text}
+                            isChecked={chosenWordsTLAll.includes(word.text)}
+                            onClickCheckBox={onClickCheckBox}
+                        />
+                    ))
+                }
+            </WordList>
+            <ChartContainer>
+                {renderChart(formatDataForCharts(weightsByYear, chosenWordsTLAll), "ColumnChart")}
+                {renderChart(formatDataForCharts(weightsByYear, chosenWordsTLAll), "LineChart")}
+            </ChartContainer>
+        </WordTimelineNew>
+    }
+
     const renderCoocMapTab = () => {
         return <CooccurrenceMap
             projects={subsetProjects(topProjects, topNumber)}
             wordsToColor={getTermsFromList(curProjectWordWeights)}
             wordWeights={simProjectWordWeights}
         />
+    }
+
+    /**
+    * 
+    * @param {*} data
+    * @param {string} chartType
+    */
+    const renderChart = (data, chartType) => {
+        return (
+            <Chart
+                width="100%"
+                height={400}
+                chartType={chartType}
+                loader={<div>Loading Chart</div>}
+                data={data}
+                options={{
+                    title: 'Word importance by year',
+                    chartArea: { width: '70%', height: "70%" },
+                    hAxis: {
+                        title: 'Year',
+                        // minValue: 0,
+                    },
+                    vAxis: {
+                        title: 'Word score',
+                        minValue: 0,
+                    },
+                }}
+            // legendToggle
+            />
+        )
     }
 
     return (
@@ -307,6 +405,7 @@ function App() {
                             <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
                             <Tab text="Word Timeline" id={timelineTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
                             <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
+                            <Tab text="Word Timeline All" id={timelineAllTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
                         </TabsContainer>
                         <hr />
                         < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
@@ -323,6 +422,11 @@ function App() {
                         {
                             activeTab === coocTabId
                                 ? renderCoocMapTab()
+                                : null
+                        }
+                        {
+                            activeTab === timelineAllTabId
+                                ? renderWordTimelineAllTab()
                                 : null
                         }
                     </div>
