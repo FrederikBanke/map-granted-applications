@@ -54,9 +54,9 @@ def TFIDF_list_of_weigths(TFIDF_model, objective):
     for term in term_list:
         try:
             score[term] = X[0, TFIDF_model.vocabulary_[term]]
-        except KeyError as identifier:
+        except KeyError:
             if term not in TFIDF_model.stop_words:
-                print("Unique term", term, " (Ignored)")
+                print("max_df term", term, " (Ignored)")
                 score[term] = 0.0  # TODO: Find better value
             # print("Key error, word was {}".format(word))
             pass
@@ -125,7 +125,8 @@ def refit_tfidf(project_objective):
 
     Returns
     -------
-    `TfidfVectorizer` : The new `TfidfVectorizer` refitted on the project objevtive.
+    `TfidfVectorizer` : The new `TfidfVectorizer`
+    refitted on the project objevtive.
     """
     print("Refitting TFIDF model with new doc")
     tfidf_new = init_tfidf_model()
@@ -177,26 +178,25 @@ def init_tfidf_model():
     `TfidfVectorizer` : The initialized tfidf model.
     """
     return TfidfVectorizer(
-        max_df=0.7, ngram_range=(1, 2),
-        stop_words='english', lowercase=True
-    )
+        max_df=0.4, ngram_range=(1, 2), lowercase=True,
+        stop_words="english"
+    )  # max_df is maybe too low. Be careful
 
 
 def get_term_list(docs, ngram_range=(1, 2)):
     """
-
+    Gets a list of terms from the given documents.
 
     Parameters
     ----------
-    `docs` : `list` of `strings`.
+    `docs` : `list` of `strings`.\n
+    `ngram_range` : `tuple`
 
     Returns
     -------
-    `list` : 
+    `list` : `list` of `strings`
     """
     counter = CountVectorizer(ngram_range=ngram_range, stop_words='english')
     counter.fit(docs)
-    dict_keys = counter.vocabulary_.keys()
-    # There is probably a faster way to get this vocab
-    term_list = list(dict_keys)
+    term_list = counter.get_feature_names()
     return term_list
