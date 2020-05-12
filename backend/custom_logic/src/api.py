@@ -46,7 +46,7 @@ def word_weights(data, extra_document=None):
     if not isinstance(extra_document, type(None)):
         tfidf_model = main.get_tfidf(
             extra_docs=[extra_document],
-            refit=False
+            refit=True
         )
     else:
         tfidf_model = main.get_tfidf()

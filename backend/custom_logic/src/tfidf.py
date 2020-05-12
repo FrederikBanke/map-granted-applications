@@ -151,13 +151,6 @@ def refit_tfidf(old_tfidf_model, new_docs):
     print("Refitting TFIDF model with new docs")
     starttime = time.time()
 
-    corpus_vocabulary = defaultdict(
-        None, copy.deepcopy(old_tfidf_model.vocabulary_)
-    )
-    corpus_vocabulary.default_factory = corpus_vocabulary.__len__
-
-    # Let's say I got a query value from somewhere
-
     if len(new_docs) == 1:
         temp_tfidf = init_tfidf_model(max_df=1.0)
     else:
