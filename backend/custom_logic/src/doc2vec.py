@@ -72,8 +72,10 @@ def create_tag_doc(projects, TFIDF_model):
     # NOTE: When using project id as tag for document, it must be converted to a string, otherwise they may change.
 
     # import custom_logic.src.text_processing as tp
-    td = [TaggedDocument(tp.abstract_to_clean_list(abstracts[i], TFIDF_model), [str(projects["id"][i])]
-                         ) for i in range(len(projects)) if isinstance(abstracts[i], str)]
+    td = [TaggedDocument(
+        tp.abstract_to_clean_list(abstracts[i], TFIDF_model),
+        [str(projects["id"][i])]
+    ) for i in range(len(projects)) if isinstance(abstracts[i], str)]
     print_done("Create TaggedDocument")
 
     return td
