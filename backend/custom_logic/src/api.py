@@ -136,10 +136,7 @@ def closest_vectors(user_project):
 
     # Gets TFIDF model refitted on user project
     print("User project type: ", type(list(user_project['objective'])))
-    TFIDF_model = main.get_tfidf(
-        extra_docs=list(user_project['objective']),
-        refit=True
-    )
+    TFIDF_model = main.get_tfidf()
     doc2vec_model = main.get_doc2vec()
 
     # print(user_project)

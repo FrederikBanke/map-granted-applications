@@ -13,17 +13,14 @@ from collections import defaultdict
 import copy
 
 
-def filter_words_TFIDF(word, list_of_weigths):
+def filter_words_TFIDF(TFIDF_model, word):
     '''
-    Helper function for filtering. Returns true if a word makes the threshold.
+    Helper function for filtering. Returns true if keep word.
     Returns false otherwise.
     '''
     # print("List of weights: {}".format(list_of_weigths))
-
-    for word_tuple in list_of_weigths:
-        # change threshhold later
-        if (word == word_tuple[0]) and (word_tuple[1] > 0.05):
-            return True
+    if (word not in TFIDF_model.stop_words):
+        return True
     return False
 
 
