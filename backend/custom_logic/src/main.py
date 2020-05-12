@@ -12,14 +12,13 @@ from custom_logic.src.cluster import cluster_abstracts
 # import custom_logic.src.co_occurrence as co
 import custom_logic.src.api as api
 
+# Used to store all projects locally, so we do not have to
+# get from database every time.
 all_projects = pd.DataFrame()
-print("In main outside of functions")
-
 
 def get_projects():
     global all_projects
     if all_projects.empty:
-        print("Getting all projects from database")
         all_projects = api.get_projects_as_df()
 
     return all_projects

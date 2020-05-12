@@ -37,7 +37,7 @@ def train_new_doc2vec_model():
     TFIDF_model = main.get_tfidf()
 
     import custom_logic.src.api as api
-    projects = api.get_projects_as_df()
+    projects = main.get_projects()
     # Create a corpus for the training data, which is a "tagged document"
     train_corpus = create_tag_doc(projects, TFIDF_model)
 

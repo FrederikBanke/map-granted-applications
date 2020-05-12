@@ -38,30 +38,31 @@ def TFIDF_list_of_weigths(TFIDF_model, objective):
     `list` : A list of tuples of words with their weight
     """
     # remove symbols from abstract
-    objective_wout_symbls = tp.remove_symbols(objective.lower())
+    objective_wout_symbls = prepare_documents_for_tfidf([objective])
 
     score = {}
     # Transform the abstract into TfIdf coordinates
     # TODO: test if fit_transform adds the abstract to the TFIDF vocab,
     # and stop retraining the model
-    X = TFIDF_model.transform([objective_wout_symbls])
+    X = TFIDF_model.transform(objective_wout_symbls)
     # get the score/weight from each word in the abstract
     # and create a list of tuples with word and score, in order,
     # with the most importent word first
 
-    term_list = get_term_list([objective_wout_symbls])
+    term_list = get_term_list(objective_wout_symbls)
 
     for term in term_list:
         try:
             score[term] = X[0, TFIDF_model.vocabulary_[term]]
         except KeyError:
-            if term not in TFIDF_model.get_stop_words():
-                print("max_df term", term, " (Ignored)")
-                score[term] = 0.0  # TODO: Find better value
+            # if term not in TFIDF_model.get_stop_words():
+            #     print("max_df term", term, " (Ignored)")
+            #     score[term] = 0.0  # TODO: Find better value
             # print("Key error, word was {}".format(word))
             pass
     sortedscore = sorted(
-        score.items(), key=operator.itemgetter(1), reverse=True)
+        score.items(), key=operator.itemgetter(1), reverse=True
+    )
 
     return sortedscore
 
@@ -78,7 +79,7 @@ def train_TFIDF(load_model=None, delete_model=False):
     -------
      : 
     """
-    projects = api.get_projects_as_df()
+    projects = main.get_projects()
     objectives = list(projects['objective'])
     if load_model:
         if delete_model:
