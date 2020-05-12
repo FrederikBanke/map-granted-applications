@@ -5,7 +5,7 @@ import { formatWordWeightsData, callApi, sortWordWeights } from '../../util/api'
 import { findWordProject } from '../../util/findWord';
 import Sentences from '../Sentences/Sentences';
 import { getRandomColor, getQuaternaryColor } from '../../util/colors';
-import { combineTexts } from '../../util/projects';
+import { combineTexts, extractProjectObjectives } from '../../util/projects';
 
 /**
  * 
@@ -22,6 +22,7 @@ export default function WordCloudContainer(props) {
     const [viewSentences, setViewSentences] = useState(false);
     const [sentences, setSentences] = useState([]);
     const [currentWord, setCurrentWord] = useState("");
+    const [maxWordsInCloud, setMaxWordsInCloud] = useState(50);
 
     const containerStyle = {
         width: "100%",
@@ -34,7 +35,7 @@ export default function WordCloudContainer(props) {
      */
     useEffect(() => {
         callApi('wordweight', 'POST', {
-            "text": combineTexts(props.projects),
+            "text": extractProjectObjectives(props.projects),
             "user_project": props.userProject || null
         })
             .then(weightDict => {
@@ -43,9 +44,11 @@ export default function WordCloudContainer(props) {
                 let sortedWordWeights = sortWordWeights(formattedData);
                 // console.log(formattedData);
                 // console.log(subset);
+                console.log(sortedWordWeights);
+                
 
                 setWords(sortedWordWeights);
-                props.setWords(sortedWordWeights);
+                props.setWords(sortedWordWeights.slice(0, maxWordsInCloud));
             });
 
         return (() => {
@@ -125,7 +128,7 @@ export default function WordCloudContainer(props) {
     }
 
     const wordCloudOptions = {
-        fontSizes: [12, 92],
+        fontSizes: [12, 42],
         rotationAngles: [0, 0], // min and max rotation angle
         rotations: 1, // rotation steps
         // colors: ["#de7f3f", "#1680b2", "#052b58"],
@@ -150,6 +153,7 @@ export default function WordCloudContainer(props) {
                 options={wordCloudOptions}
                 minSize={wordCloudMinSize}
                 callbacks={wordCloudCallbacks}
+                maxWords={maxWordsInCloud}
                 />
                 : <p>Generating word cloud...</p>
             }

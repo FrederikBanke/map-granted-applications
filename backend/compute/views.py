@@ -29,10 +29,10 @@ class WordWeightView(APIView):
     def post(self, request):
         text = request.data['text']
         try:
-            user_project = request.data['user_project']
-        except KeyError as identifier:
-            user_project = None
-        return Response(api.word_weights(text, user_project))
+            extra_doc = request.data['user_project']['objective']
+        except (KeyError, TypeError):
+            extra_doc = None
+        return Response(api.word_weights(text, extra_doc))
 
 class FilterObjectivesOnWeightsView(APIView):
     """
@@ -79,5 +79,6 @@ class CooccurrenceMatrix(APIView):
         pass
     def post(self, request):
         texts = request.data['texts']
-        vocab, matrix = api.co_occurrence_matrix(texts)
+        vocab = request.data['vocabulary']
+        vocab, matrix = api.co_occurrence_matrix(texts, vocab)
         return Response({"vocabulary": vocab, "coOccurrenceMatrix": matrix})

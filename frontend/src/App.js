@@ -207,7 +207,7 @@ function App() {
         return <div style={wordCloudWrapperStyle}>
             <div style={{ width: "50%" }}>
                 <button disabled={!currentProjectExists()} onClick={toggleWordCloudSingle}>Generate word cloud for your project</button>
-                {viewWordCloud ? <WordCloudContainer wordsToCompare={closestProjectsWords} setWords={setCurProjectWords} onProjectChange={onProjectChange} projects={[currentProject]} />
+                {viewWordCloud ? <WordCloudContainer userProject={currentProject} wordsToCompare={closestProjectsWords} setWords={setCurProjectWords} onProjectChange={onProjectChange} projects={[currentProject]} />
                     : null
                 }
             </div>

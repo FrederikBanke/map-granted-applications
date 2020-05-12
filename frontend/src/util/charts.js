@@ -109,12 +109,11 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
 
         }))
         if (word1 === undefined) {
-            console.error("Could not find word in vocabulary");
-            return;
+            throw TypeError(`word1 is undefined. Could not find '${word}' in word weights list.`)
         }
 
         const weight = word1.value;
-        let node = createNode(word, weight, 0);
+        let node = createNode(word, weight, 0, word);
         nodes.push(node);
     });
 
@@ -129,7 +128,7 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
             const coOccurrenceValue = coOccurrenceMatrix[row][column];
             const sourceNode = vocabulary[row];
             const targetNode = vocabulary[column];
-            if (coOccurrenceValue > coOccurrenceThreshold) {
+            if (coOccurrenceValue >= coOccurrenceThreshold) {
                 let edge = createEdge(sourceNode, targetNode, coOccurrenceValue, minEdgeSize, maxEdgeSize);
                 edges.push(edge);
             } else {
@@ -151,8 +150,15 @@ const isInNodes = (node, nodes) => {
     return false;
 }
 
-const createNode = (id, weight, colorClass) => {
-    return { id, weight, colorClass }
+/**
+ * Create node for co-occurrence map.
+ * @param {string} id 
+ * @param {number} weight 
+ * @param {number} colorClass 
+ * @param {string} label 
+ */
+const createNode = (id, weight, colorClass, label) => {
+    return { id, weight, colorClass, label }
 }
 
 const createEdge = (source, target, weight, min, max) => {

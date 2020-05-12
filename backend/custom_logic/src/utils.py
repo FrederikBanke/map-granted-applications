@@ -45,7 +45,7 @@ def sum_dicts(dict1 = {}, dict2 = {}):
             new_dict[key] = dict1[key] + dict2[key]
     return new_dict
 
-def filter_dict(dictionary = {}, threshold = 0):
+def filter_dict_weight(dictionary = {}, threshold = 0):
     """
     Filter a dictionary with word weights. It will be filtered by the threshold set for the weights.
     
@@ -66,6 +66,26 @@ def filter_dict(dictionary = {}, threshold = 0):
         if value > threshold:
             newDict[key] = value
     return newDict
+
+def subset_dict(dictionary = {}, subset_size = 1):
+    """
+    Make a subset of a dictionary.
+    
+    Parameters
+    ----------
+    dictionary : A `dict` to filter\n
+    subset_size : Size of new dictionary. Default is 1.
+    
+    Returns
+    -------
+    `dict` : New dictionary with only words that surpass the weight threshold.
+    """
+    newDict = {k: v for k, v in list(dictionary.items())[:subset_size]}
+    return newDict
+
+def sort_dict_by_value(_dict):
+    # Set reverse to True to get descending order
+    return {k: v for k, v in sorted(_dict.items(), key=lambda item: item[1], reverse=True)}
 
 def transform_pca(vectors, dimensions=2):
     """Helper function for PCA. Reduces vector to given dimensions.\n
