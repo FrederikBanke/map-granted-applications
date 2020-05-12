@@ -151,27 +151,47 @@ def refit_tfidf(old_tfidf_model, new_docs):
     print("Refitting TFIDF model with new docs")
     starttime = time.time()
 
-    if len(new_docs) == 1:
-        temp_tfidf = init_tfidf_model(max_df=1.0)
-    else:
-        temp_tfidf = init_tfidf_model()
-    temp_tfidf.fit(new_docs)
-    for term in temp_tfidf.get_feature_names():
-        # Added with proper index if not in vocabulary
-        corpus_vocabulary[term]
-
-    refitted_tfidf = init_tfidf_model(vocabulary=corpus_vocabulary)
-    refitted_tfidf = init_tfidf_model(max_df=1.0)
+    # refitted_tfidf = init_tfidf_model(vocabulary=corpus_vocabulary)
+    refitted_tfidf = init_tfidf_model()
 
     database_projects = main.get_projects()
 
     project_objectives = list(database_projects['objective'])
-    print(type(project_objectives))
+    # print(type(project_objectives))
     docs_wout_symbls = prepare_documents_for_tfidf(
         project_objectives, new_docs
     )
 
-    refitted_tfidf.fit(docs_wout_symbls)
+    ndocs_count = len(new_docs)
+    odocs_count = len(docs_wout_symbls)-ndocs_count
+
+    counter = CountVectorizer(
+        ngram_range=(2, 2),
+        stop_words=old_tfidf_model.get_stop_words()
+    )
+
+    # Extract new documents, but without symbols
+    ndocs_wout_symbls = docs_wout_symbls[-ndocs_count:]
+
+    X = counter.fit_transform(ndocs_wout_symbls)
+
+    term_list = counter.get_feature_names()
+
+    filtered_new_docs = []
+
+    for doc in ndocs_wout_symbls:
+        filtered_doc_words = []
+        for term in term_list:
+            try:
+                if (X[0, counter.vocabulary_[term]] > 1):
+                    filtered_doc_words.append(term)
+            except KeyError:
+                pass
+        filtered_doc = " ".join(filtered_doc_words)
+        filtered_new_docs.append(filtered_doc)
+
+    filtered_new_docs.extend(docs_wout_symbls[0:odocs_count])
+    refitted_tfidf.fit(filtered_new_docs)
 
     endtime = time.time()
     print(endtime-starttime, " seconds to refit model")
@@ -192,8 +212,7 @@ def prepare_documents_for_tfidf(docs, extra_docs=[]):
     `list` : A list of `strings`.
     """
     # casting abstracts to a simple list
-    for doc in extra_docs:
-        docs.append(doc)
+    docs.extend(extra_docs)
     # removing symbols from all documents
     documents = [tp.remove_symbols(str(x)) for x in docs]
 
