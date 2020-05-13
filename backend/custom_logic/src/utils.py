@@ -113,16 +113,20 @@ def transform_pca(vectors, dimensions=2):
 
 
 def divide_objectives_by_year(projects):
+    noDates = 0  # FIXME: Remove
     objectives_by_year = {}
     dates = list(projects['startDate'])
     objectives = list(projects['objective'])
     for i in range(len(dates)):
-        year = dates[i].split("-")[0]
-        if (year not in list(objectives_by_year.keys())):
-            objectives_by_year[year] = []
-        objectives_by_year[year].append(
-            objectives[i]
-        )
+        try:
+            year = dates[i].split("-")[0]
+            if (year not in list(objectives_by_year.keys())):
+                objectives_by_year[year] = []
+            objectives_by_year[year].append(
+                objectives[i]
+            )
+        except AttributeError:
+            noDates = noDates + 1  # FIXME: Remove
 
     return objectives_by_year
 
@@ -140,9 +144,15 @@ def save_weights_for_each_year(objectives_by_year):
 
 
 def save_all_terms(projects):
-    counter = CountVectorizer(ngram_range=(1, 2))
-
-    counter.fit(list(projects['objective']))
+    counter = CountVectorizer(ngram_range=(1, 2), stop_words='english')
+    list_of_objectives = list(projects['objective'])
+    objectives = []
+    for objective in list_of_objectives:
+        if isinstance(objective, str):
+            objectives.append(objective)
+        else:
+            objectives.append("")
+    counter.fit(objectives)
 
     all_terms = counter.get_feature_names()
 
@@ -155,7 +165,8 @@ def save_all_terms(projects):
 
 def load_all_terms():
     all_terms = pickle.load(
-        open("custom_logic/src/models/all_terms.sav", 'rb'))
+        open("custom_logic/src/models/all_terms.sav", 'rb')
+    )
 
     return all_terms
 

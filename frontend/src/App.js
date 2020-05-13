@@ -161,12 +161,16 @@ function App() {
         <span>{suggestion}</span>
     )
 
+    const shouldRenderSuggestion = suggestion => (
+        suggestion.trim().length > 2 // only render when more than 2 characters entered
+    )
+
     const onChangeSearch = (event, { newValue }) => {
         setSuggestionValue(newValue);
     }
 
     const onSuggestionFetchRequested = ({ value }) => {
-        setSuggestions(getSuggestions(value));
+        setSuggestions(getSuggestions(value).slice(0,10)); // only show 10 suggestions
     }
 
     const onSuggestionsClearRequested = () => {
@@ -313,7 +317,6 @@ function App() {
     const onClickCheckBoxSim = (event) => {
         const isChecked = event.target.checked;
         const word = event.target.getAttribute("name");
-        console.log(word, "is checked:", isChecked);
 
         let newActiveWords = [...activeWordsTL];
 
@@ -323,7 +326,6 @@ function App() {
             const wordIndex = newActiveWords.indexOf(word);
             newActiveWords.splice(wordIndex, 1);
         }
-        console.log("New active words", newActiveWords);
 
         setActiveWordsTL(newActiveWords);
     }
@@ -380,10 +382,11 @@ function App() {
                 getSuggestionValue={getSuggestionValue}
                 onSuggestionSelected={onWordClickSearch}
                 renderSuggestion={renderSuggestion}
+                shouldRenderSuggestions={shouldRenderSuggestion}
                 inputProps={{
                     placeholder: "Enter search term",
                     value: suggestionValue,
-                    onChange: onChangeSearch
+                    onChange: onChangeSearch,
                 }}
             />
             <br />
@@ -420,8 +423,6 @@ function App() {
     * @param {string} chartType
     */
     const renderChart = (data, chartType) => {
-        console.log(data);
-
         return (
             data[0].length > 1 ?
                 <Chart

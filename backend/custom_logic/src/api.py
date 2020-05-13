@@ -221,10 +221,17 @@ def co_occurrence_matrix(texts, vocab):
 
 
 def word_weights_year():
+    start = time.time()
     weights_for_each_year = main.get_weights_for_each_year()
+    end = time.time()
+    print("time to get word weights by year: ", end-start, " sek")
+
     return weights_for_each_year
 
 
 def all_terms():
+    start = time.time()
     all_terms = main.get_all_terms()
+    end = time.time()
+    print("time to get all terms: ", end-start, " sek")
     return all_terms

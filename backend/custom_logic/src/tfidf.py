@@ -252,6 +252,10 @@ def get_term_list(docs, ngram_range=(1, 2)):
     `list` : `list` of `strings`
     """
     counter = CountVectorizer(ngram_range=ngram_range, stop_words='english')
-    counter.fit(docs)
-    term_list = counter.get_feature_names()
+    try:
+        counter.fit(docs)
+        term_list = counter.get_feature_names()
+    except ValueError:
+        print("ValueError: Maybe document only contains stopwords. ", docs)
+        term_list = []
     return term_list

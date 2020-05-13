@@ -31,6 +31,8 @@ def remove_symbols(string):
     -------
     `string` : The string without symbols
     """
+    # FIXME: Maybe remove ('s) instead of (') to prevent making singular into plural.
+    # Or maybe don't remove (') and let TF-IDF do it.
     string = re.sub(r'[^\w\n\-—/. ]', '',
                     string)  # removes all but the listed symbols
     # removes dash, mdash and forward slash
