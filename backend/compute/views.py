@@ -43,7 +43,11 @@ class WordWeightView(APIView):
             extra_doc = request.data['user_project']['objective']
         except (KeyError, TypeError):
             extra_doc = None
-        return Response(api.word_weights(text, extra_doc))
+        try:
+            refit = request.data['refit']
+        except (KeyError, TypeError):
+            refit = False
+        return Response(api.word_weights(text, extra_doc, refit))
 
 
 class WordWeightYearView(APIView):

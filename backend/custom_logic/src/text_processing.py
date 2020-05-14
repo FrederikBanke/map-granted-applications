@@ -67,3 +67,23 @@ def abstract_to_clean_list(abstract, TFIDF_model):
     )
 
     return clean_list
+
+
+def combine_docs(docs):
+    """
+    Combine documents from a list of documents.
+    Only combines if the element is a string.
+
+    Parameters
+    ----------
+    `docs` : `list`. Documents to combine
+
+    Returns
+    -------
+    `string` : Combined string of documents
+    """
+    combined_docs = ""
+    for doc in docs:
+        if isinstance(doc, str):
+            combined_docs = combined_docs + doc
+    return combined_docs

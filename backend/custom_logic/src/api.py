@@ -30,7 +30,7 @@ def fill_database_with_data():
     return
 
 
-def word_weights(docs, extra_document=None):
+def word_weights(docs, extra_document=None, refit=False):
     """
     Create a `dict` of {term: weight} for each term in a document, using TFIDF, if the term's weight passed a certain threshold.
 
@@ -43,17 +43,25 @@ def word_weights(docs, extra_document=None):
     -------
     `dict` : A `dict` of {term: weight} for each term in a document
     """
-    if not isinstance(extra_document, type(None)):
+    # if not isinstance(extra_document, type(None)):
+    #     tfidf_model = main.get_tfidf(
+    #         extra_docs=[extra_document],
+    #         refit=False
+    #     )
+        
+    # When user wants to use words introduced in their project
+    if refit:
         tfidf_model = main.get_tfidf(
-            extra_docs=[extra_document],
+            extra_docs=docs,
             refit=False
         )
     else:
         tfidf_model = main.get_tfidf()
+
     if type(docs) == str:
         doc = docs
     elif type(docs) == list:
-        doc = " ".join(docs)
+        doc = tp.combine_docs(docs)
     else:
         raise TypeError("word weight API given wrong data type")
 

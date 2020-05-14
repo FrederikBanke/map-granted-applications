@@ -119,9 +119,9 @@ function App() {
             getSimilarProjects()
                 .then(similarProjects => {
                     callApi('wordweight', 'POST', {
-                        "text": extractProjectObjectives(similarProjects.slice(0, topNumber)),
-                        // "text": [],
-                        "user_project": currentProject
+                        "text": extractProjectObjectives([currentProject]),
+                        "user_project": null,
+                        "refit": true
                     })
                         .then(weightDict => {
                             let formattedData = formatWordWeightsData(weightDict);
