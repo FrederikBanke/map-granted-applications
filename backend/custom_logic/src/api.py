@@ -30,7 +30,7 @@ def fill_database_with_data():
     return
 
 
-def word_weights(data, extra_document=None):
+def word_weights(docs, extra_document=None):
     """
     Create a `dict` of {term: weight} for each term in a document, using TFIDF, if the term's weight passed a certain threshold.
 
@@ -50,17 +50,23 @@ def word_weights(data, extra_document=None):
         )
     else:
         tfidf_model = main.get_tfidf()
-    texts = []
-    if type(data) == str:
-        texts.append(data)
-    elif type(data) == list:
-        texts = data
+    if type(docs) == str:
+        doc = docs
+    elif type(docs) == list:
+        doc = " ".join(docs)
     else:
         raise TypeError("word weight API given wrong data type")
 
     weight_dict = dict()
 
-    # FIXME: there may be something wrong with combining weights
+    weight_list = tfidf.TFIDF_list_of_weigths(
+        TFIDF_model=tfidf_model, objective=doc)
+    weight_dict = utils.tuples_to_dict(weight_list)
+
+    return weight_dict
+
+
+"""     # FIXME: there may be something wrong with combining weights
     # from list of docs.
     for text in texts:
         # create word weight dictionary for each abstract
@@ -68,9 +74,7 @@ def word_weights(data, extra_document=None):
             TFIDF_model=tfidf_model, objective=text)
         temp_dict = utils.tuples_to_dict(weight_list)
         # temp_dict = utils.filter_dict(dictionary=temp_dict, threshold=0.05)
-        weight_dict = utils.sum_dicts(weight_dict, temp_dict)
-
-    return weight_dict
+        weight_dict = utils.sum_dicts(weight_dict, temp_dict) """
 
 
 def filter_objectives_on_weights(objectives_list, weight_list=[]):

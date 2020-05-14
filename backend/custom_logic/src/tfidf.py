@@ -19,7 +19,7 @@ def TFIDF_list_of_weigths(TFIDF_model, objective):
     Parameters
     ----------
     `TFIDF_model` : A trained TF-IDF model. `TfidfVectorizer`\n
-    `objective` : The abstract, whose words should be calculated. `string`.
+    `objective` : `string`. The abstract, whose words should be calculated.
 
     Returns
     -------
