@@ -143,8 +143,6 @@ function App() {
             "words": terms
         })
             .then(res => {
-                console.log("Scores for terms", res);
-
                 let newWeightsByYear = {}
                 for (const year in res) {
                     if (res.hasOwnProperty(year)) {
@@ -157,9 +155,7 @@ function App() {
     }
 
     const addNewTermYearScores = (termScores) => {
-        
         let oldScores = { ...weightsByYear };
-        console.log("Old terms", oldScores);
         let newScores = {}
         for (const year in oldScores) {
             if (oldScores.hasOwnProperty(year)) {
@@ -169,8 +165,6 @@ function App() {
                 newScores[year] = yearWeights;
             }
         }
-
-        console.log("New terms", newScores);
 
         setWeightsByYear(newScores);
     }
@@ -441,7 +435,6 @@ function App() {
                 {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "ColumnChart")}
                 {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "LineChart")}
             </ChartContainer>
-            <p>Note: A score of 0 does not mean a word was never used.</p>
         </WordTimelineNew>
     }
 
