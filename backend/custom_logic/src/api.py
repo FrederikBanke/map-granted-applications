@@ -48,7 +48,7 @@ def word_weights(docs, extra_document=None, refit=False):
     #         extra_docs=[extra_document],
     #         refit=False
     #     )
-        
+
     # When user wants to use words introduced in their project
     if refit:
         tfidf_model = main.get_tfidf(
@@ -214,11 +214,11 @@ def co_occurrence_matrix(texts, vocab):
 
     Parameters
     ----------
-     : 
+     :
 
     Returns
     -------
-     : 
+     :
     """
     sorted_vocab, binary_occurrence_matrix = cooc.create_binary_occurrence_matrix(
         texts, vocab)
@@ -247,3 +247,29 @@ def all_terms():
     end = time.time()
     print("time to get all terms: ", end-start, " sek")
     return all_terms
+
+
+def word_score_years(words):
+    if isinstance(words, str):
+        words = [words]
+    elif not isinstance(words, list):
+        raise ValueError("Wrong type given to word_score_year()")
+    all_scores_for_each_year = main.get_weights_for_each_year()
+    years = list(all_scores_for_each_year.keys())
+    word_scores_for_each_year = {}
+    start = time.time()
+    print("started")
+    for year in years:
+        word_scores_for_each_year[year] = []
+        # extract scores from the year
+        year_score = all_scores_for_each_year[year]
+        for word in words:
+            try:
+                word_scores_for_each_year[year].append(
+                    {"text": word, "value": year_score[word]})
+            except KeyError:
+                print(word, " not found for year ", year)
+
+    print("Seconds to get scores words for each year: ", time.time() - start)
+
+    return word_scores_for_each_year

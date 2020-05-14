@@ -92,22 +92,10 @@ function App() {
      */
     useEffect(() => {
         setCurrentProject(loadCurrentProject());
-        callApi('wordweightsyear', 'GET')
-            .then(res => {
-                let newWeightsByYear = {}
-                for (const year in res) {
-                    if (res.hasOwnProperty(year)) {
-                        const weights = res[year];
-                        newWeightsByYear[year] = sortWordWeights(formatWordWeightsData(weights))
-                    }
-                }
-
-                setWeightsByYear(newWeightsByYear);
-                callApi('getallterms')
-                    .then(allTerms => {
-                        setAllWords(allTerms)
-                    });
-            })
+        callApi('getallterms')
+        .then(allTerms => {
+            setAllWords(allTerms)
+        });
     }, []);
 
     /**
@@ -141,10 +129,51 @@ function App() {
                             setSimProjectWordWeights(sortedWordWeights.slice(0, 50));
                             setChosenWordsTL([...chosenWordsTL, ...getTermsFromList(sortedWordWeights.slice(0, 50))]);
                             setActiveWordsTL([...activeWordsTL, ...getTermsFromList(sortedWordWeights.slice(0, 5))]);
+                            getScoresForTerms(getTermsFromList(sortedWordWeights.slice(0, 50)))
+                            .then(scoresFor50 => {
+                                setWeightsByYear(scoresFor50);
+                            });
                         });
                 });
         }
     }, [currentProject, topNumber]);
+
+    const getScoresForTerms = terms => {
+        return callApi('termscoreyear', 'POST', {
+            "words": terms
+        })
+            .then(res => {
+                console.log("Scores for terms", res);
+
+                let newWeightsByYear = {}
+                for (const year in res) {
+                    if (res.hasOwnProperty(year)) {
+                        newWeightsByYear[year] = sortWordWeights(res[year])
+                    }
+                }
+
+                return newWeightsByYear;
+            })
+    }
+
+    const addNewTermYearScores = (termScores) => {
+        
+        let oldScores = { ...weightsByYear };
+        console.log("Old terms", oldScores);
+        let newScores = {}
+        for (const year in oldScores) {
+            if (oldScores.hasOwnProperty(year)) {
+                const yearWeights = oldScores[year];
+                const newYearScores = termScores[year];
+                yearWeights.push(...newYearScores);
+                newScores[year] = yearWeights;
+            }
+        }
+
+        console.log("New terms", newScores);
+
+        setWeightsByYear(newScores);
+    }
 
     const getSuggestions = value => {
         const inputValue = value.trim().toLowerCase();
@@ -170,7 +199,7 @@ function App() {
     }
 
     const onSuggestionFetchRequested = ({ value }) => {
-        setSuggestions(getSuggestions(value).slice(0,10)); // only show 10 suggestions
+        setSuggestions(getSuggestions(value).slice(0, 10)); // only show 10 suggestions
     }
 
     const onSuggestionsClearRequested = () => {
@@ -182,6 +211,12 @@ function App() {
         setChosenWordsTL(newChosen);
         let newActive = [suggestionValue, ...activeWordsTL];
         setActiveWordsTL(newActive);
+
+        getScoresForTerms(suggestionValue)
+        .then(scores => {
+            addNewTermYearScores(scores);
+        })
+            
     }
 
     const onClickSetN = () => {
@@ -406,6 +441,7 @@ function App() {
                 {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "ColumnChart")}
                 {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "LineChart")}
             </ChartContainer>
+            <p>Note: A score of 0 does not mean a word was never used.</p>
         </WordTimelineNew>
     }
 
@@ -463,7 +499,7 @@ function App() {
                 }
 
                 <TabsContainer>
-                    <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()}/>
+                    <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()} />
                     <Tab text="Word Timeline" id={timelineTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={true} />
                     <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()} />
                 </TabsContainer>

@@ -23,13 +23,15 @@ router.register(r'projects', views.ProjectView, 'compute')     # add this
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)), # add this
+    path('api/', include(router.urls)),  # add this
     path('api/wordweight/', views.WordWeightView.as_view()),
     path('api/closestvectors/', views.ClosestVectorsView.as_view()),
     path('api/closestprojects/', views.ClosestProjectsView.as_view()),
     path('api/cooccurrencematrix/', views.CooccurrenceMatrix.as_view()),
     path('api/filterobjectives/', views.FilterObjectivesOnWeightsView.as_view()),
-    path('api/wordweightsyear/', views.WordWeightYearView.as_view()),
+    path('api/wordweightsyear/', views.WordWeightYearAllView.as_view()),
+    path('api/termscoreyear/', views.WordWeightYearView.as_view()),
     path('api/getallterms/', views.AllTermsView.as_view()),
+
 
 ]

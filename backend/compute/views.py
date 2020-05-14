@@ -50,13 +50,26 @@ class WordWeightView(APIView):
         return Response(api.word_weights(text, extra_doc, refit))
 
 
-class WordWeightYearView(APIView):
+class WordWeightYearAllView(APIView):
     """
-    API for getting weights by year.
+    API for getting all weights by year.
     """
 
     def get(self, request):
         return Response(api.word_weights_year())
+
+
+class WordWeightYearView(APIView):
+    """
+    API for getting scores for a term for each year.
+    """
+
+    def post(self, request):
+        try:
+            words = request.data['words']
+        except KeyError as identifier:
+            words = []
+        return Response(api.word_score_years(words))
 
 
 class FilterObjectivesOnWeightsView(APIView):
