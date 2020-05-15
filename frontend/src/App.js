@@ -183,14 +183,14 @@ function App() {
         let allYears = Object.keys(oldScores);
         allYears.push(...Object.keys(termScores));
         allYears = allYears.filter(distinct);
-        
+
         allYears.forEach(year => {
             let yearWeights = termScores[year] || [];
             const oldYearScores = oldScores[year] || [];
             yearWeights.push(...oldYearScores);
             newScores[year] = yearWeights;
         });
-        
+
         setWeightsByYear(newScores);
     }
 
