@@ -11,16 +11,23 @@ import time
 from custom_logic.src.cluster import cluster_abstracts
 # import custom_logic.src.co_occurrence as co
 import custom_logic.src.api as api
+import custom_logic.src.utils as utils
+import pickle
 
 # Used to store all projects locally, so we do not have to
 # get from database every time.
 all_projects = pd.DataFrame()
+all_term_scores = None
+
 
 def get_projects():
+    start = time.time()
     global all_projects
     if all_projects.empty:
         all_projects = api.get_projects_as_df()
-
+    end = time.time()
+    print("Time to get all projects: ", end-start, " sek")
+    print("Number of projects: ", len(list(all_projects['objective'])))
     return all_projects
 
 
@@ -43,6 +50,7 @@ def get_tfidf(
     """
     # Create a new dataframe with the users project
 
+    start = time.time()
     if not isinstance(extra_docs, type(None)):
         if refit:
             TFIDF_model = tfidf.train_TFIDF(
@@ -55,7 +63,9 @@ def get_tfidf(
         TFIDF_model = tfidf.train_TFIDF(
             load_model=name, delete_model=delete_model
         )
+    end = time.time()
 
+    print("Time to get TFIDF: ", end-start, " sek")
     return TFIDF_model
 
 
@@ -73,13 +83,46 @@ def get_doc2vec(user_project=None):
     `Doc2Vec` : The doc2vec.
     """
     # Train the doc2vec model
+    start = time.time()
     doc2vec_model = doc2vec.train_doc2vec_model(delete_model=False)
+    end = time.time()
+    print("Time to get doc2vec: ", end-start, " sek")
 
     return doc2vec_model
 
 
 def setup_with_user_project(parameter_list):
     pass
+
+
+def get_weights_for_each_year():
+    try:
+        with open("custom_logic/src/models/word_weights_by_year.sav", 'rb') as f:
+            weights_for_each_year = pickle.load(f)
+            f.close()
+    except FileNotFoundError:
+        print("Making new weights by year")
+        projects = get_projects()
+        objectives_divided = utils.divide_objectives_by_year(projects)
+        weights_for_each_year = utils.save_weights_for_each_year(
+            objectives_divided, 10000)
+    return weights_for_each_year
+
+
+def get_all_terms():
+    global all_term_scores
+    if isinstance(all_term_scores, type(None)):
+        try:
+            with open("custom_logic/src/models/all_terms.sav", 'rb') as f:
+                all_term_scores = pickle.load(f)
+                f.close()
+            print("Loading scores from disk")
+
+        except FileNotFoundError:
+            print("Creating and saving all terms")
+            weigths = get_weights_for_each_year()
+            all_term_scores = utils.save_all_terms(weigths)
+    return all_term_scores
 
 
 """

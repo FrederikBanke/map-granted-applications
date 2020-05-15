@@ -12,18 +12,6 @@ import custom_logic.src.api as api
 from collections import defaultdict
 import copy
 
-
-def filter_words_TFIDF(TFIDF_model, word):
-    '''
-    Helper function for filtering. Returns true if keep word.
-    Returns false otherwise.
-    '''
-    # print("List of weights: {}".format(list_of_weigths))
-    if (word not in TFIDF_model.get_stop_words()):
-        return True
-    return False
-
-
 def TFIDF_list_of_weigths(TFIDF_model, objective):
     """
     Uses the TFIDF model on a given text, to weight words of importance.
@@ -31,7 +19,7 @@ def TFIDF_list_of_weigths(TFIDF_model, objective):
     Parameters
     ----------
     `TFIDF_model` : A trained TF-IDF model. `TfidfVectorizer`\n
-    `objective` : The abstract, whose words should be calculated. `string`.
+    `objective` : `string`. The abstract, whose words should be calculated.
 
     Returns
     -------
@@ -87,8 +75,9 @@ def train_TFIDF(load_model=None, delete_model=False):
         try:
             # FIXME: May print before finding exception
             print("Loading TFIDF model...")
-            model_loaded = pickle.load(
-                open("custom_logic/src/models/" + load_model + ".sav", 'rb'))
+            with open("custom_logic/src/models/" + load_model + ".sav", 'rb') as f:
+                model_loaded = pickle.load(f)
+                f.close
             return model_loaded
         except FileNotFoundError:
             print("No TFIDF model exists. Making new model...")
@@ -252,6 +241,10 @@ def get_term_list(docs, ngram_range=(1, 2)):
     `list` : `list` of `strings`
     """
     counter = CountVectorizer(ngram_range=ngram_range, stop_words='english')
-    counter.fit(docs)
-    term_list = counter.get_feature_names()
+    try:
+        counter.fit(docs)
+        term_list = counter.get_feature_names()
+    except ValueError:
+        print("ValueError: Maybe document only contains stopwords. ", docs)
+        term_list = []
     return term_list

@@ -20,7 +20,7 @@ def create_binary_occurrence_matrix(documents, vocab):
     to the first colunm in oc_matrix
     """
     counter = CountVectorizer(
-        token_pattern=r"(?u)\b\w+\b", ngram_range=(1, 2),
+        ngram_range=(1, 2),
         vocabulary=vocab,
         binary=True
     )  # include single letter words

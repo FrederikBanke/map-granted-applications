@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import PropTypes from 'prop-types';
 import WordCloud from "react-wordcloud";
-import { formatWordWeightsData, callApi, sortWordWeights } from '../../util/api';
 import { findWordProject } from '../../util/findWord';
 import Sentences from '../Sentences/Sentences';
 import { getRandomColor, getQuaternaryColor } from '../../util/colors';
-import { combineTexts, extractProjectObjectives } from '../../util/projects';
 
 /**
  * 
@@ -22,7 +20,7 @@ export default function WordCloudContainer(props) {
     const [viewSentences, setViewSentences] = useState(false);
     const [sentences, setSentences] = useState([]);
     const [currentWord, setCurrentWord] = useState("");
-    const [maxWordsInCloud, setMaxWordsInCloud] = useState(50);
+    const [maxWordsInCloud, ] = useState(50);
 
     const containerStyle = {
         width: "100%",

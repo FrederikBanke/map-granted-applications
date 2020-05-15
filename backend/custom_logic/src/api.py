@@ -30,7 +30,7 @@ def fill_database_with_data():
     return
 
 
-def word_weights(data, extra_document=None):
+def word_weights(docs, extra_document=None, refit=False):
     """
     Create a `dict` of {term: weight} for each term in a document, using TFIDF, if the term's weight passed a certain threshold.
 
@@ -43,24 +43,38 @@ def word_weights(data, extra_document=None):
     -------
     `dict` : A `dict` of {term: weight} for each term in a document
     """
-    if not isinstance(extra_document, type(None)):
+    # if not isinstance(extra_document, type(None)):
+    #     tfidf_model = main.get_tfidf(
+    #         extra_docs=[extra_document],
+    #         refit=False
+    #     )
+
+    # When user wants to use words introduced in their project
+    if refit:
         tfidf_model = main.get_tfidf(
-            extra_docs=[extra_document],
+            extra_docs=docs,
             refit=False
         )
     else:
         tfidf_model = main.get_tfidf()
-    texts = []
-    if type(data) == str:
-        texts.append(data)
-    elif type(data) == list:
-        texts = data
+
+    if type(docs) == str:
+        doc = docs
+    elif type(docs) == list:
+        doc = tp.combine_docs(docs)
     else:
         raise TypeError("word weight API given wrong data type")
 
     weight_dict = dict()
 
-    # FIXME: there may be something wrong with combining weights
+    weight_list = tfidf.TFIDF_list_of_weigths(
+        TFIDF_model=tfidf_model, objective=doc)
+    weight_dict = utils.tuples_to_dict(weight_list)
+
+    return weight_dict
+
+
+"""     # FIXME: there may be something wrong with combining weights
     # from list of docs.
     for text in texts:
         # create word weight dictionary for each abstract
@@ -68,9 +82,7 @@ def word_weights(data, extra_document=None):
             TFIDF_model=tfidf_model, objective=text)
         temp_dict = utils.tuples_to_dict(weight_list)
         # temp_dict = utils.filter_dict(dictionary=temp_dict, threshold=0.05)
-        weight_dict = utils.sum_dicts(weight_dict, temp_dict)
-
-    return weight_dict
+        weight_dict = utils.sum_dicts(weight_dict, temp_dict) """
 
 
 def filter_objectives_on_weights(objectives_list, weight_list=[]):
@@ -103,7 +115,7 @@ def filter_objectives_on_weights(objectives_list, weight_list=[]):
         weight_dict = word_weights(objectives_list)
     else:
         weight_dict = {x['text']: x['value'] for x in weight_list}
-    
+
     # print("Word weights to filter by: ", weight_dict)
 
     sorted_weights = utils.sort_dict_by_value(weight_dict)
@@ -202,11 +214,11 @@ def co_occurrence_matrix(texts, vocab):
 
     Parameters
     ----------
-     : 
+     :
 
     Returns
     -------
-     : 
+     :
     """
     sorted_vocab, binary_occurrence_matrix = cooc.create_binary_occurrence_matrix(
         texts, vocab)
@@ -218,3 +230,46 @@ def co_occurrence_matrix(texts, vocab):
         cooccurrence_matrix)
     # print("norm_cooc_matrix: ", norm_cooccurrence_matrix)
     return (sorted_vocab, norm_cooccurrence_matrix)
+
+
+def word_weights_year():
+    start = time.time()
+    weights_for_each_year = main.get_weights_for_each_year()
+    end = time.time()
+    print("time to get word weights by year: ", end-start, " sek")
+
+    return weights_for_each_year
+
+
+def all_terms():
+    start = time.time()
+    all_terms = main.get_all_terms()
+    end = time.time()
+    print("time to get all terms: ", end-start, " sek")
+    return all_terms
+
+
+def word_score_years(words):
+    if isinstance(words, str):
+        words = [words]
+    elif not isinstance(words, list):
+        raise ValueError("Wrong type given to word_score_year()")
+    all_scores_for_each_year = main.get_weights_for_each_year()
+    years = list(all_scores_for_each_year.keys())
+    word_scores_for_each_year = {}
+    start = time.time()
+    for year in years:
+        word_scores_for_each_year[year] = []
+        # extract scores from the year
+        year_score = all_scores_for_each_year[year]
+        for word in words:
+            try:
+                word_scores_for_each_year[year].append(
+                    {"text": word, "value": year_score[word]})
+            except KeyError:
+                # print(word, " not found for year ", year)
+                pass
+
+    print("Seconds to get scores words for each year: ", time.time() - start)
+
+    return word_scores_for_each_year

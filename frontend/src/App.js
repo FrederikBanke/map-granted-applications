@@ -10,8 +10,20 @@ import Tab from './components/Tabs/Tab';
 import { subsetProjects, combineTexts, extractProjectObjectives } from './util/projects';
 import WordTimeline from './components/WordTimeline/WordTimeline';
 import CooccurrenceMap from './components/CooccurrenceMap/CooccurrenceMap';
-import { formatDataForCoOccurrenceMatrix } from './util/charts';
 import { getTermsFromList } from './util/weights';
+import WordTimelineNew, { WordList, WordElement } from './components/WordTimeline/WordTimelineNew';
+import ChartContainer from './components/Charts/ChartContainer';
+import Chart from 'react-google-charts';
+import { formatDataForCharts } from './util/charts';
+import Autosuggest from 'react-autosuggest';
+import { onWordClick, setWordColor } from './util/wordCloud';
+import { findWordProject } from './util/findWord';
+import SentenceList from './components/Sentences/SentenceList';
+import Sentence from './components/Sentences/Sentence';
+import WordCloudContainerNew from './components/WordCloud/WordCloudContainerNew';
+import ProjectView from './components/ProjectView/ProjectView';
+import Overlay from './components/Overlay/Overlay';
+import { distinct } from './util/arrays';
 
 
 function App() {
@@ -19,20 +31,35 @@ function App() {
     const [wordCloudTabId,] = useState("wordcloud");
     const [timelineTabId,] = useState("timeline");
     const [coocTabId,] = useState("coocmap");
+    const [timelineAllTabId,] = useState("timelineall");
+
+    const [projectIdOverview, setProjectIdOverview] = useState("");
+    const [viewProjectOverlay, setViewProjectOverlay] = useState(false);
 
     const [curProjectWordWeights, setCurProjectWordWeights] = useState([]);
     const [simProjectWordWeights, setSimProjectWordWeights] = useState([]);
 
     const [viewWordCloudSingle, setViewWordCloudSingle] = useState(false);
     const [viewWordCloudClosest, setViewWordCloudClosest] = useState(false);
-    const [curProjectWords, setCurProjectWords] = useState([]);
-    const [closestProjectsWords, setClosestProjectsWords] = useState([]);
 
-    const [uploadedProjects, setUploadedProjects] = useState(null);
     const [currentProject, setCurrentProject] = useState(null);
-    const [topProjectsList, setTopProjectsList] = useState(null);
     const [topProjects, setTopProjects] = useState([]);
     const [topNumber, setTopNumber] = useState(50);
+    const [inputNumber, setInputNumber] = useState(50);
+
+    const [allWords, setAllWords] = useState([]);
+    const [chosenWordsTL, setChosenWordsTL] = useState([]);
+    const [activeWordsTL, setActiveWordsTL] = useState([]);
+    const [weightsByYear, setWeightsByYear] = useState({});
+
+    const [suggestionValue, setSuggestionValue] = useState('');
+    const [suggestions, setSuggestions] = useState([]);
+
+    const [activeSelectedWord, setActiveSelectedWord] = useState("");
+    const [simSelectedWord, setSimSelectedWord] = useState("");
+    const [activeSentences, setActiveSentences] = useState([]);
+    const [simSentences, setSimSentences] = useState([]);
+
 
     const wordCloudWrapperStyle = {
         display: "flex",
@@ -80,6 +107,11 @@ function App() {
      */
     useEffect(() => {
         setCurrentProject(loadCurrentProject());
+        callApi('getallterms')
+            .then(allTerms => {
+                allTerms.sort();
+                setAllWords(allTerms);
+            });
     }, []);
 
     /**
@@ -87,15 +119,13 @@ function App() {
      * Runs every time the currently active project changes in the state.
      */
     useEffect(() => {
-        if (currentProject) {
-            console.log("Current project", currentProject);
-
+        if (currentProjectExists()) {
             getSimilarProjects()
                 .then(similarProjects => {
                     callApi('wordweight', 'POST', {
-                        "text": extractProjectObjectives(similarProjects.slice(0, topNumber)),
-                        // "text": [],
-                        "user_project": currentProject
+                        "text": extractProjectObjectives([currentProject]),
+                        "user_project": null,
+                        "refit": true
                     })
                         .then(weightDict => {
                             let formattedData = formatWordWeightsData(weightDict);
@@ -103,6 +133,7 @@ function App() {
 
                             setCurProjectWordWeights(sortedWordWeights.slice(0, 50));
                         });
+
                     callApi('wordweight', 'POST', {
                         "text": extractProjectObjectives(similarProjects.slice(0, topNumber)),
                         "user_project": null
@@ -112,10 +143,99 @@ function App() {
                             let sortedWordWeights = sortWordWeights(formattedData);
 
                             setSimProjectWordWeights(sortedWordWeights.slice(0, 50));
+                            setChosenWordsTL([...chosenWordsTL, ...getTermsFromList(sortedWordWeights.slice(0, 10))].filter(distinct));
+                            if (activeWordsTL.length === 0) {
+                                setActiveWordsTL([...activeWordsTL, ...getTermsFromList(sortedWordWeights.slice(0, 5))].filter(distinct));
+                            }
+                            getScoresForTerms(getTermsFromList(sortedWordWeights.slice(0, 50)))
+                                .then(scoresFor50 => {
+                                    setWeightsByYear(scoresFor50);
+                                });
                         });
                 });
         }
-    }, [currentProject]);
+    }, [currentProject, topNumber]);
+
+    const getScoresForTerms = terms => {
+        return callApi('termscoreyear', 'POST', {
+            "words": terms
+        })
+            .then(res => {
+                let newWeightsByYear = {}
+                for (const year in res) {
+                    if (res.hasOwnProperty(year)) {
+                        newWeightsByYear[year] = sortWordWeights(res[year])
+                    }
+                }
+
+                return newWeightsByYear;
+            })
+    }
+
+    const addNewTermYearScores = (termScores) => {
+        let oldScores = { ...weightsByYear };
+        let newScores = {}
+        for (const year in oldScores) {
+            if (oldScores.hasOwnProperty(year)) {
+                const yearWeights = oldScores[year];
+                const newYearScores = termScores[year];
+                yearWeights.push(...newYearScores);
+                newScores[year] = yearWeights;
+            }
+        }
+
+        setWeightsByYear(newScores);
+    }
+
+    const getSuggestions = value => {
+        const inputValue = value.trim().toLowerCase();
+        const inputLength = inputValue.length;
+
+        return inputLength === 0
+            ? []
+            : allWords.filter(word => word.toLowerCase().slice(0, inputLength) === inputValue)
+    }
+
+    const getSuggestionValue = suggestion => suggestion;
+
+    const renderSuggestion = suggestion => (
+        <span>{suggestion}</span>
+    )
+
+    const shouldRenderSuggestion = suggestion => (
+        suggestion.trim().length > 2 // only render when more than 2 characters entered
+    )
+
+    const onChangeSearch = (event, { newValue }) => {
+        setSuggestionValue(newValue);
+    }
+
+    const onSuggestionFetchRequested = ({ value }) => {
+        setSuggestions(getSuggestions(value).slice(0, 20)); // only show 10 suggestions
+    }
+
+    const onSuggestionsClearRequested = () => {
+        setSuggestions([]);
+    }
+
+    const onWordClickSearch = (event, { suggestion, suggestionValue, suggestionIndex, sectionIndex, method }) => {
+        let newChosen = [suggestionValue, ...chosenWordsTL];
+        setChosenWordsTL(newChosen.filter(distinct));
+        let newActive = [suggestionValue, ...activeWordsTL];
+        setActiveWordsTL(newActive.filter(distinct));
+
+        getScoresForTerms(suggestionValue)
+            .then(scores => {
+                addNewTermYearScores(scores);
+            })
+
+    }
+
+    const onClickSetN = () => {
+        setSimProjectWordWeights([]);
+        setCurProjectWordWeights([]);
+        setTopNumber(inputNumber);
+    }
 
     /**
      * Toggle the visibility of the word cloud for the currently selected project.
@@ -144,14 +264,15 @@ function App() {
      * @param {Event} event The DOM event that is triggered when input changes
      */
     const onInputChange = event => {
-        setViewWordCloudClosest(false);
         let value = parseInt(event.target.value);
         if (isNaN(value)) {
             value = 0;
         }
         // TODO: Make it so if a number over 1000 is entered, it will automatically be reduced to 1000.
         if (0 <= value && value <= 1000) {
-            setTopNumber(value);
+            setInputNumber(value);
+        } else {
+            setInputNumber(1000);
         }
     }
 
@@ -236,6 +357,26 @@ function App() {
     }
 
     /**
+     * When check box is changed add or remove word from chosen words list.
+     * @param {Event} event DOM event
+     */
+    const onClickCheckBoxSim = (event) => {
+        const isChecked = event.target.checked;
+        const word = event.target.getAttribute("name");
+
+        let newActiveWords = [...activeWordsTL];
+
+        if (isChecked) {
+            newActiveWords.push(word);
+        } else {
+            const wordIndex = newActiveWords.indexOf(word);
+            newActiveWords.splice(wordIndex, 1);
+        }
+
+        setActiveWordsTL(newActiveWords.filter(distinct));
+    }
+
+    /**
      * Handler for changing tab.
      * @param {String} tabId ID of the tab to change to
      */
@@ -247,38 +388,139 @@ function App() {
         return viewWordCloudSingle && viewWordCloudClosest;
     }
 
-    const renderWordCloudTab = () => {
-        return <div style={wordCloudWrapperStyle}>
+    /**
+     * When a word is clicked in the word cloud. Change current word in state and find sentences where the word occurs.
+     * @param {Object} word Word that was clicked
+     * @param {String} wordCloudType Word that was clicked
+     */
+    const onActiveCloudWordClick = (word) => {
+        setActiveSelectedWord(word.text);
+        let projectSentences = findWordProject(word.text, [currentProject]);
+
+        setActiveSentences(projectSentences);
+    }
+
+    /**
+     * When a word is clicked in the word cloud. Change current word in state and find sentences where the word occurs.
+     * @param {Object} word Word that was clicked
+     * @param {String} wordCloudType Word that was clicked
+     */
+    const onSimCloudWordClick = (word) => {
+        setSimSelectedWord(word.text);
+        let projectSentences = findWordProject(word.text, subsetProjects(topProjects, topNumber));
+
+        setSimSentences(projectSentences);
+    }
+
+    const onTitleClick = (event) => {
+        setProjectIdOverview(event.target.getAttribute('data-projectid'));
+        setViewProjectOverlay(true);
+    }
+
+    const renderWordCloudTab = () => (
+        <div style={wordCloudWrapperStyle}>
             <div style={{ width: "50%" }}>
                 <button disabled={!currentProjectExists()} onClick={toggleWordCloudSingle}>Generate word cloud for your project</button>
-                {viewWordCloudSingle ? <WordCloudContainer
-                    userProject={currentProject}
-                    onProjectChange={onProjectChange}
-                    projects={[currentProject]}
+                {viewWordCloudSingle ? <WordCloudContainerNew
+                    type="Single"
                     words={curProjectWordWeights}
                     wordsToCompare={simProjectWordWeights}
                     compare={compClouds()}
-                />
-                    : null
+                    onWordClick={onActiveCloudWordClick}
+                >
+                    {simSelectedWord ? <h2>Viewing sentences where '{simSelectedWord}' occurs.</h2> : null}
+                    <SentenceList>
+                        {activeSentences.length > 0 ? activeSentences.map(value => (
+                            <div key={value.id}>
+                                <h3 onClick={onTitleClick} data-projectid={value.id} >Title: {value.title}</h3>
+                                {
+                                    value.sentences.map(sentence => (
+                                        <Sentence
+                                            key={sentence}
+                                            text={sentence}
+                                            highlight={activeSelectedWord}
+                                        />
+                                    ))
+                                }
+                            </div>
+                        ))
+                            : null
+                        }
+                    </SentenceList>
+                </WordCloudContainerNew> : null
                 }
             </div>
             <div style={{ width: "50%" }}>
                 <button disabled={topProjects.length < 1} onClick={toggleWordCloudClosest}>Generate word cloud for closest projects</button>
-                {viewWordCloudClosest ? <WordCloudContainer
-                    onProjectChange={saveAndSetProject}
-                    projects={subsetProjects(topProjects, topNumber)}
+                {viewWordCloudClosest ? <WordCloudContainerNew
+                    type="Similar"
                     words={simProjectWordWeights}
                     wordsToCompare={curProjectWordWeights}
                     compare={compClouds()}
-                />
-                    : null
+                    onWordClick={onSimCloudWordClick}
+                >
+                    {simSelectedWord ? <h2>Viewing sentences where '{simSelectedWord}' occurs.</h2> : null}
+                    <SentenceList>
+                        {
+                            simSentences.length > 0 ? simSentences.map(value => (
+                                <div key={value.id} >
+                                    <h3 onClick={onTitleClick} data-projectid={value.id}>Title: {value.title}</h3>
+                                    {
+                                        value.sentences.map(sentence => (
+                                            <Sentence
+                                                key={sentence}
+                                                text={sentence}
+                                                highlight={simSelectedWord}
+                                            />
+                                        ))
+                                    }
+                                </div>
+                            ))
+                                : null
+                        }
+
+                    </SentenceList>
+                </WordCloudContainerNew> : null
                 }
             </div>
         </div>
-    }
+    )
 
     const renderWordTimelineTab = () => {
-        return <WordTimeline projects={subsetProjects(topProjects, topNumber)} />
+        // return <WordTimeline projects={subsetProjects(topProjects, topNumber)} />
+        return <WordTimelineNew >
+            <Autosuggest
+                suggestions={suggestions}
+                onSuggestionsFetchRequested={onSuggestionFetchRequested}
+                onSuggestionsClearRequested={onSuggestionsClearRequested}
+                getSuggestionValue={getSuggestionValue}
+                onSuggestionSelected={onWordClickSearch}
+                renderSuggestion={renderSuggestion}
+                shouldRenderSuggestions={shouldRenderSuggestion}
+                inputProps={{
+                    placeholder: "Enter search term",
+                    value: suggestionValue,
+                    onChange: onChangeSearch,
+                }}
+            />
+            <br />
+            <WordList>
+                {
+                    chosenWordsTL.map(word => (
+                        <WordElement
+                            key={word}
+                            text={word}
+                            isChecked={activeWordsTL.includes(word)}
+                            onClickCheckBox={onClickCheckBoxSim}
+                        />
+                    ))
+                }
+            </WordList>
+            <ChartContainer>
+                {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "ColumnChart")}
+                {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "LineChart")}
+            </ChartContainer>
+        </WordTimelineNew>
     }
 
     const renderCoocMapTab = () => {
@@ -286,48 +528,89 @@ function App() {
             projects={subsetProjects(topProjects, topNumber)}
             wordsToColor={getTermsFromList(curProjectWordWeights)}
             wordWeights={simProjectWordWeights}
+            objectives={extractProjectObjectives(subsetProjects(topProjects, topNumber))}
         />
     }
 
+    /**
+    * 
+    * @param {*} data
+    * @param {string} chartType
+    */
+    const renderChart = (data, chartType) => {
+        return (
+            data[0].length > 1 ?
+                <Chart
+                    width="100%"
+                    height={400}
+                    chartType={chartType}
+                    loader={<div>Loading Chart</div>}
+                    data={data}
+                    options={{
+                        title: 'Word importance by year',
+                        chartArea: { width: '70%', height: "70%" },
+                        hAxis: {
+                            title: 'Year',
+                            // minValue: 0,
+                        },
+                        vAxis: {
+                            title: 'Word score',
+                            minValue: 0,
+                        },
+                    }}
+                // legendToggle
+                />
+                : null
+        )
+    }
+
+    const renderOverlay = (projectId) => (
+            viewProjectOverlay
+                ? (
+                    <Overlay onClickClose={setViewProjectOverlay}>
+                        <ProjectView onProjectChange={onProjectChange} id={projectId} />
+                    </Overlay>
+                ) : null
+    )
+
     return (
         <div className="App">
+            {renderOverlay(projectIdOverview)}
             <h1>Look up most related projects</h1>
             <ProjectSubmission currentProject={currentProject} onChange={onProjectChange} />
             <hr />
-            {
-                currentProject
-                    ? <div>
-                        {
-                            topProjects.length > 0
-                                ? <ListProjects projects={topProjects} onProjectChange={saveAndSetProject} />
-                                : <p>Finding similar projects...</p>
-                        }
-
-                        <TabsContainer>
-                            <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
-                            <Tab text="Word Timeline" id={timelineTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
-                            <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} />
-                        </TabsContainer>
-                        <hr />
-                        < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={topNumber} /> closest projects
-            {
-                            activeTab === wordCloudTabId
-                                ? renderWordCloudTab()
-                                : null
-                        }
-                        {
-                            activeTab === timelineTabId
-                                ? renderWordTimelineTab()
-                                : null
-                        }
-                        {
-                            activeTab === coocTabId
-                                ? renderCoocMapTab()
-                                : null
-                        }
-                    </div>
+            <div>
+                {currentProject ?
+                    topProjects.length > 0
+                        ? <ListProjects projects={topProjects} onProjectChange={saveAndSetProject} />
+                        : <p>Finding similar projects...</p>
                     : null
-            }
+                }
+
+                <TabsContainer>
+                    <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()} />
+                    <Tab text="Word Timeline" id={timelineTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={true} />
+                    <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()} />
+                </TabsContainer>
+                <hr />
+                < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={inputNumber} /> closest projects
+                        <button onClick={onClickSetN}>Click to set new 'n'</button>
+                {
+                    activeTab === wordCloudTabId
+                        ? renderWordCloudTab()
+                        : null
+                }
+                {
+                    activeTab === timelineTabId
+                        ? renderWordTimelineTab()
+                        : null
+                }
+                {
+                    activeTab === coocTabId
+                        ? renderCoocMapTab()
+                        : null
+                }
+            </div>
         </div>
     );
 

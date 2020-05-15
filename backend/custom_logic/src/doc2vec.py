@@ -45,7 +45,7 @@ def train_new_doc2vec_model():
 
     # Train the model on the training data
     print_progress('Setup doc2vec model')
-    doc2vec_model = Doc2Vec(vector_size=100, min_count=2, epochs=30)
+    doc2vec_model = Doc2Vec(vector_size=100, min_count=5, epochs=30)
     print_done('Setup doc2vec model')
 
     print_progress('Build doc2vec vocabulary')
@@ -54,7 +54,8 @@ def train_new_doc2vec_model():
 
     print_progress("Train doc2vec model")
     # Train the model (corpus_count is the number of )
-    doc2vec_model.train(train_corpus, total_examples=doc2vec_model.corpus_count,
+    doc2vec_model.train(train_corpus,
+                        total_examples=doc2vec_model.corpus_count,
                         epochs=doc2vec_model.epochs)
     print_done('Train doc2vec model')
 
