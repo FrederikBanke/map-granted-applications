@@ -98,3 +98,5 @@ backend/custom_logic/src/models/tfidf_model_with_user_project.sav
 backend/custom_logic/src/models/doc2vec_model.doc2vec
 backend/custom_logic/src/models/doc2vec_model.doc2vec.wv.vectors.npy
 backend/custom_logic/src/models/doc2vec_model.doc2vec.trainables.syn1neg.npy
+backend/custom_logic/src/models/word_weights_by_year.sav
+backend/custom_logic/src/models/all_terms.sav
