@@ -131,48 +131,47 @@ def divide_objectives_by_year(projects):
     return objectives_by_year
 
 
-def save_weights_for_each_year(objectives_by_year):
+def save_weights_for_each_year(objectives_by_year, subset):
     word_weights_by_year = {}
     for year in objectives_by_year:
         word_weights = api.word_weights(objectives_by_year[year])
-        word_weights_by_year[year] = word_weights
-    pickle.dump(word_weights_by_year, open(
-        "custom_logic/src/models/word_weights_by_year.sav", 'wb')
-    )
+        sorted_word_weights = sort_dict_by_value(word_weights)
+        subset_sorted = subset_dict(sorted_word_weights, subset)
+        word_weights_by_year[year] = subset_sorted
+    with open("custom_logic/src/models/word_weights_by_year.sav", 'wb') as f:
+        pickle.dump(word_weights_by_year, f)
+        f.close()
 
     return word_weights_by_year
 
 
-def save_all_terms(projects):
-    counter = CountVectorizer(ngram_range=(1, 2), stop_words='english')
-    list_of_objectives = list(projects['objective'])
-    objectives = []
-    for objective in list_of_objectives:
-        if isinstance(objective, str):
-            objectives.append(objective)
-        else:
-            objectives.append("")
-    counter.fit(objectives)
+def save_all_terms(word_weights_by_year):
+    union_of_words = set()
+    for year in word_weights_by_year:
+        union_of_words = union_of_words.union(
+            set(word_weights_by_year[year].keys())
+        )
 
-    all_terms = counter.get_feature_names()
-
-    pickle.dump(all_terms, open(
-        "custom_logic/src/models/all_terms.sav", 'wb')
-    )
+    all_terms = list(union_of_words)
+    print("Saving ", len(all_terms), " terms")
+    with open("custom_logic/src/models/all_terms.sav", 'wb') as f:
+        pickle.dump(all_terms, f)
+        f.close()
 
     return all_terms
 
 
 def load_all_terms():
-    all_terms = pickle.load(
-        open("custom_logic/src/models/all_terms.sav", 'rb')
-    )
+    with open("custom_logic/src/models/all_terms.sav", 'rb') as f:
+        all_terms = pickle.load(f)
+        f.close()
 
     return all_terms
 
 
 def load_weights_for_each_year():
-    word_weights = pickle.load(
-        open("custom_logic/src/models/word_weights_by_year.sav", 'rb'))
+    with open("custom_logic/src/models/word_weights_by_year.sav", 'rb') as f:
+        word_weights = pickle.load(f)
+        f.close()
 
     return word_weights

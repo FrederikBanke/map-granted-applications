@@ -111,7 +111,7 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
 
         }))
         if (word1 === undefined) {
-            throw TypeError(`word1 is undefined. Could not find '${word}' in word weights list.`)
+            throw new TypeError(`word1 is undefined. Could not find '${word}' in word weights list.`)
         }
         let colorClass;
         if (objectiveWords.includes(word)) {
@@ -165,10 +165,38 @@ const isInNodes = (node, nodes) => {
  * @param {string} label 
  */
 const createNode = (id, weight, colorClass, label) => {
+    if (typeof id !== 'string') {
+        throw new TypeError(`Node id was not a string: ${typeof id}`)
+    }
+    if (typeof weight !== 'number') {
+        throw new TypeError(`Node weight was not a number: ${typeof weight}`)
+    }
+    if (typeof colorClass !== 'number') {
+        throw new TypeError(`Node colorClass was not a number: ${typeof colorClass}`)
+    }
+    if (typeof label !== 'string') {
+        throw new TypeError(`Node label was not a string: ${typeof label}`)
+    }
     return { id, weight, colorClass, label }
 }
 
+/**
+ * Create an edge for co-occurrence map.
+ * @param {String} source 
+ * @param {String} target 
+ * @param {Number} weight 
+ */
 const createEdge = (source, target, weight) => {
+    if (typeof source !==  'string') {
+        throw new TypeError(`Edge source was not a string: ${typeof source}`)
+    }
+    if (typeof target !== 'string') {
+        throw new TypeError(`Edge target was not a string: ${typeof target}`)
+    }
+    if (typeof weight !== 'number') {
+        throw new TypeError(`Edge weight was not a number: ${typeof weight}`)
+    }
+
     const normWeight = weight * 20;
 
     return { "source": source, "target": target, weight: normWeight }

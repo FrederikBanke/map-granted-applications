@@ -5,7 +5,7 @@ import { callApi, formatWordWeightsData, sortWordWeights, scaleWordWeights } fro
 import { formatDataForCoOccurrenceMatrix, findMaxValue } from '../../util/charts';
 import { subsetProjects, combineTexts, extractProjectObjectives } from '../../util/projects';
 import { getTermsFromList } from '../../util/weights';
-import { getQuaternaryColor, getQuinaryColor, getPrimaryColor, getSecondaryColor, getTertiaryColor } from '../../util/colors';
+import { getQuaternaryColor, getQuinaryColor, getPrimaryColor, getSecondaryColor, getTertiaryColor, getVisualPrimaryColor, getVisualSecondaryColor, getVisualPrimaryColorLight, getVisualSecondaryColorLight, getVisualQuaternaryColor, getVisualQuaternaryColorLight } from '../../util/colors';
 
 const CooccurrenceMap = props => {
     const [matrixData, setMatrixData] = useState(null);
@@ -18,80 +18,50 @@ const CooccurrenceMap = props => {
         backgroundColor: "#a1a1a1"
     }
 
+
     /**
      * When projects changes, filter objectives such that words that are not important are removed. 
      */
     useEffect(() => {
-        console.log();
-        
-        callApi('filterobjectives', 'POST', {
-            texts: extractProjectObjectives(props.projects),
-            weights: props.wordWeights
+
+        // callApi('filterobjectives', 'POST', {
+        //     texts: extractProjectObjectives(props.projects),
+        //     weights: props.wordWeights
+        // })
+        //     .then(res => {
+        // let formattedWeightsData = formatWordWeightsData(res.wordWeights);
+        // let weights = sortWordWeights(formattedWeightsData);
+        callApi('cooccurrencematrix', 'POST', {
+            // "texts": res.filteredObjectives,
+            "texts": props.objectives,
+            "vocabulary": getTermsFromList(props.wordWeights)
         })
-            .then(res => {
-                let formattedWeightsData = formatWordWeightsData(res.wordWeights);
-                let weights = sortWordWeights(formattedWeightsData);
-                let subsetWeights = weights;
-                callApi('cooccurrencematrix', 'POST', {
-                    "texts": res.filteredObjectives,
-                    "vocabulary": getTermsFromList(subsetWeights)
-                })
-                    .then((vocabAndMatrix) => {
-                        let scaledWeights = scaleWordWeights(subsetWeights, 1000);
-                        let normWeights = sizeNormalizer(scaledWeights);
-                        console.log(normWeights);
-                        console.log(vocabAndMatrix.vocabulary);
-                        const flattenedMatrix = vocabAndMatrix.coOccurrenceMatrix.flat();
-                        let sumMatrix = flattenedMatrix.reduce((a, b) => {
-                            return a + b;
-                        }, 0);
-                        console.log("Sum of all co_occurrences: ", sumMatrix);
+            .then((vocabAndMatrix) => {
+                let scaledWeights = scaleWordWeights(props.wordWeights, 1000);
+                let normWeights = sizeNormalizer(scaledWeights);
+                const flattenedMatrix = vocabAndMatrix.coOccurrenceMatrix.flat();
+                let sumMatrix = flattenedMatrix.reduce((a, b) => {
+                    return a + b;
+                }, 0);
 
-                        const threshold = sumMatrix / (flattenedMatrix.length);
-                        console.log("Threshold", threshold);
+                const threshold = sumMatrix / (flattenedMatrix.length);
 
-                        let formattedMatrixData = formatDataForCoOccurrenceMatrix(
-                            vocabAndMatrix.vocabulary, normWeights,
-                            vocabAndMatrix.coOccurrenceMatrix, threshold,
-                            props.wordsToColor
-                        );
-                        console.log("setMatrixData");
-                        console.log("Vocabulary", vocabAndMatrix.vocabulary.length);
-                        console.log("word weights", normWeights.length);
+                let formattedMatrixData = formatDataForCoOccurrenceMatrix(
+                    vocabAndMatrix.vocabulary, normWeights,
+                    vocabAndMatrix.coOccurrenceMatrix, threshold,
+                    props.wordsToColor
+                );
 
-                        formattedMatrixData.links.forEach(element => {
-                            if (element.source.id === "at") {
-                                console.log(element);
-
-                            }
-                        });
-
-
-                        setMatrixData(formattedMatrixData);
-                    });
+                setMatrixData(formattedMatrixData);
             });
+        // });
 
     }, [props.projects]);
 
-    const getWordWeights = (projects, userProject = null) => {
-        return callApi('wordweight', 'POST', {
-            "text": combineTexts(projects),
-            // "text": ["Test project", "andet project med flere ord"].join(" "),
-            "user_project": userProject
-        })
-            .then(res => {
-                let formattedData = formatWordWeightsData(res);
-                let sorted = sortWordWeights(formattedData);
-
-                // setClosestProjectsWords(subset);
-                return sorted;
-            });
-    }
-
     const getColor = colorClass => {
         const colors = [
-            ["#ffffff", getSecondaryColor()],
-            [getQuinaryColor(), getQuaternaryColor()],
+            [getVisualSecondaryColor(), getVisualSecondaryColorLight()],
+            [getVisualQuaternaryColor(), getVisualQuaternaryColorLight()],
         ];
 
         return colors[colorClass];
@@ -103,11 +73,22 @@ const CooccurrenceMap = props => {
         const sourceNode = matrixData.nodes.find((value) => {
             // console.log(`${link.source}`);
 
+            if (typeof link.source !== 'string') {
+                return false
+                throw new TypeError(`link.source is not a string. It is ${typeof link.source}`)
+            }
+
+
             return value.id === link.source;
         });
 
-        if (sourceNode === undefined) {
-            throw new Error(`Could not find node with id: ${link.source}`)
+        if (typeof sourceNode === 'undefined') {
+            return <line
+                {...restProps}
+                stroke={"#000000c0"}
+                strokeWidth={link.weight}
+            />
+            throw new TypeError(`Could not find node with id: ${link.source}`)
         }
 
         const color = getColor(sourceNode.colorClass)[1] + "c0";
@@ -224,7 +205,8 @@ const CooccurrenceMap = props => {
 CooccurrenceMap.propTypes = {
     projects: PropTypes.array,
     wordsToColor: PropTypes.array,
-    wordWeights: PropTypes.arrayOf(Object)
+    wordWeights: PropTypes.arrayOf(Object),
+    objectives: PropTypes.arrayOf(String)
 }
 
 export default CooccurrenceMap

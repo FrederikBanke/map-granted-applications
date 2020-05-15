@@ -17,6 +17,7 @@ import pickle
 # Used to store all projects locally, so we do not have to
 # get from database every time.
 all_projects = pd.DataFrame()
+all_term_scores = None
 
 
 def get_projects():
@@ -96,28 +97,32 @@ def setup_with_user_project(parameter_list):
 
 def get_weights_for_each_year():
     try:
-        weights_for_each_year = pickle.load(
-            open("custom_logic/src/models/word_weights_by_year.sav", 'rb')
-        )
+        with open("custom_logic/src/models/word_weights_by_year.sav", 'rb') as f:
+            weights_for_each_year = pickle.load(f)
+            f.close()
     except FileNotFoundError:
         print("Making new weights by year")
         projects = get_projects()
         objectives_divided = utils.divide_objectives_by_year(projects)
         weights_for_each_year = utils.save_weights_for_each_year(
-            objectives_divided)
+            objectives_divided, 10000)
     return weights_for_each_year
 
 
 def get_all_terms():
-    try:
-        all_terms = pickle.load(
-            open("custom_logic/src/models/all_terms.sav", 'rb')
-        )
-    except FileNotFoundError:
-        print("Creating and saving all terms")
-        projects = get_projects()
-        all_terms = utils.save_all_terms(projects)
-    return all_terms
+    global all_term_scores
+    if isinstance(all_term_scores, type(None)):
+        try:
+            with open("custom_logic/src/models/all_terms.sav", 'rb') as f:
+                all_term_scores = pickle.load(f)
+                f.close()
+            print("Loading scores from disk")
+
+        except FileNotFoundError:
+            print("Creating and saving all terms")
+            weigths = get_weights_for_each_year()
+            all_term_scores = utils.save_all_terms(weigths)
+    return all_term_scores
 
 
 """

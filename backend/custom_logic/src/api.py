@@ -258,7 +258,6 @@ def word_score_years(words):
     years = list(all_scores_for_each_year.keys())
     word_scores_for_each_year = {}
     start = time.time()
-    print("started")
     for year in years:
         word_scores_for_each_year[year] = []
         # extract scores from the year
@@ -268,7 +267,8 @@ def word_score_years(words):
                 word_scores_for_each_year[year].append(
                     {"text": word, "value": year_score[word]})
             except KeyError:
-                print(word, " not found for year ", year)
+                # print(word, " not found for year ", year)
+                pass
 
     print("Seconds to get scores words for each year: ", time.time() - start)
 

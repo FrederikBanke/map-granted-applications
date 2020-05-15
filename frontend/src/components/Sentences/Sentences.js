@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { findWordSentence } from "./../../util/findWord";
 import Overlay from '../Overlay/Overlay';
 import ProjectView from '../ProjectView/ProjectView';
+import { getQuinaryColor } from '../../util/colors';
 
 /**
  * 
@@ -17,7 +18,7 @@ function Sentences(props) {
     const [projectId, setProjectId] = useState("");
 
     const wordStyle = {
-        color: 'limegreen',
+        color: getQuinaryColor(),
         fontWeight: '700'
     }
 
@@ -36,23 +37,30 @@ function Sentences(props) {
      */
     const renderSentence = (sentence, clickedWord, key) => {
         if (clickedWord) {
-            let indexList = findWordSentence(clickedWord, sentence);
+            let words = clickedWord.split(" ");
+            let indexList = findWordSentence(words, sentence);
+            console.log("Num of occurrences:", indexList.length);
+            
             let currentIndex = 0;
             
             return (<p>
                 {
                     indexList.map(wordIndex => {
-                        let before = sentence.substr(currentIndex, wordIndex - currentIndex);
-                        let word = sentence.substr(wordIndex, clickedWord.length);
-                        currentIndex = wordIndex + clickedWord.length;
+                        
+                        const wordStart = wordIndex[0]
+                        const wordEnd = wordIndex[1]
+                        const wordLength = wordEnd - wordStart;
+                        let before = sentence.substr(currentIndex, wordStart - currentIndex);
+                        let word = sentence.substr(wordStart, wordLength);
+                        // console.log("Indexes for ", word, "start", wordStart, " end", wordEnd)
+                        currentIndex = wordEnd;
                         return <span>{before}<span style={wordStyle}>{word}</span></span>
                     })
                 }
-                <span>{sentence.substr(currentIndex)}</span>
+                <span>{sentence.substr(currentIndex)}ALWAYS HERE</span>
             </p>)
         }
         return <p key={key}>{sentence}</p>
-
     }
 
     const onTitleClick = (event) => {
