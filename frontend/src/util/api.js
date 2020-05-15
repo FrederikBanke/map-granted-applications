@@ -19,7 +19,7 @@ export const callApi = (endpoint, method = 'GET', body = null) => {
             .then(res => res.json())
     }
     else if (method === 'POST') {
-        return fetch(`http://localhost:8000/api/${endpoint}/`, {
+        return fetch(`${process.env.REACT_APP_BACKEND}/api/${endpoint}/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
