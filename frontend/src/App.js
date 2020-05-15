@@ -72,7 +72,8 @@ function App() {
         // minWidth: "100%"
     }
 
-    const inputStyle = { width: "50px" }
+    const inputStyle = { width: "50px", margin: "5px" }
+    const buttonStyle = { margin: "5px" }
 
     const activeTabStyle = {
         backgroundImage: "linear-gradient(to top, white, #DCDCDC)",
@@ -172,17 +173,23 @@ function App() {
             })
     }
 
+    /**
+     * Add new term scores for each year.
+     * @param {Object} termScores 
+     */
     const addNewTermYearScores = (termScores) => {
-        let oldScores = { ...weightsByYear };
         let newScores = {}
-        for (const year in oldScores) {
-            if (oldScores.hasOwnProperty(year)) {
-                const yearWeights = oldScores[year];
-                const newYearScores = termScores[year];
-                yearWeights.push(...newYearScores);
-                newScores[year] = yearWeights;
-            }
-        }
+        let oldScores = { ...weightsByYear };
+        let allYears = Object.keys(oldScores);
+        allYears.push(...Object.keys(termScores));
+        allYears = allYears.filter(distinct);
+
+        allYears.forEach(year => {
+            let yearWeights = termScores[year] || [];
+            const oldYearScores = oldScores[year] || [];
+            yearWeights.push(...oldYearScores);
+            newScores[year] = yearWeights;
+        });
 
         setWeightsByYear(newScores);
     }
@@ -223,6 +230,7 @@ function App() {
         setChosenWordsTL(newChosen.filter(distinct));
         let newActive = [suggestionValue, ...activeWordsTL];
         setActiveWordsTL(newActive.filter(distinct));
+        setSuggestionValue('');
 
         getScoresForTerms(suggestionValue)
             .then(scores => {
@@ -519,6 +527,7 @@ function App() {
             <ChartContainer>
                 {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "ColumnChart")}
                 {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "LineChart")}
+                <p>Note: Just beacuse a term has a score of 0, it does not necessarily mean, it was never used. It may just means, it was not among the top 10000 words that year.</p>
             </ChartContainer>
         </WordTimelineNew>
     }
@@ -565,18 +574,18 @@ function App() {
     }
 
     const renderOverlay = (projectId) => (
-            viewProjectOverlay
-                ? (
-                    <Overlay onClickClose={setViewProjectOverlay}>
-                        <ProjectView onProjectChange={onProjectChange} id={projectId} />
-                    </Overlay>
-                ) : null
+        viewProjectOverlay
+            ? (
+                <Overlay onClickClose={setViewProjectOverlay}>
+                    <ProjectView onProjectChange={onProjectChange} id={projectId} />
+                </Overlay>
+            ) : null
     )
 
     return (
         <div className="App">
             {renderOverlay(projectIdOverview)}
-            <h1>Look up most related projects</h1>
+            <h1>Map of most similar granted applications</h1>
             <ProjectSubmission currentProject={currentProject} onChange={onProjectChange} />
             <hr />
             <div>
@@ -594,7 +603,7 @@ function App() {
                 </TabsContainer>
                 <hr />
                 < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={inputNumber} /> closest projects
-                        <button onClick={onClickSetN}>Click to set new 'n'</button>
+                        <button style={buttonStyle} onClick={onClickSetN}>Click to set new 'n'</button>
                 {
                     activeTab === wordCloudTabId
                         ? renderWordCloudTab()
