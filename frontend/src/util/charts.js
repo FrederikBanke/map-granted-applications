@@ -45,7 +45,7 @@ export const formatDataForCharts = (data, words) => {
             formattedData.push([year]); // FIXME: Perhaps cast year to an int
         }
     }
-    
+
     words.forEach(word => {
         formattedData[0].push(word); // push each word to the first row
         for (let index = 1; index < formattedData.length; index++) {
@@ -117,16 +117,15 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
         if (objectiveWords.includes(word)) {
             colorClass = 1;
             console.log("Set color class 1");
-            
+
         } else {
             colorClass = 0;
         }
 
-
-
         const weight = word1.value;
-        let node = createNode(word, weight, colorClass, word);
+        let node = createNode(word, weight, colorClass, word, nodes);
         nodes.push(node);
+
     });
 
 
@@ -144,7 +143,7 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
             }
         }
     }
-    return { nodes, links: edges };
+    return { nodes, edges };
 }
 
 const isInNodes = (node, nodes) => {
@@ -163,8 +162,9 @@ const isInNodes = (node, nodes) => {
  * @param {number} weight 
  * @param {number} colorClass 
  * @param {string} label 
+ * @param {[Object]} nodes 
  */
-const createNode = (id, weight, colorClass, label) => {
+const createNode = (id, weight, colorClass, label, nodes) => {
     if (typeof id !== 'string') {
         throw new TypeError(`Node id was not a string: ${typeof id}`)
     }
@@ -177,7 +177,8 @@ const createNode = (id, weight, colorClass, label) => {
     if (typeof label !== 'string') {
         throw new TypeError(`Node label was not a string: ${typeof label}`)
     }
-    return { id, weight, colorClass, label }
+    let newNode = { id, weight, color: "#e09c41", colorClass, label, title: "This is a title" }
+    return newNode;
 }
 
 /**
@@ -187,7 +188,7 @@ const createNode = (id, weight, colorClass, label) => {
  * @param {Number} weight 
  */
 const createEdge = (source, target, weight) => {
-    if (typeof source !==  'string') {
+    if (typeof source !== 'string') {
         throw new TypeError(`Edge source was not a string: ${typeof source}`)
     }
     if (typeof target !== 'string') {
@@ -199,7 +200,7 @@ const createEdge = (source, target, weight) => {
 
     const normWeight = weight * 20;
 
-    return { "source": source, "target": target, weight: normWeight }
+    return { "from": source, "to": target, weight: normWeight }
 }
 
 

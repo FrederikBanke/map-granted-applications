@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import PropTypes from 'prop-types'
-import Graph from "react-graph-network";
+// import Graph from "react-graph-network";
+import Graph from "react-graph-vis";
 import { callApi, formatWordWeightsData, sortWordWeights, scaleWordWeights } from '../../util/api';
 import { formatDataForCoOccurrenceMatrix, findMaxValue } from '../../util/charts';
 import { subsetProjects, combineTexts, extractProjectObjectives } from '../../util/projects';
@@ -31,32 +32,37 @@ const CooccurrenceMap = props => {
         //     .then(res => {
         // let formattedWeightsData = formatWordWeightsData(res.wordWeights);
         // let weights = sortWordWeights(formattedWeightsData);
-        callApi('cooccurrencematrix', 'POST', {
-            // "texts": res.filteredObjectives,
-            "texts": props.objectives,
-            "vocabulary": getTermsFromList(props.wordWeights)
-        })
-            .then((vocabAndMatrix) => {
-                let scaledWeights = scaleWordWeights(props.wordWeights, 1000);
-                let normWeights = sizeNormalizer(scaledWeights);
-                const flattenedMatrix = vocabAndMatrix.coOccurrenceMatrix.flat();
-                let sumMatrix = flattenedMatrix.reduce((a, b) => {
-                    return a + b;
-                }, 0);
+        if (props.wordWeights.length > 0) {
+            callApi('cooccurrencematrix', 'POST', {
+                // "texts": res.filteredObjectives,
+                "texts": props.objectives,
+                "vocabulary": getTermsFromList(props.wordWeights)
+            })
+                .then((vocabAndMatrix) => {
+                    let scaledWeights = scaleWordWeights(props.wordWeights, 1000);
+                    let normWeights = sizeNormalizer(scaledWeights);
+                    const flattenedMatrix = vocabAndMatrix.coOccurrenceMatrix.flat();
+                    let sumMatrix = flattenedMatrix.reduce((a, b) => {
+                        return a + b;
+                    }, 0);
 
-                const threshold = sumMatrix / (flattenedMatrix.length);
+                    const threshold = sumMatrix / (flattenedMatrix.length);
 
-                let formattedMatrixData = formatDataForCoOccurrenceMatrix(
-                    vocabAndMatrix.vocabulary, normWeights,
-                    vocabAndMatrix.coOccurrenceMatrix, threshold,
-                    props.wordsToColor
-                );
+                    let formattedMatrixData = formatDataForCoOccurrenceMatrix(
+                        vocabAndMatrix.vocabulary, normWeights,
+                        vocabAndMatrix.coOccurrenceMatrix, threshold,
+                        props.wordsToColor
+                    );
 
-                setMatrixData(formattedMatrixData);
-            });
-        // });
+                    setMatrixData(formattedMatrixData);
+                });
+            // });
 
-    }, [props.projects]);
+        }
+        return () => {
+            setMatrixData(null);
+        }
+    }, [props.wordWeights]);
 
     const getColor = colorClass => {
         const colors = [
@@ -180,20 +186,36 @@ const CooccurrenceMap = props => {
         return normalizedWeights;
     }
 
+    const options = {
+        layout: {
+            hierarchical: false
+        },
+        edges: {
+            color: "#000000"
+        }
+    }
+
+    const events = {
+        select: event => {
+            let { nodes, edges } = event;
+            // console.log("Selected nodes:", nodes);
+            // console.log("Selected edges:", edges);
+        }
+    }
+
+    const graphStyle = {
+        height: "640px"
+    }
 
     return (
         <div style={containerStyle}>
             {console.log("coocmap render")}
             {
                 matrixData ? <Graph
-                    data={matrixData}
-                    NodeComponent={Node}
-                    LineComponent={Line}
-                    nodeDistance={500}
-                    zoomDepth={3}
-                    hoverOpacity={0.3}
-                    enableDrag={true}
-                    pullIn={true}
+                    graph={matrixData}
+                    options={options}
+                    events={events}
+                    style={graphStyle}
                 />
                     : null
             }
