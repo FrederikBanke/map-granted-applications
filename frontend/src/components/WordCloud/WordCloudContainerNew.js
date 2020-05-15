@@ -30,7 +30,7 @@ const WordCloudContainerNew = props => {
  */
     const setWordCloudColor = word => {
         if (props.compare) {
-            if (isWordInList(word, props.wordsToCompare)) {
+            if (isWordInList(word.text, props.wordsToCompare)) {
                 return getQuaternaryColor();
             }
             return "#000000";

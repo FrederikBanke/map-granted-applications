@@ -86,7 +86,7 @@ export default function WordCloudContainer(props) {
      */
     const setWordColor = word => {
         if (props.compare) {
-            if (isWordInList(word, props.wordsToCompare)) {
+            if (isWordInList(word.text, props.wordsToCompare)) {
                 return getQuaternaryColor();
             }
             return "#000000";

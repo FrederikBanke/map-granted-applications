@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 // import Graph from "react-graph-network";
 import Graph from "react-graph-vis";
 import { callApi, formatWordWeightsData, sortWordWeights, scaleWordWeights } from '../../util/api';
-import { formatDataForCoOccurrenceMatrix, findMaxValue } from '../../util/charts';
+import { formatDataForCoOccurrenceMatrix, findMaxValue, findMinValue } from '../../util/charts';
 import { subsetProjects, combineTexts, extractProjectObjectives } from '../../util/projects';
 import { getTermsFromList } from '../../util/weights';
 import { getQuaternaryColor, getQuinaryColor, getPrimaryColor, getSecondaryColor, getTertiaryColor, getVisualPrimaryColor, getVisualSecondaryColor, getVisualPrimaryColorLight, getVisualSecondaryColorLight, getVisualQuaternaryColor, getVisualQuaternaryColorLight } from '../../util/colors';
@@ -12,11 +12,58 @@ const CooccurrenceMap = props => {
     const [matrixData, setMatrixData] = useState(null);
     const [maxWeight, setMaxWeight] = useState(null);
     const [minWeight, setMinWeight] = useState(null);
+    const [threshold, setThreshold] = useState(50);
+    const [inputNumber, setInputNumber] = useState(50);
+    const [graphOptions, setGraphOptions] = useState({
+        layout: {
+            hierarchical: false
+        },
+        physics: {
+            enabled: true,
+            solver: "forceAtlas2Based",
+            barnesHut: {
+                // springLength: 10,
+                avoidOverlap: 0.8
+            },
+            forceAtlas2Based: {
+                avoidOverlap: 0.8
+            }
+        },
+        edges: {
+            color: {
+                inherit: 'both',
+                opacity: 0.7
+            },
+            smooth: {
+                enabled: true,
+                type: 'dynamic'
+            },
+            physics: true,
+            arrows: {
+                to: {
+                    enabled: false
+                }
+            }
+        },
+        nodes: {
+            font: {
+                color: "#ffffff"
+            },
+            scaling: {
+                label: {
+                    enabled: false,
+                    drawThreshold: 1
+                }
+            },
+            shape: 'box',
+            // mass: 5
+        }
+    });
 
     const containerStyle = {
         width: "100%",
-        height: "1000px",
-        backgroundColor: "#a1a1a1"
+        height: "fit-content",
+        // backgroundColor: "#a1a1a1"
     }
 
 
@@ -24,14 +71,6 @@ const CooccurrenceMap = props => {
      * When projects changes, filter objectives such that words that are not important are removed. 
      */
     useEffect(() => {
-
-        // callApi('filterobjectives', 'POST', {
-        //     texts: extractProjectObjectives(props.projects),
-        //     weights: props.wordWeights
-        // })
-        //     .then(res => {
-        // let formattedWeightsData = formatWordWeightsData(res.wordWeights);
-        // let weights = sortWordWeights(formattedWeightsData);
         if (props.wordWeights.length > 0) {
             callApi('cooccurrencematrix', 'POST', {
                 // "texts": res.filteredObjectives,
@@ -41,16 +80,10 @@ const CooccurrenceMap = props => {
                 .then((vocabAndMatrix) => {
                     let scaledWeights = scaleWordWeights(props.wordWeights, 1000);
                     let normWeights = sizeNormalizer(scaledWeights);
-                    const flattenedMatrix = vocabAndMatrix.coOccurrenceMatrix.flat();
-                    let sumMatrix = flattenedMatrix.reduce((a, b) => {
-                        return a + b;
-                    }, 0);
-
-                    const threshold = sumMatrix / (flattenedMatrix.length);
 
                     let formattedMatrixData = formatDataForCoOccurrenceMatrix(
                         vocabAndMatrix.vocabulary, normWeights,
-                        vocabAndMatrix.coOccurrenceMatrix, threshold,
+                        vocabAndMatrix.coOccurrenceMatrix, threshold / 1000,
                         props.wordsToColor
                     );
 
@@ -62,7 +95,7 @@ const CooccurrenceMap = props => {
         return () => {
             setMatrixData(null);
         }
-    }, [props.wordWeights]);
+    }, [props.wordWeights, threshold]);
 
     const getColor = colorClass => {
         const colors = [
@@ -72,79 +105,6 @@ const CooccurrenceMap = props => {
 
         return colors[colorClass];
     }
-
-    const Line = ({ link, ...restProps }) => {
-        // console.log(data.nodes);
-
-        const sourceNode = matrixData.nodes.find((value) => {
-            // console.log(`${link.source}`);
-
-            if (typeof link.source !== 'string') {
-                return false
-                throw new TypeError(`link.source is not a string. It is ${typeof link.source}`)
-            }
-
-
-            return value.id === link.source;
-        });
-
-        if (typeof sourceNode === 'undefined') {
-            return <line
-                {...restProps}
-                stroke={"#000000c0"}
-                strokeWidth={link.weight}
-            />
-            throw new TypeError(`Could not find node with id: ${link.source}`)
-        }
-
-        const color = getColor(sourceNode.colorClass)[1] + "c0";
-        return (
-            <line
-                {...restProps}
-                stroke={color}
-                strokeWidth={link.weight}
-            />
-        )
-    };
-
-    const fontSize = 12;
-
-    const Node = ({ node }) => {
-        // colors
-        // const familyMatch = node.family.match(/Tolst|Trubetsk|Volkonsk|Gorchakov/);
-        // const stroke = colorSwitch(familyMatch);
-        const [fillColor, strokeColor] = getColor(node.colorClass);
-
-
-        // sizes
-        const sizes = {
-            radius: node.weight,
-            textSize: fontSize,
-            textX: -3,
-            textY: 0,
-        };
-
-
-        return (
-            <>
-                <circle
-                    fill={fillColor}
-                    stroke={strokeColor}
-                    // strokeWidth={2}
-                    r={sizes.radius}
-                />
-                <g style={{ fontSize: sizes.textSize + 'px' }}>
-                    <text
-                        x={sizes.textX}
-                        y={sizes.textY}
-                    >
-                        {node.label}
-                    </text>
-                </g>
-
-            </>
-        );
-    };
 
     const findMaxWord = (data) => {
         let max = { text: null, value: 0 }
@@ -190,16 +150,72 @@ const CooccurrenceMap = props => {
         layout: {
             hierarchical: false
         },
+        physics: {
+            enabled: true,
+            solver: "forceAtlas2Based",
+            barnesHut: {
+                // springLength: 10,
+                avoidOverlap: 0.8
+            },
+            forceAtlas2Based: {
+                avoidOverlap: 0.8
+            }
+        },
         edges: {
-            color: "#000000"
+            color: {
+                inherit: 'both',
+                opacity: 0.7
+            },
+            smooth: {
+                enabled: true,
+                type: 'dynamic'
+            },
+            physics: true,
+            arrows: {
+                to: {
+                    enabled: false
+                }
+            }
+        },
+        nodes: {
+            font: {
+                color: "#ffffff"
+            },
+            scaling: {
+                label: {
+                    enabled: false,
+                    drawThreshold: 1
+                }
+            },
+            shape: 'box',
+            // mass: 5
         }
+    }
+
+
+    const onInputChange = event => {
+        let value = parseInt(event.target.value);
+        if (isNaN(value)) {
+            value = 1;
+        }
+        // TODO: Make it so if a number over 1000 is entered, it will automatically be reduced to 1000.
+        if (1 <= value && value <= 100) {
+            setInputNumber(value);
+        } else {
+            setInputNumber(100);
+        }
+    }
+
+    const onClickSetThreshold = () => {
+        setMatrixData(null);
+        setThreshold(inputNumber);
     }
 
     const events = {
         select: event => {
             let { nodes, edges } = event;
-            // console.log("Selected nodes:", nodes);
-            // console.log("Selected edges:", edges);
+            console.log("Selected nodes:", nodes);
+            console.log("Selected edges:", edges);
         }
     }
 
@@ -209,17 +225,25 @@ const CooccurrenceMap = props => {
 
     return (
         <div style={containerStyle}>
-            {console.log("coocmap render")}
-            {
-                matrixData ? <Graph
-                    graph={matrixData}
-                    options={options}
-                    events={events}
-                    style={graphStyle}
-                />
-                    : null
-            }
-
+            <br />
+            <input style={{ width: "40px" }} type="number" min={1} max={100} onChange={onInputChange} defaultValue={threshold} />
+            <br />
+            <button onClick={onClickSetThreshold}>Click to set new link threshold</button>
+            <div style={{ height: "640px" }}>
+                {
+                    matrixData ? <Graph
+                        graph={matrixData}
+                        options={graphOptions}
+                        events={events}
+                        style={graphStyle}
+                    />
+                        : null
+                }
+            </div>
+            <p>The <span style={{ color: getVisualPrimaryColor() }}>blue</span> colored nodes are the words that are important for the active project.</p>
+            <p>Edge thickness signifies how often two terms (nodes) co-occur.</p>
+            <p>Node size means nothing.</p>
+            <p>Edge length means nothing</p>
         </div>
     )
 }

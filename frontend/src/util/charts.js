@@ -1,3 +1,6 @@
+import { isWordInList } from "./wordCloud";
+import { getVisualPrimaryColor, getVisualSecondaryColor } from "./colors";
+
 /**
  * Function for formatting the data, so it works with the google charts.
  * 
@@ -95,10 +98,10 @@ const findRow = (list, term) => {
  * @param {[]} vocabulary 
  * @param {[Object]} wordWeights
  * @param {[[]]} coOccurrenceMatrix 
- * @param {[]} objectiveWords Words in chosen project
+ * @param {[]} wordsToColor Words in chosen project
  * @returns {Object}
  */
-export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccurrenceMatrix, coOccurrenceThreshold = 0, objectiveWords) => {
+export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccurrenceMatrix, coOccurrenceThreshold = 0, wordsToColor, minEdge, maxEdge) => {
     let nodes = [];
     let edges = [];
 
@@ -113,17 +116,16 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
         if (word1 === undefined) {
             throw new TypeError(`word1 is undefined. Could not find '${word}' in word weights list.`)
         }
-        let colorClass;
-        if (objectiveWords.includes(word)) {
-            colorClass = 1;
-            console.log("Set color class 1");
+        let color;
+        if (wordsToColor.includes(word)) {
+            color = getVisualPrimaryColor();
 
         } else {
-            colorClass = 0;
+            color = getVisualSecondaryColor();
         }
 
         const weight = word1.value;
-        let node = createNode(word, weight, colorClass, word, nodes);
+        let node = createNode(word, weight, color, word, nodes);
         nodes.push(node);
 
     });
@@ -135,7 +137,7 @@ export const formatDataForCoOccurrenceMatrix = (vocabulary, wordWeights, coOccur
             const sourceNode = vocabulary[row];
             const targetNode = vocabulary[column];
             if (coOccurrenceValue >= coOccurrenceThreshold) {
-                let edge = createEdge(sourceNode, targetNode, coOccurrenceValue);
+                let edge = createEdge(sourceNode, targetNode, coOccurrenceValue, coOccurrenceThreshold);
                 edges.push(edge);
             } else {
                 // let edge = createEdge(sourceNode, targetNode, 0, minEdgeSize, maxEdgeSize);
@@ -160,25 +162,34 @@ const isInNodes = (node, nodes) => {
  * Create node for co-occurrence map.
  * @param {string} id 
  * @param {number} weight 
- * @param {number} colorClass 
+ * @param {string} color 
  * @param {string} label 
  * @param {[Object]} nodes 
  */
-const createNode = (id, weight, colorClass, label, nodes) => {
+const createNode = (id, weight, color, label, wordsToCompare) => {
     if (typeof id !== 'string') {
         throw new TypeError(`Node id was not a string: ${typeof id}`)
     }
     if (typeof weight !== 'number') {
         throw new TypeError(`Node weight was not a number: ${typeof weight}`)
     }
-    if (typeof colorClass !== 'number') {
-        throw new TypeError(`Node colorClass was not a number: ${typeof colorClass}`)
+    if (typeof color !== 'string') {
+        throw new TypeError(`Node colorClass was not a number: ${typeof color}`)
     }
     if (typeof label !== 'string') {
         throw new TypeError(`Node label was not a string: ${typeof label}`)
     }
-    let newNode = { id, weight, color: "#e09c41", colorClass, label, title: "This is a title" }
-    return newNode;
+    isWordInList(id, wordsToCompare)
+    return {
+        id,
+        title: "This is a title",
+        color,
+        label,
+        // widthConstraint: weight*10,
+        // font: {
+        //     size: weight // Nodes are scaled after the labe, so this scales node sizes
+        // }
+    }
 }
 
 /**
@@ -187,7 +198,7 @@ const createNode = (id, weight, colorClass, label, nodes) => {
  * @param {String} target 
  * @param {Number} weight 
  */
-const createEdge = (source, target, weight) => {
+const createEdge = (source, target, weight, minValue=0, maxValue=1) => {
     if (typeof source !== 'string') {
         throw new TypeError(`Edge source was not a string: ${typeof source}`)
     }
@@ -197,24 +208,26 @@ const createEdge = (source, target, weight) => {
     if (typeof weight !== 'number') {
         throw new TypeError(`Edge weight was not a number: ${typeof weight}`)
     }
+    const width = sizeNormalizer(weight, minValue, maxValue, 1, 100);
+    const length = 1100 - sizeNormalizer(weight, minValue, maxValue, 100, 1000);
+    // const length = 300 - Math.pow(3, weight);
+    // const width = Math.pow(10, (weight+1)*10);
 
-    const normWeight = weight * 20;
-
-    return { "from": source, "to": target, weight: normWeight }
+    return { "from": source, "to": target, width}
 }
 
 
 /**
  * Normalize number.
  * @param {Number} value 
- * @param {Number} min 
- * @param {Number} max 
+ * @param {Number} minValue 
+ * @param {Number} maxValue 
  * @param {Number} minLimit 
  * @param {Number} maxLimit 
  * @returns {Number}
  */
-export const sizeNormalizer = (value, min, max, minLimit, maxLimit) => {
-    let normalizedSize = (maxLimit - minLimit) / (max - min) * (value - max) + maxLimit;
+export const sizeNormalizer = (value, minValue, maxValue, minLimit, maxLimit) => {
+    let normalizedSize = (maxLimit - minLimit) / (maxValue - minValue) * (value - maxValue) + maxLimit;
 
     return normalizedSize;
 }
