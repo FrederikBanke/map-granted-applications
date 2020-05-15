@@ -9,7 +9,7 @@
  */
 export const callApi = (endpoint, method = 'GET', body = null) => {
     if (method === 'GET') {
-        return fetch(`http://localhost:8000/api/${endpoint}/`, {
+        return fetch(`${process.env.REACT_APP_BACKEND}/api/${endpoint}/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
