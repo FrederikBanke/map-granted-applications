@@ -173,18 +173,24 @@ function App() {
             })
     }
 
+    /**
+     * Add new term scores for each year.
+     * @param {Object} termScores 
+     */
     const addNewTermYearScores = (termScores) => {
-        let oldScores = { ...weightsByYear };
         let newScores = {}
-        for (const year in oldScores) {
-            if (oldScores.hasOwnProperty(year)) {
-                const yearWeights = oldScores[year];
-                const newYearScores = termScores[year];
-                yearWeights.push(...newYearScores);
-                newScores[year] = yearWeights;
-            }
-        }
-
+        let oldScores = { ...weightsByYear };
+        let allYears = Object.keys(oldScores);
+        allYears.push(...Object.keys(termScores));
+        allYears = allYears.filter(distinct);
+        
+        allYears.forEach(year => {
+            let yearWeights = termScores[year] || [];
+            const oldYearScores = oldScores[year] || [];
+            yearWeights.push(...oldYearScores);
+            newScores[year] = yearWeights;
+        });
+        
         setWeightsByYear(newScores);
     }
 
@@ -224,6 +230,7 @@ function App() {
         setChosenWordsTL(newChosen.filter(distinct));
         let newActive = [suggestionValue, ...activeWordsTL];
         setActiveWordsTL(newActive.filter(distinct));
+        setSuggestionValue('');
 
         getScoresForTerms(suggestionValue)
             .then(scores => {
@@ -567,12 +574,12 @@ function App() {
     }
 
     const renderOverlay = (projectId) => (
-            viewProjectOverlay
-                ? (
-                    <Overlay onClickClose={setViewProjectOverlay}>
-                        <ProjectView onProjectChange={onProjectChange} id={projectId} />
-                    </Overlay>
-                ) : null
+        viewProjectOverlay
+            ? (
+                <Overlay onClickClose={setViewProjectOverlay}>
+                    <ProjectView onProjectChange={onProjectChange} id={projectId} />
+                </Overlay>
+            ) : null
     )
 
     return (
