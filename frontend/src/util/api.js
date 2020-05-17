@@ -9,7 +9,7 @@
  */
 export const callApi = (endpoint, method = 'GET', body = null) => {
     if (method === 'GET') {
-        return fetch(`${process.env.REACT_APP_BACKEND}/api/${endpoint}/`, {
+        return fetch(`http://147.78.30.252/api/${endpoint}/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
