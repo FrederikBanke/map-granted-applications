@@ -637,7 +637,7 @@ function App() {
                         <span style={{ fontSize: "13px" }} data-tip="This tab will display the 5 most important words in the n closest projects as a chart <br /> showing how important they were each year.<br /> Importance is based on TFIDF. <br /> You can also search for words to add more." > ❔</span>
                     </Tab>
                     <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()} >
-                        <span style={{ fontSize: "13px" }} data-tip="This tab will display a graph with the 50 most important words from the n most similar projects.<br /> The nodes (words) will be connected if there co-occurrence value passes a certain threshold.<br /> The thickness of the edges are based on the co-occurrence values. Thicker is higher.<br /> Co-occurrence is normalized using Association Strength."> ❔</span>
+                        <span style={{ fontSize: "13px" }} data-tip="This tab will display a graph with the 50 most important words from the n most similar projects.<br /> The nodes (words) will be connected if their co-occurrence value passes a certain threshold.<br /> The thickness of the edges are based on the co-occurrence values. Thicker is higher.<br /> Co-occurrence is normalized using Association Strength."> ❔</span>
                     </Tab>
                 </TabsContainer>
                 <hr />
