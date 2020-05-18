@@ -129,6 +129,12 @@ function App() {
     useEffect(() => {
         const abortController1 = new AbortController()
         const signal1 = abortController1.signal
+
+        const abortController2 = new AbortController()
+        const signal2 = abortController2.signal
+
+        const abortController3 = new AbortController()
+        const signal3 = abortController3.signal
         if (currentProjectExists()) {
             getSimilarProjects(signal1)
                 .then(similarProjects => {
@@ -136,7 +142,7 @@ function App() {
                         "text": extractProjectObjectives([currentProject]),
                         "user_project": null,
                         "refit": true
-                    })
+                    }, signal2)
                         .then(weightDict => {
                             let formattedData = formatWordWeightsData(weightDict);
                             let sortedWordWeights = sortWordWeights(formattedData);
@@ -147,7 +153,7 @@ function App() {
                     callApi('wordweight', 'POST', {
                         "text": extractProjectObjectives(similarProjects.slice(0, topNumber)),
                         "user_project": null
-                    })
+                    }, signal3)
                         .then(weightDict => {
                             let formattedData = formatWordWeightsData(weightDict);
                             let sortedWordWeights = sortWordWeights(formattedData);
@@ -167,6 +173,8 @@ function App() {
 
         return () => {
             abortController1.abort()
+            abortController2.abort()
+            abortController3.abort()
         }
     }, [currentProject, topNumber]);
 
