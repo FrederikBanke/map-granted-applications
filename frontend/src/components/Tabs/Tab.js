@@ -1,5 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import "./Tab.css"
 
 const Tab = (props) => {
     const onClickHandler = () => {
@@ -9,8 +10,12 @@ const Tab = (props) => {
     }
 
     return (
-        <div style={props.styleFunc(props.id)} onClick={onClickHandler}>
-            <p>{props.text}</p>
+        <div>
+
+        <button className="tabButton" style={props.styleFunc(props.id)} onClick={onClickHandler}>
+            {props.text}
+        </button>
+        {React.Children.map(props.children, child => child)}
         </div>
     )
 }
@@ -20,7 +25,7 @@ Tab.propTypes = {
     text: PropTypes.string.isRequired,
     onClick: PropTypes.func,
     styleFunc: PropTypes.func,
-    isEnabled: PropTypes.bool
+    isEnabled: PropTypes.bool,
 }
 
 export default Tab

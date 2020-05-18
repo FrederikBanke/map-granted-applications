@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import WordCloud from "react-wordcloud";
 import { isWordInList } from '../../util/wordCloud';
-import { getQuaternaryColor, getRandomColor } from '../../util/colors';
+import { getQuaternaryColor, getRandomColor, getVisualQuaternaryColor, getVisualQuinaryColor, getVisualSecondaryColorLight, getVisualPrimaryColor } from '../../util/colors';
 
 const WordCloudContainerNew = props => {
 
@@ -31,9 +31,9 @@ const WordCloudContainerNew = props => {
     const setWordCloudColor = word => {
         if (props.compare) {
             if (isWordInList(word.text, props.wordsToCompare)) {
-                return getQuaternaryColor();
+                return getVisualPrimaryColor();
             }
-            return "#000000";
+            return getVisualSecondaryColorLight();
         }
         else {
             return getRandomColor();

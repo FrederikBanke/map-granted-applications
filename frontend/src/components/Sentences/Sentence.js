@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { findWordSentence } from "./../../util/findWord";
 import Overlay from '../Overlay/Overlay';
 import ProjectView from '../ProjectView/ProjectView';
-import { getQuinaryColor } from '../../util/colors';
+import { getQuinaryColor, getVisualQuinaryColor, getVisualQuaternaryColor } from '../../util/colors';
 
 /**
  * 
@@ -14,7 +14,7 @@ function Sentence(props) {
     const [textWithHL, setTextWithHL] = useState([]);
 
     const wordStyle = {
-        color: getQuinaryColor(),
+        color: getVisualQuaternaryColor(),
         fontWeight: '700'
     }
 

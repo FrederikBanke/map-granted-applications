@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Overlay from '../Overlay/Overlay';
 import { saveProject, getProjects, loadCurrentProject, saveCurrentProject, getProject, deleteProject } from '../../util/projectManagement';
 import PropTypes from "prop-types";
+import ReactTooltip from 'react-tooltip';
 
 /**
  * 
@@ -27,7 +28,7 @@ export default function ProjectSubmission(props) {
         setViewChooseProject(true);
     }
 
-    
+
     const uploadProject = () => {
         let title = prompt("Project title") || "Unnamed project";
         let objective = prompt("Project objective") || "No objective";
@@ -61,7 +62,7 @@ export default function ProjectSubmission(props) {
     const renderView = () => {
         return (
             <div>
-                <button onClick={onClickChoose}>Choose new project</button>
+                <button onClick={onClickChoose}>Choose new project</button><span style={{fontSize: "13px"}} data-tip="Upload a project with title and abstract. <br /> The abstract will be used to find the top n projects most similar to yours."> ❔</span>
                 {
                     props.currentProject ? <p>Title: {props.currentProject.title}</p> : null
                 }
@@ -75,7 +76,7 @@ export default function ProjectSubmission(props) {
                                             <p key={project.id}> <span onClick={onRemoveClick} data-projectid={project.id}>✖️</span> <span onClick={onProjectClick} data-projectid={project.id}>Title: {project.title}</span></p>
                                         ))
                                     }
-                                <button onClick={uploadProject}>Upload new project</button>
+                                    <button onClick={uploadProject}>Upload new project</button>
                                 </div>
                             </Overlay>
                         ) : null

@@ -16,3 +16,8 @@ code {
 button {
   height: fit-content;
 }
+
+
+.hover:hover, button:hover {
+  cursor: pointer;
+}
