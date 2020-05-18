@@ -77,7 +77,7 @@ def train_TFIDF(load_model=None, delete_model=False):
             print("Loading TFIDF model...")
             with open("custom_logic/src/models/" + load_model + ".sav", 'rb') as f:
                 model_loaded = pickle.load(f)
-                f.close
+                f.close()
             return model_loaded
         except FileNotFoundError:
             print("No TFIDF model exists. Making new model...")

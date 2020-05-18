@@ -25,7 +25,7 @@ SECRET_KEY = '$c$$#=#a4532ubvf(n!@9v9$27xojbifwyg^safel1uk45gu7p'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['banke-ccbf3238.localhost.run', 'localhost']
 
 
 # Application definition
@@ -127,4 +127,6 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_WHITELIST = [
     'https://localhost:3000',
     'http://localhost:3000',
+    'http://moga.banke.dev',
+    'https://moga.banke.dev'
 ]
