@@ -164,6 +164,10 @@ function App() {
                         });
                 });
         }
+
+        return () => {
+            abortController1.abort()
+        }
     }, [currentProject, topNumber]);
 
     const getScoresForTerms = (terms) => {
