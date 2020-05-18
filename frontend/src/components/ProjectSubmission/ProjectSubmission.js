@@ -32,7 +32,7 @@ export default function ProjectSubmission(props) {
     const uploadProject = () => {
         let title = prompt("Project title") || "Unnamed project";
         let objective = prompt("Project objective") || "No objective";
-        let id = prompt("Project id") || "1";
+        let id = prompt("Project id", "1") || "1";
         let newProject = {
             id,
             title,
