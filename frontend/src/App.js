@@ -107,12 +107,19 @@ function App() {
      * Effect for setting the current project on page load. Only runs one time on intial page load.
      */
     useEffect(() => {
+        const abortController = new AbortController()
+        const signal = abortController.signal
+
         setCurrentProject(loadCurrentProject());
-        callApi('getallterms')
+        callApi('getallterms', 'GET', '', signal)
             .then(allTerms => {
                 allTerms.sort();
                 setAllWords(allTerms);
             });
+
+        return () => {
+            abortController.abort()
+        }
     }, []);
 
     /**
@@ -120,8 +127,10 @@ function App() {
      * Runs every time the currently active project changes in the state.
      */
     useEffect(() => {
+        const abortController1 = new AbortController()
+        const signal1 = abortController1.signal
         if (currentProjectExists()) {
-            getSimilarProjects()
+            getSimilarProjects(signal1)
                 .then(similarProjects => {
                     callApi('wordweight', 'POST', {
                         "text": extractProjectObjectives([currentProject]),
@@ -157,7 +166,7 @@ function App() {
         }
     }, [currentProject, topNumber]);
 
-    const getScoresForTerms = terms => {
+    const getScoresForTerms = (terms) => {
         return callApi('termscoreyear', 'POST', {
             "words": terms
         })
@@ -263,8 +272,8 @@ function App() {
      * @param {Object} project The project to find similar abstracts to
      * @returns {Promise} A `Promise` where the resolved value is the extracted JSON from the API response.
      */
-    const findClosest = (project) => {
-        return callApi('closestprojects', 'POST', project);
+    const findClosest = (project, signal) => {
+        return callApi('closestprojects', 'POST', project, signal);
     }
 
     /**
@@ -312,7 +321,7 @@ function App() {
      * Will fetch new ones if there is nothing in loca storage.
      * @returns {[Object]} A list of projects
      */
-    const getSimilarProjects = () => {
+    const getSimilarProjects = (signal) => {
         let closestProjects = getClosestProjects();
         if (closestProjects) {
             setTopProjects(closestProjects);
@@ -322,7 +331,7 @@ function App() {
             console.group("GetClosestProjects");
             console.info("Calling backend for closest projects!");
             console.time("FindNewClosestProjects");
-            return findClosest(currentProject)
+            return findClosest(currentProject, signal)
                 .then(newClosestProjects => {
                     saveClosestProjects(newClosestProjects);
                     setTopProjects(newClosestProjects);

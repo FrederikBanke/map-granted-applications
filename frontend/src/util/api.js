@@ -7,14 +7,15 @@
  * @param {Object} body Request body. Default is `null`.
  * @returns {Promise} A `Promise` where the resolved value is response JSON.
  */
-export const callApi = (endpoint, method = 'GET', body = null) => {
+export const callApi = (endpoint, method = 'GET', body = null, signal = null) => {
     if (method === 'GET') {
         return fetch(`${process.env.REACT_APP_BACKEND}/api/${endpoint}/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
             },
-            mode: "cors"
+            mode: "cors",
+            signal: signal
         })
             .then(res => res.json())
     }
