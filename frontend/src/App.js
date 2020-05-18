@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import WordCloudContainer from './components/WordCloud/WordCloudContainer';
 import { callApi, sortWordWeights, formatWordWeightsData } from './util/api';
 import ListProjects from './components/ListProjects/ListProjects';
 import ProjectSubmission from './components/ProjectSubmission/ProjectSubmission';
@@ -8,7 +7,6 @@ import { loadCurrentProject, getClosestProjects, saveClosestProjects, saveCurren
 import TabsContainer from './components/Tabs/TabsContainer';
 import Tab from './components/Tabs/Tab';
 import { subsetProjects, combineTexts, extractProjectObjectives } from './util/projects';
-import WordTimeline from './components/WordTimeline/WordTimeline';
 import CooccurrenceMap from './components/CooccurrenceMap/CooccurrenceMap';
 import { getTermsFromList } from './util/weights';
 import WordTimelineNew, { WordList, WordElement } from './components/WordTimeline/WordTimelineNew';
@@ -24,6 +22,7 @@ import WordCloudContainerNew from './components/WordCloud/WordCloudContainerNew'
 import ProjectView from './components/ProjectView/ProjectView';
 import Overlay from './components/Overlay/Overlay';
 import { distinct } from './util/arrays';
+import ReactTooltip from "react-tooltip";
 
 
 function App() {
@@ -90,6 +89,7 @@ function App() {
      */
     const chooseTabStyle = (tabId) => {
         let tabStyle = {
+            height: "50px",
             width: "200px",
             margin: "10px",
             paddingLeft: "10px",
@@ -163,14 +163,10 @@ function App() {
                             if (activeWordsTL.length === 0) {
                                 setActiveWordsTL([...activeWordsTL, ...getTermsFromList(sortedWordWeights.slice(0, 5))].filter(distinct));
                             }
-                            setTimeout(() => {
-
-                                
-                                getScoresForTerms(getTermsFromList(sortedWordWeights.slice(0, 50)))
+                            getScoresForTerms(getTermsFromList(sortedWordWeights.slice(0, 50)))
                                 .then(scoresFor50 => {
                                     setWeightsByYear(scoresFor50);
                                 });
-                            }, 5000)
                         });
                 });
         }
@@ -461,11 +457,17 @@ function App() {
                     compare={compClouds()}
                     onWordClick={onActiveCloudWordClick}
                 >
-                    {simSelectedWord ? <h2>Viewing sentences where '{simSelectedWord}' occurs.</h2> : null}
+                    <p>Hint: Click a word to show it in context.</p>
+                    {activeSelectedWord ? <React.Fragment>
+                        <h2>Viewing sentences where '{activeSelectedWord}' occurs.</h2>
+                        <span style={{ fontSize: "13px" }} data-tip="Click on a sentence header to view more details."> ❔</span>
+                        <ReactTooltip place="right" effect="solid" multiline="true" />
+                    </React.Fragment>
+                        : null}
                     <SentenceList>
                         {activeSentences.length > 0 ? activeSentences.map(value => (
                             <div key={value.id}>
-                                <h3 onClick={onTitleClick} data-projectid={value.id} >Title: {value.title}</h3>
+                                <h3 className="hover" onClick={onTitleClick} data-projectid={value.id} >Title: {value.title}</h3>
                                 {
                                     value.sentences.map(sentence => (
                                         <Sentence
@@ -492,12 +494,18 @@ function App() {
                     compare={compClouds()}
                     onWordClick={onSimCloudWordClick}
                 >
-                    {simSelectedWord ? <h2>Viewing sentences where '{simSelectedWord}' occurs.</h2> : null}
+                    <p>Hint: Click a word to show it in context.</p>
+                    {simSelectedWord ? <React.Fragment>
+                        <h2>Viewing sentences where '{simSelectedWord}' occurs.</h2>
+                        <span style={{ fontSize: "13px" }} data-tip="Click on a sentence header to view more details."> ❔</span>
+                        <ReactTooltip place="right" effect="solid" multiline="true" />
+                    </React.Fragment>
+                        : null}
                     <SentenceList>
                         {
                             simSentences.length > 0 ? simSentences.map(value => (
                                 <div key={value.id} >
-                                    <h3 onClick={onTitleClick} data-projectid={value.id}>Title: {value.title}</h3>
+                                    <h3 className="hover" onClick={onTitleClick} data-projectid={value.id}>Title: {value.title}</h3>
                                     {
                                         value.sentences.map(sentence => (
                                             <Sentence
@@ -552,7 +560,6 @@ function App() {
             <ChartContainer>
                 {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "ColumnChart")}
                 {renderChart(formatDataForCharts(weightsByYear, activeWordsTL), "LineChart")}
-                <p>Note: Just beacuse a term has a score of 0, it does not necessarily mean, it was never used. It may just means, it was not among the top 10000 words that year.</p>
             </ChartContainer>
         </WordTimelineNew>
     }
@@ -611,6 +618,7 @@ function App() {
         <div className="App">
             {renderOverlay(projectIdOverview)}
             <h1>Map of most similar granted applications</h1>
+            <ReactTooltip place="right" effect="solid" multiline="true" />
             <ProjectSubmission currentProject={currentProject} onChange={onProjectChange} />
             <hr />
             <div>
@@ -622,13 +630,19 @@ function App() {
                 }
 
                 <TabsContainer>
-                    <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()} />
-                    <Tab text="Word Timeline" id={timelineTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={true} />
-                    <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()} />
+                    <Tab text="Word Cloud" id={wordCloudTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()}>
+                        <span style={{ fontSize: "13px" }} data-tip="This tab will display two word clouds.<br /> One displaying the most important words in your abstract based on Term Frequency.<br /> The other displaying the most important words in the n most similar projects based on TF-IDF."> ❔</span>
+                    </Tab>
+                    <Tab text="Word Timeline" id={timelineTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={true} >
+                        <span style={{ fontSize: "13px" }} data-tip="This tab will display the 5 most important words in the n closest projects as a chart <br /> showing how important they were each year.<br /> Importance is based on TFIDF. <br /> You can also search for words to add more." > ❔</span>
+                    </Tab>
+                    <Tab text="Co-occurence Map" id={coocTabId} onClick={onClickTab} styleFunc={chooseTabStyle} isEnabled={currentProjectExists()} >
+                        <span style={{ fontSize: "13px" }} data-tip="This tab will display a graph with the 50 most important words from the n most similar projects.<br /> The nodes (words) will be connected if there co-occurrence value passes a certain threshold.<br /> The thickness of the edges are based on the co-occurrence values. Thicker is higher.<br /> Co-occurrence is normalized using Association Strength."> ❔</span>
+                    </Tab>
                 </TabsContainer>
                 <hr />
                 < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={inputNumber} /> closest projects
-                        <button style={buttonStyle} onClick={onClickSetN}>Click to set new 'n'</button>
+                        <button style={buttonStyle} onClick={onClickSetN}>Submit</button> <span style={{ fontSize: "13px" }} data-tip="Choose how many of the closest projects should be used in the below visualizations. 1-1000"> ❔</span>
                 {
                     activeTab === wordCloudTabId
                         ? renderWordCloudTab()

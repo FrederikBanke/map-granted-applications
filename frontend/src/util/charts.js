@@ -208,7 +208,7 @@ const createEdge = (source, target, weight, minValue=0, maxValue=1) => {
     if (typeof weight !== 'number') {
         throw new TypeError(`Edge weight was not a number: ${typeof weight}`)
     }
-    const width = sizeNormalizer(weight, minValue, maxValue, 1, 100);
+    const width = sizeNormalizer(weight, minValue, maxValue, 1, 30);
     const length = 1100 - sizeNormalizer(weight, minValue, maxValue, 100, 1000);
     // const length = 300 - Math.pow(3, weight);
     // const width = Math.pow(10, (weight+1)*10);

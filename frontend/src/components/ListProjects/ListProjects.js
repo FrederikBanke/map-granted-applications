@@ -3,7 +3,8 @@ import { getSecondaryColor, getTertiaryColor, getPrimaryColor } from '../../util
 import { subsetProjects } from '../../util/projects';
 import Overlay from '../Overlay/Overlay';
 import ProjectView from '../ProjectView/ProjectView';
-import PropTypes from 'prop-types'
+import PropTypes from 'prop-types';
+import ReactTooltip from "react-tooltip";
 
 function ListProjects(props) {
     const [numberOfProjects, setNumberOfProjects] = useState(50);
@@ -14,6 +15,7 @@ function ListProjects(props) {
         height: "400px",
         width: "90%",
         margin: "auto",
+        textAlign: "center"
         // backgroundColor: getPrimaryColor(),
         // color: "whitesmoke",
     }
@@ -42,6 +44,8 @@ function ListProjects(props) {
     }
 
     const headerStyle = {
+        display: "inline-block",
+        width: "fit-content",
         margin: 0,
         marginBottom: "5px"
     }
@@ -65,10 +69,10 @@ function ListProjects(props) {
         return projectStyle2;
     }
 
-/**
- * When input changes, change state. If input is set to something greater than 1000, set state to 1000.
- * @param {Event} event DOM event
- */
+    /**
+     * When input changes, change state. If input is set to something greater than 1000, set state to 1000.
+     * @param {Event} event DOM event
+     */
     const onInputChange = event => {
         let value = parseInt(event.target.value);
         if (isNaN(value)) {
@@ -115,12 +119,15 @@ function ListProjects(props) {
                 viewProject ? renderProjectOverlay(setViewProject, props.onProjectChange, projectId) : null
             }
             <h2 style={headerStyle}>List of closest projects</h2>
-            < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={numberOfProjects} /> closest projects
-            <div style={listStyle}>
+            <br />
+            
+            <ReactTooltip place="right" effect="solid" multiline="true"/>
+            < input style={inputStyle} type="number" min={0} max={1000} onChange={onInputChange} value={numberOfProjects} /> closest projects<span style={{fontSize: "13px"}} data-tip="Choose how many of the most similar projects, you want to see. 1-1000"> ❔</span>
+            <div style={listStyle}> 
                 {
                     subsetProjects(props.projects, numberOfProjects).map((element, index) => {
                         return <div key={element.id} style={chooseElemStyle(index)} onClick={onProjectClick} data-projectid={element.id} >
-                            <h4 style={headerStyle} data-projectid={element.id} >{index + 1}: {element.title}</h4>
+                            <h4 className="hover" style={headerStyle} data-projectid={element.id} >{index + 1}: {element.title}</h4>
                             <p style={objectiveStyle} >{renderObjevtive(element.objective)}</p>
                         </div>
                     })

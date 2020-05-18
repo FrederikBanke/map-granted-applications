@@ -50,7 +50,7 @@ export function getVisualQuinaryColor() {
 
 
 export function getRandomColor() {
-    let colors = ["#FFBC42", "#D81159", "#8F2D56", "#218380", "#73D2DE"];
+    let colors = [getVisualPrimaryColor(), getVisualSecondaryColor(), getVisualTertiaryColor(), getVisualQuaternaryColor(), getVisualQuinaryColor()];
     let color = colors[Math.floor(Math.random() * colors.length)];
     return color;
 }

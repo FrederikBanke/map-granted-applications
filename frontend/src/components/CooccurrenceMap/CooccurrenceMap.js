@@ -7,6 +7,7 @@ import { formatDataForCoOccurrenceMatrix, findMaxValue, findMinValue } from '../
 import { subsetProjects, combineTexts, extractProjectObjectives } from '../../util/projects';
 import { getTermsFromList } from '../../util/weights';
 import { getQuaternaryColor, getQuinaryColor, getPrimaryColor, getSecondaryColor, getTertiaryColor, getVisualPrimaryColor, getVisualSecondaryColor, getVisualPrimaryColorLight, getVisualSecondaryColorLight, getVisualQuaternaryColor, getVisualQuaternaryColorLight } from '../../util/colors';
+import ReactTooltip from 'react-tooltip';
 
 const CooccurrenceMap = props => {
     const [matrixData, setMatrixData] = useState(null);
@@ -227,8 +228,10 @@ const CooccurrenceMap = props => {
         <div style={containerStyle}>
             <br />
             <input style={{ width: "40px" }} type="number" min={1} max={100} onChange={onInputChange} defaultValue={threshold} />
+            <span style={{ fontSize: "13px" }} data-tip="A higher threshold means a higher co-occurrence value is needed to establish an edge between nodes (1-100)."> ❔</span>
+            <ReactTooltip place="right" effect="solid" multiline="true" />
             <br />
-            <button onClick={onClickSetThreshold}>Click to set new link threshold</button>
+            <button onClick={onClickSetThreshold}>Submit</button>
             <div style={{ height: "640px" }}>
                 {
                     matrixData ? <Graph

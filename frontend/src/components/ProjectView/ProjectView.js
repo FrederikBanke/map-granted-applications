@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { callApi } from '../../util/api';
 import { getTertiaryColor } from '../../util/colors';
+import ReactTooltip from 'react-tooltip';
 
 /**
  * Type definition for Project.
@@ -115,13 +116,14 @@ const ProjectView = (props) => {
                 {project.acronym ? <p>Acronym: {project.acronym}</p> : null}
                 <p>Project dates: {project.startDate} - {project.endDate} </p>
                 <p>Funding: {project.ecMaxContribution} / {project.totalCost} </p>
-                <h2 onClick={onClickObjective} >Objective</h2>
+                <h2 className="hover" onClick={onClickObjective} >Objective</h2>
                 <p style={objectiveStyle}>{project.objective}</p>
                 <br />
                 {project.coordinator ? <p>Coordinator: {project.coordinator} {project.coordinatorCountry ? <span>({project.coordinatorCountry})</span> : null} </p> : null}
                 {project.participants ? <p>Participants: {renderList(project.participants)} </p> : null}
                 {project.projectUrl ? <p>Read more at: <a href={project.projectUrl}>{project.projectUrl}</a></p> : null}
-                <button onClick={onSaveClick}>Save and set project as active</button>
+                <button onClick={onSaveClick}>Save and set project as active</button><span style={{ fontSize: "13px" }} data-tip="Choose this project as the active project to find new closest projects."> ❔</span>
+            <ReactTooltip place="right" effect="solid" multiline="true" />
             </div>)
             : null
     )

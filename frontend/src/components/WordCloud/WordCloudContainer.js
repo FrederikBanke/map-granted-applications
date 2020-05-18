@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import WordCloud from "react-wordcloud";
 import { findWordProject } from '../../util/findWord';
 import Sentences from '../Sentences/Sentences';
-import { getRandomColor, getQuaternaryColor } from '../../util/colors';
+import { getRandomColor, getQuaternaryColor, getVisualQuinaryColor, getVisualQuaternaryColor } from '../../util/colors';
 
 /**
  * 
@@ -20,7 +20,7 @@ export default function WordCloudContainer(props) {
     const [viewSentences, setViewSentences] = useState(false);
     const [sentences, setSentences] = useState([]);
     const [currentWord, setCurrentWord] = useState("");
-    const [maxWordsInCloud, ] = useState(50);
+    const [maxWordsInCloud,] = useState(50);
 
     const containerStyle = {
         width: "100%",
@@ -87,9 +87,9 @@ export default function WordCloudContainer(props) {
     const setWordColor = word => {
         if (props.compare) {
             if (isWordInList(word.text, props.wordsToCompare)) {
-                return getQuaternaryColor();
+                return getVisualQuaternaryColor();
             }
-            return "#000000";
+            return getVisualQuinaryColor();
         }
         else {
             return getRandomColor();
@@ -117,13 +117,16 @@ export default function WordCloudContainer(props) {
             <div style={containerStyle}>
                 {
                     props.words.length > 0
-                        ? <WordCloud
-                            words={props.words}
-                            options={wordCloudOptions}
-                            minSize={wordCloudMinSize}
-                            callbacks={wordCloudCallbacks}
-                            maxWords={maxWordsInCloud}
-                        />
+                        ? <React.Fragment>
+                            <WordCloud
+                                words={props.words}
+                                options={wordCloudOptions}
+                                minSize={wordCloudMinSize}
+                                callbacks={wordCloudCallbacks}
+                                maxWords={maxWordsInCloud}
+                            />
+                           <p>Hint: Click a word to show it in context.</p>
+                        </React.Fragment>
                         : <p>Generating word cloud...</p>
                 }
             </div>
