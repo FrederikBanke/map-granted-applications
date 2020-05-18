@@ -163,10 +163,14 @@ function App() {
                             if (activeWordsTL.length === 0) {
                                 setActiveWordsTL([...activeWordsTL, ...getTermsFromList(sortedWordWeights.slice(0, 5))].filter(distinct));
                             }
-                            getScoresForTerms(getTermsFromList(sortedWordWeights.slice(0, 50)))
+                            setTimeout(() => {
+
+                                
+                                getScoresForTerms(getTermsFromList(sortedWordWeights.slice(0, 50)))
                                 .then(scoresFor50 => {
                                     setWeightsByYear(scoresFor50);
                                 });
+                            }, 5000)
                         });
                 });
         }
