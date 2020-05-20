@@ -62,7 +62,7 @@ export default function ProjectSubmission(props) {
     const renderView = () => {
         return (
             <div>
-                <button onClick={onClickChoose}>Choose new project</button><span style={{fontSize: "13px"}} data-tip="Upload a project with title and abstract. <br /> The abstract will be used to find the top n projects most similar to yours."> ❔</span>
+                <button onClick={onClickChoose}>Choose new project</button><span style={{fontSize: "13px"}} data-tip="Upload a project with title and abstract. <br /> The abstract will be used to find the top n projects most similar to yours. <br />For the project id, you can just use a number between 1-10."> ❔</span>
                 {
                     props.currentProject ? <p>Title: {props.currentProject.title}</p> : null
                 }
@@ -73,7 +73,7 @@ export default function ProjectSubmission(props) {
                                 <div style={chooseStyle}>
                                     {
                                         projectsList.map((project, index) => (
-                                            <p key={project.id}> <span onClick={onRemoveClick} data-projectid={project.id}>✖️</span> <span onClick={onProjectClick} data-projectid={project.id}>Title: {project.title}</span></p>
+                                            <p key={project.id}> <span className="hover" onClick={onRemoveClick} data-projectid={project.id}>✖️</span> <span onClick={onProjectClick} data-projectid={project.id}>Title: {project.title}</span></p>
                                         ))
                                     }
                                     <button onClick={uploadProject}>Upload new project</button>
