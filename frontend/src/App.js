@@ -159,9 +159,9 @@ function App() {
                             let sortedWordWeights = sortWordWeights(formattedData);
 
                             setSimProjectWordWeights(sortedWordWeights.slice(0, 50));
-                            setChosenWordsTL([...chosenWordsTL, ...getTermsFromList(sortedWordWeights.slice(0, 10))].filter(distinct));
-                            if (activeWordsTL.length === 0) {
-                                setActiveWordsTL([...activeWordsTL, ...getTermsFromList(sortedWordWeights.slice(0, 5))].filter(distinct));
+                            setChosenWordsTL([...getTermsFromList(sortedWordWeights.slice(0, 10))].filter(distinct));
+                            if (activeWordsTL) {
+                                setActiveWordsTL([...getTermsFromList(sortedWordWeights.slice(0, 5))].filter(distinct));
                             }
                             getScoresForTerms(getTermsFromList(sortedWordWeights.slice(0, 50)))
                                 .then(scoresFor50 => {
@@ -231,7 +231,7 @@ function App() {
     )
 
     const shouldRenderSuggestion = suggestion => (
-        suggestion.trim().length > 2 // only render when more than 2 characters entered
+        suggestion.trim().length > 1 // only render when more than 2 characters entered
     )
 
     const onChangeSearch = (event, { newValue }) => {
@@ -383,6 +383,7 @@ function App() {
             setCurrentProject(null);
             setTopProjects([]);
         }
+        
     }
 
     /**
