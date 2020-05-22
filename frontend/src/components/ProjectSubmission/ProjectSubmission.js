@@ -3,6 +3,7 @@ import Overlay from '../Overlay/Overlay';
 import { saveProject, getProjects, loadCurrentProject, saveCurrentProject, getProject, deleteProject } from '../../util/projectManagement';
 import PropTypes from "prop-types";
 import ReactTooltip from 'react-tooltip';
+import { findAvailableId } from '../../util/projects';
 
 /**
  * 
@@ -13,6 +14,7 @@ import ReactTooltip from 'react-tooltip';
 export default function ProjectSubmission(props) {
     const [projectsList, setProjectsList] = useState([]);
     const [viewChooseProject, setViewChooseProject] = useState(false);
+    const [nextId, setNextId] = useState(0);
 
     const chooseStyle = {
         backgroundColor: "white",
@@ -21,7 +23,9 @@ export default function ProjectSubmission(props) {
     };
 
     useEffect(() => {
-        setProjectsList(getProjects());
+        let projects = getProjects();
+        setNextId(findAvailableId(projects));
+        setProjectsList(projects);
     }, [props.currentProject]);
 
     const onClickChoose = () => {
@@ -32,12 +36,16 @@ export default function ProjectSubmission(props) {
     const uploadProject = () => {
         let title = prompt("Project title") || "Unnamed project";
         let objective = prompt("Project objective") || "No objective";
-        let id = prompt("Project id", getProjects().length+1) || "1";
+        // let id = prompt("Project id", getProjects().length+1) || "1";
+        let id = nextId.toString();
+        console.log("Using id:", id);
+        
         let newProject = {
             id,
             title,
             objective
         }
+        setNextId(nextId + 1);
         saveProject(newProject, chooseProject);
         chooseProject(newProject);
     }

@@ -5,14 +5,14 @@
  * @returns {[]} A list of subset
  */
 export const subsetProjects = (projects, limit) => {
-  let subProjects = [];
-  if (limit === 0) {
-    subProjects = [];
-  }
-  else {
-    subProjects = projects.slice(0, limit);
-  }
-  return subProjects;
+    let subProjects = [];
+    if (limit === 0) {
+        subProjects = [];
+    }
+    else {
+        subProjects = projects.slice(0, limit);
+    }
+    return subProjects;
 }
 
 
@@ -22,12 +22,12 @@ export const subsetProjects = (projects, limit) => {
 * @returns {string} Combined string
 */
 export const combineTexts = (projects) => {
-  let totalString = "";
-  projects.forEach(project => {
-    totalString = totalString + " " + project.objective;
-  });
+    let totalString = "";
+    projects.forEach(project => {
+        totalString = totalString + " " + project.objective;
+    });
 
-  return totalString;
+    return totalString;
 }
 
 /**
@@ -36,20 +36,20 @@ export const combineTexts = (projects) => {
  * @returns {{}} An `object` with the year as key.
  */
 export const groupProjectsByYear = (projects) => {
-  let projectsByYear = {};
+    let projectsByYear = {};
 
-  projects.forEach(value => {
-    let date = new Date(value.startDate);
-    let year = date.getUTCFullYear().toString();
+    projects.forEach(value => {
+        let date = new Date(value.startDate);
+        let year = date.getUTCFullYear().toString();
 
-    if (Object.keys(projectsByYear).includes(year)) {
-      projectsByYear[year].push(value);
-    } else {
-      // console.log(`${year} was not in object`);
-      projectsByYear[year] = [value];
-    }
-  });
-  return projectsByYear;
+        if (Object.keys(projectsByYear).includes(year)) {
+            projectsByYear[year].push(value);
+        } else {
+            // console.log(`${year} was not in object`);
+            projectsByYear[year] = [value];
+        }
+    });
+    return projectsByYear;
 }
 
 /**
@@ -58,9 +58,30 @@ export const groupProjectsByYear = (projects) => {
  * @returns {[]} A `list` containing project objectives.
  */
 export const extractProjectObjectives = projects => {
-  let objectives = [];
-  projects.forEach(project => {
-    objectives.push(project.objective);
-  });
-  return objectives;
+    let objectives = [];
+    projects.forEach(project => {
+        objectives.push(project.objective);
+    });
+    return objectives;
+}
+
+/**
+ * Find the next available id for a project.
+ * @param {[]} projects 
+ * @returns {Number} The next available id
+ */
+export const findAvailableId = projects => {
+    let id;
+    let usedIds = [];
+    projects.forEach(project => {
+        let idToPush = parseInt(project.id)
+        usedIds.push(idToPush)
+    });
+
+    for (id = 0; id < usedIds.length; id++) {
+        if (usedIds.includes(id)) { continue; }
+        else { return id }
+    }
+
+    return id;
 }
