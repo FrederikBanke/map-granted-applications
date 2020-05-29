@@ -27,7 +27,7 @@ const CooccurrenceMap = props => {
                 avoidOverlap: 0.8
             },
             forceAtlas2Based: {
-                avoidOverlap: 0.8
+                avoidOverlap: 0.5
             }
         },
         edges: {
