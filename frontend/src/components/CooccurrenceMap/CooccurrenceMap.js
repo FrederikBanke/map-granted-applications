@@ -229,6 +229,7 @@ const CooccurrenceMap = props => {
         <div style={containerStyle}>
             <br />
             <input style={{ width: "40px" }} type="number" min={1} max={100} onChange={onInputChange} defaultValue={threshold} />
+            <span>Threshold</span>
             <span style={{ fontSize: "13px" }} data-tip="A higher threshold means a higher co-occurrence value is needed to establish an edge between nodes (1-100)."> ❔</span>
             <ReactTooltip place="right" effect="solid" multiline="true" />
             <br />
