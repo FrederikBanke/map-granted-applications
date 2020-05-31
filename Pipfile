@@ -1,0 +1,23 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+pylint = "*"
+rope = "*"
+autopep8 = "*"
+
+[packages]
+django = "*"
+djangorestframework = "*"
+django-cors-headers = "*"
+requests = "*"
+scikit-learn = "*"
+matplotlib = "*"
+pandas = "*"
+gensim = "*"
+flake8 = "*"
+
+[requires]
+python_version = "3.7"

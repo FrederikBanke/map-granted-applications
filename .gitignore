@@ -63,3 +63,36 @@ docs/_build/
 target/
 
 .vscode/settings.json
+saved_model.doc2vec
+saved_model.doc2vec.docvecs.vectors_docs.npy
+saved_model.doc2vec.trainables.syn1neg.npy
+saved_model.doc2vec.wv.vectors.npy
+saved_tfidf_model.sav
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/frontend/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+backend/custom_logic/src/Project-2020-02-07.json
+backend/custom_logic/src/models/doc2vec_model.doc2vec.wv.vectors.npy
+backend/custom_logic/src/models/doc2vec_model.doc2vec.trainables.syn1neg.npy
+
