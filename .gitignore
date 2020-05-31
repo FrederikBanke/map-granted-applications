@@ -96,3 +96,4 @@ backend/custom_logic/src/Project-2020-02-07.json
 backend/custom_logic/src/models/doc2vec_model.doc2vec.wv.vectors.npy
 backend/custom_logic/src/models/doc2vec_model.doc2vec.trainables.syn1neg.npy
 
+backend/custom_logic/src/models/*
