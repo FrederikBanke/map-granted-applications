@@ -599,6 +599,11 @@ function App() {
                             title: 'Word score',
                             minValue: 0,
                         },
+                        animation: {
+                            duration: 1000,
+                            easing: 'out',
+                            startup: true
+                        }
                     }}
                 // legendToggle
                 />
