@@ -21,10 +21,10 @@ const CooccurrenceMap = props => {
         },
         physics: {
             enabled: true,
-            solver: "forceAtlas2Based",
+            solver: "barnesHut",
             barnesHut: {
                 // springLength: 10,
-                avoidOverlap: 0.8
+                avoidOverlap: 0.5
             },
             forceAtlas2Based: {
                 avoidOverlap: 0.5
