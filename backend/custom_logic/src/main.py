@@ -123,29 +123,3 @@ def get_all_terms():
             weigths = get_weights_for_each_year()
             all_term_scores = utils.save_all_terms(weigths)
     return all_term_scores
-
-
-"""
-# Make "sanity check" on the model. Use training data as test data, to see if abstracts are most similar to themselves
-ranks = []
-second_ranks = []
-for doc_id in range(len(train_corpus)):
-    inferred_vector = model.infer_vector(train_corpus[doc_id].words)
-    sims = model.docvecs.most_similar(
-        [inferred_vector], topn=len(model.docvecs))
-    rank = [docid for docid, sim in sims].index(doc_id)
-    ranks.append(rank)
-
-    second_ranks.append(sims[1])
-
-counter = collections.Counter(ranks)
-print("Counter {}".format(counter))
-
-# Show the most, second most and least similar abstracts to an abstract
-print('Document ({}): «{}»\n'.format(
-    doc_id, ' '.join(train_corpus[doc_id].words)))
-print(u'SIMILAR/DISSIMILAR DOCS PER MODEL %s:\n' % model)
-for label, index in [('MOST', 0), ('SECOND-MOST', 1), ('MEDIAN', len(sims)//2), ('LEAST', len(sims) - 1)]:
-    print(u'%s %s: «%s»\n' %
-          (label, sims[index], ' '.join(train_corpus[sims[index][0]].words)))
-"""
