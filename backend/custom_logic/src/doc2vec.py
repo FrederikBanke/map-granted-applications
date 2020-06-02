@@ -3,6 +3,7 @@ from custom_logic.src.utils import print_done, print_progress
 import custom_logic.src.api as api
 import custom_logic.src.text_processing as tp
 import custom_logic.src.main as main
+import collections
 
 
 def train_doc2vec_model(delete_model=False):
@@ -61,6 +62,8 @@ def train_new_doc2vec_model():
 
     doc2vec_model.save('custom_logic/src/models/doc2vec_model.doc2vec')
 
+    # sanity_check(train_corpus, doc2vec_model)
+
     return doc2vec_model
 
 
@@ -73,10 +76,9 @@ def create_tag_doc(projects, TFIDF_model):
     # NOTE: When using project id as tag for document, it must be converted to a string, otherwise they may change.
 
     # import custom_logic.src.text_processing as tp
-    td = [TaggedDocument(
-        tp.abstract_to_clean_list(abstracts[i], TFIDF_model),
-        [str(projects["id"][i])]
-    ) for i in range(len(projects)) if isinstance(abstracts[i], str)]
+    td = [TaggedDocument(tp.abstract_to_clean_list(abstracts[i], TFIDF_model),[str(projects["id"][i])]) 
+    # td = [TaggedDocument(tp.abstract_to_clean_list(abstracts[i], TFIDF_model),[i]) # used for sanity check
+    for i in range(len(projects)) if isinstance(abstracts[i], str)]
     print_done("Create TaggedDocument")
 
     return td
@@ -96,3 +98,21 @@ def abstract_to_vector(doc2vec_model, abstract, TFIDF_model):
     abstract_clean = tp.abstract_to_clean_list(abstract, TFIDF_model)
     abstract_vec = doc2vec_model.infer_vector(abstract_clean)
     return abstract_vec
+
+def sanity_check(train_corpus, model):
+    print("Checking sanity...")
+    # Make "sanity check" on the model. Use training data as test data, to see if abstracts are most similar to themselves
+    ranks = []
+    second_ranks = []
+    for doc_id in range(len(train_corpus)):
+        if (doc_id % 200 == 0):
+            print(doc_id)
+        inferred_vector = model.infer_vector(train_corpus[doc_id].words)
+        sims = model.docvecs.most_similar([inferred_vector], topn=len(model.docvecs))
+        rank = [docid for docid, sim in sims].index(doc_id)
+        ranks.append(rank)
+
+        second_ranks.append(sims[1])
+
+    counter = collections.Counter(ranks)
+    print("Counter {}".format(dict(sorted(list(counter.items()))[0:10])))
