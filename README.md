@@ -1,7 +1,7 @@
 # map-granted-applications
 A Bachelor Project in Computer Science. Topic: Map of Granted Application Topics
 
-The application can be tested at <a href="https://moga.banke.dev/"> `https://moga.banke.dev/`</a>.
+The application can be tested at <a href="https://moga.banke.dev/"> `https://moga.banke.dev/`</a>. (server has been shutdown)
 
 Uses Python 3.7 for the back-end.
 Front-end is using JavaScript and React.
